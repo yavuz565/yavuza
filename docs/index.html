@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MIDNIGHT RAMEN 3D // MOBILE v5.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+        html, body {
+            background-color: #000; color: #fff; font-family: 'Rajdhani', sans-serif;
+            overflow: hidden; width: 100vw; height: 100vh; overscroll-behavior: none;
+        }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
+        #canvas-container canvas { display: block; }
+
+        .vignette-overlay {
+            position: absolute; inset: 0; z-index: 6; pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.5) 100%);
+        }
+
+        .crosshair {
+            position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: #fff;
+            border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+        }
+        .crosshair.interact { transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 12px #ffb703; }
+        .crosshair.danger { transform: translate(-50%, -50%) scale(3); background: #ff1111; box-shadow: 0 0 18px #ff1111; }
+
+        .interaction-prompt {
+            position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
+            background: rgba(14, 5, 5, 0.94); border: 2px solid #ff3333; color: #fff; padding: 10px 26px;
+            border-radius: 6px; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; z-index: 20;
+            display: none; text-align: center; pointer-events: none;
+        }
+        .interaction-prompt.urgent { border-color: #ffcc00; box-shadow: 0 0 30px rgba(255,204,0,0.8); animation: urgentPulse 0.4s infinite; }
+        @keyframes urgentPulse { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.06); } }
+        .interaction-prompt kbd {
+            background: #ff3333; color: #000; padding: 3px 10px; border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace; font-size: 1rem; margin-right: 8px;
+        }
+        .interaction-prompt.urgent kbd { background: #ffcc00; }
+
+        .customer-caption {
+            position: absolute; bottom: 4%; left: 50%; transform: translateX(-50%);
+            background: rgba(8, 8, 10, 0.8); border: 1px solid #555; padding: 5px 18px; border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #e5e7eb; letter-spacing: 1px;
+            z-index: 19; display: none; white-space: nowrap;
+        }
+
+        .hud-status { position: absolute; top: 12px; left: 12px; z-index: 20; display: flex; gap: 8px; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+        .hud-badge { background: rgba(15, 8, 8, 0.88); border: 1px solid #ff4444; padding: 4px 10px; border-radius: 4px; }
+
+        .hand-item-hud {
+            position: absolute; top: 12px; right: 12px; background: rgba(15, 8, 8, 0.92); border: 2px solid #ffb703;
+            padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: #ffb703; z-index: 20;
+        }
+
+        .esc-hint {
+            position: absolute; top: 12px; right: 12px; background: rgba(10, 10, 10, 0.7); border: 1px solid #444;
+            padding: 5px 12px; border-radius: 4px; font-size: 0.75rem; color: #94a3b8; font-family: 'Share Tech Mono', monospace; z-index: 20;
+        }
+        .quality-tag { display: none; }
+
+        .start-modal {
+            position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(20, 8, 8, 0.96) 0%, rgba(3, 1, 1, 0.98) 100%);
+            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; cursor: pointer;
+            overflow-y: auto;
+        }
+        .start-title { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; color: #ff2a2a; text-shadow: 0 0 30px rgba(255, 42, 42, 0.8); margin-bottom: 10px; letter-spacing: 2px; }
+        .start-btn {
+            background: #ff2a2a; color: #fff; border: none; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem;
+            padding: 14px 46px; border-radius: 6px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.8); cursor: pointer; letter-spacing: 2px; margin-top: 20px;
+        }
+        .start-btn:hover { background: #ff4747; }
+
+        .death-screen {
+            position: absolute; inset: 0; background: #000; z-index: 200; display: none;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;
+        }
+
+        /* ===== Rotate-device overlay (portrait warning for touch devices) ===== */
+        .rotate-overlay {
+            position: fixed; inset: 0; background: #050505; z-index: 999; display: none;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 30px;
+        }
+        .rotate-icon { font-size: 4rem; margin-bottom: 20px; animation: rotateHint 1.6s ease-in-out infinite; }
+        @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+
+        /* ===== Mobile touch controls ===== */
+        .joystick-zone {
+            position: absolute; left: 0; bottom: 0; width: 42%; height: 60%; z-index: 30; display: none; touch-action: none;
+        }
+        .joystick-base {
+            position: absolute; left: 90px; bottom: 90px; width: 110px; height: 110px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.35);
+        }
+        .joystick-knob {
+            position: absolute; left: 50%; top: 50%; width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(255,183,3,0.55); border: 2px solid #ffb703; transform: translate(-50%, -50%);
+        }
+        .look-zone {
+            position: absolute; inset: 0; z-index: 25; touch-action: none; display: none;
+        }
+        .mobile-buttons {
+            position: absolute; right: 18px; bottom: 22px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
+        }
+        .mobile-btn {
+            width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; font-weight: bold;
+            border: 2px solid #fff; color: #fff; background: rgba(20,20,20,0.7); line-height: 1.1;
+        }
+        .mobile-btn .big { font-size: 1.3rem; }
+        .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
+        .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
+        .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div class="crosshair" id="crosshair"></div>
+    <div class="vignette-overlay"></div>
+
+    <div class="interaction-prompt" id="promptText">
+        <kbd id="promptKey">E</kbd> <span id="promptLabel">RAMEN PİŞİR</span>
+    </div>
+
+    <div class="customer-caption" id="customerCaption"></div>
+
+    <div class="hud-status">
+        <div class="hud-badge">SAAT: <b style="color:#ffb703;" id="hudClock">00:00</b></div>
+        <div class="hud-badge">KASA: <b style="color:#00ff77;" id="hudMoney">$0</b></div>
+        <div class="hud-badge">MÜŞTERİ: <b style="color:#00f0ff;" id="hudCustomerType">BEKLENİYOR...</b></div>
+    </div>
+
+    <div class="esc-hint" id="escHint">Çıkış / Duraklat: [ESC]</div>
+
+    <div class="hand-item-hud" id="handItemHud">
+        <span id="handItemText">BOŞ</span>
+    </div>
+
+    <!-- touch controls -->
+    <div class="look-zone" id="lookZone"></div>
+    <div class="joystick-zone" id="joystickZone">
+        <div class="joystick-base" id="joystickBase">
+            <div class="joystick-knob" id="joystickKnob"></div>
+        </div>
+    </div>
+    <div class="mobile-buttons" id="mobileButtons">
+        <div class="mobile-btn shutter" id="btnShutter"><div class="big">🔒</div>F</div>
+        <div class="mobile-btn serve" id="btnServe"><div class="big">🍜</div>X</div>
+        <div class="mobile-btn cook" id="btnCook"><div class="big">🔥</div>E</div>
+    </div>
+
+    <div class="start-modal" id="startModal" onclick="startPlay()">
+        <h1 class="start-title">深夜拉麺 // MIDNIGHT RAMEN 3D</h1>
+        <p style="color:#d1d5db; font-size:1rem; max-width:760px; line-height:1.55; margin-bottom:16px;">
+            Gece Tokyo sokağında nöbetçi ramen dükkanındasın.<br>
+            Yağmur altından <b>İş Adamları, Öğrenciler, Gezginler ve Yaşlılar</b> tezgaha gelecek — her birinin bir ismi altta yazacak.<br>
+            <b style="color:#fef08a;">DİKKATLE BAK:</b> Gözleri simsiyah, kırmızı kedi yarığı gözlü veya devasa ağızlı olanlar <b>ANOMALİDİR</b> — ramen verme, kepengi indir!<br>
+            <b style="color:#ff6666;">DİKKAT:</b> Boynu anormal uzayanlar kepengi bir kez indirmen yetmez — <b>hızlıca tekrar bas</b> yoksa boynunu uzatıp seni yakalar!
+        </p>
+        <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#fef08a;">
+            <div>[W,A,S,D] Yürü</div>
+            <div>[MOUSE] Bak</div>
+            <div>[E] Kaseyi Doldur</div>
+            <div>[X] Tezgaha Servis Et</div>
+            <div>[F / SPACE] Kepenk İndir</div>
+        </div>
+        <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.9rem; color:#fef08a;">
+            <div>SOL ALT: Joystick ile Yürü</div>
+            <div>EKRANI SÜRÜKLE: Bak</div>
+            <div>🔥 Kaseyi Doldur</div>
+            <div>🍜 Servis Et</div>
+            <div>🔒 Kepenk İndir</div>
+        </div>
+        <button class="start-btn">DÜKKANA GİR (DOKUN)</button>
+    </div>
+
+    <div class="death-screen" id="deathScreen">
+        <h1 style="font-family:'Orbitron'; font-size:2.6rem; color:#ff1111; text-shadow:0 0 30px #ff0000; letter-spacing:3px;" id="deathTitle">ÖLDÜRÜLDÜNÜZ!</h1>
+        <p style="color:#bbb; font-size:1.15rem; margin:16px 0 25px 0; max-width:640px;" id="deathDesc">
+            İçeri aldığın varlık insan değildi. Tezgaha atlayıp seni paramparça etti...
+        </p>
+        <button class="start-btn" onclick="restartGame()">TEKRAR DENE</button>
+    </div>
+
+    <div class="rotate-overlay" id="rotateOverlay">
+        <div class="rotate-icon">📱</div>
+        <h2 style="font-family:'Orbitron'; color:#ff2a2a; margin-bottom:10px;">TELEFONU YATAY ÇEVİR</h2>
+        <p style="color:#aaa; font-family:'Share Tech Mono', monospace; font-size:0.9rem;">Bu oyun yatay modda oynanır.</p>
+    </div>
+
+    <script>
+        /* ===== AUDIO ===== */
+        let audioCtx = null;
+        function getAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function playSound(freq, type = 'sine', duration = 0.1, vol = 0.2) {
+            try {
+                const ctx = getAudio();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(vol, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+        function playCookSound() {
+            try {
+                const ctx = getAudio();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(360, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.35);
+                gain.gain.setValueAtTime(0.35, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.35);
+            } catch(e) {}
+        }
+        function playShutterClang() {
+            try {
+                const ctx = getAudio();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 0.55);
+                gain.gain.setValueAtTime(0.55, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.6);
+            } catch(e) {}
+        }
+        function playMonsterScream() {
+            try {
+                const ctx = getAudio();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(950, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(90, ctx.currentTime + 1.1);
+                gain.gain.setValueAtTime(0.7, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.1);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 1.1);
+            } catch(e) {}
+        }
+        function playLockSuccessSound() {
+            try {
+                const ctx = getAudio();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(220, ctx.currentTime);
+                osc.frequency.setValueAtTime(440, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
+
+        /* ===== DEVICE DETECTION ===== */
+        const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+        /* ===== STATE ===== */
+        let scene, camera, renderer;
+        let gameActive = false; // replaces isPointerLocked as the general "controls active" flag
+        let pitch = 0, yaw = 0;
+        const keys = { w: false, a: false, s: false, d: false };
+
+        let joystickTouchId = null;
+        let joystickCenter = { x: 0, y: 0 };
+        let joystickVector = { x: 0, y: 0 };
+        let lookTouchId = null;
+        let lookLast = { x: 0, y: 0 };
+        const JOYSTICK_RADIUS = 55;
+
+        let shutterGroup, potMesh, steamParticles, rainParticles, customer3D = null;
+        let heldBowlGroup = null;
+        let customerWalking = false;
+        let isAnomaly = false;
+        let currentAnomalyType = null;
+        let hasCookedRamen = false;
+        let shutterClosed = false;
+        let qteActive = false;
+        let qteTimeout = null;
+        let money = 0;
+        let hourIndex = 0;
+        const HOURS = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00"];
+
+        const ARCHETYPES = [
+            { id: 'salaryman', title: 'Yorgun İş Adamı', clothesColor: 0x1e293b, tie: true, skin: 0xe0af87 },
+            { id: 'student', title: 'Gece Öğrencisi', clothesColor: 0x0f766e, backpack: true, skin: 0xf3c68f },
+            { id: 'traveler', title: 'Yağmurluklu Yolcu', clothesColor: 0xb45309, hood: true, skin: 0xd4a373 },
+            { id: 'elderly', title: 'Mahalleli Yaşlı Amca', clothesColor: 0x475569, glasses: true, skin: 0xc68b59 }
+        ];
+
+        const ANOMALY_TYPES = ['black_eyes', 'slit_eyes', 'wide_mouth', 'long_neck'];
+        const CUSTOMER_NAMES = ["Kenji", "Yuki", "Haruto", "Daichi", "Aiko", "Emi", "Sato", "Watanabe", "Ren", "Sora", "Naoki", "Mika", "Isamu", "Chika", "Goro", "Sachi"];
+
+        /* ===== TEXTURES ===== */
+        function makeWoodTexture(baseColor, grainColor, repeatX, repeatY) {
+            const w = 256, h = 256;
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = baseColor;
+            ctx.fillRect(0, 0, w, h);
+            for (let i = 0; i < 40; i++) {
+                ctx.strokeStyle = grainColor;
+                ctx.globalAlpha = 0.05 + Math.random() * 0.15;
+                ctx.lineWidth = 1 + Math.random() * 2.2;
+                ctx.beginPath();
+                let y = Math.random() * h;
+                ctx.moveTo(0, y);
+                for (let x = 0; x <= w; x += 24) {
+                    y += (Math.random() - 0.5) * 14;
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(repeatX || 1, repeatY || 1);
+            return tex;
+        }
+        function makeTatamiTexture() {
+            const c = document.createElement('canvas');
+            c.width = 256; c.height = 256;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#3b2514';
+            ctx.fillRect(0, 0, 256, 256);
+            const mats = 4;
+            for (let i = 0; i <= mats; i++) {
+                ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(0, i * 256 / mats); ctx.lineTo(256, i * 256 / mats); ctx.stroke();
+            }
+            for (let x = 0; x < 256; x += 4) {
+                ctx.strokeStyle = 'rgba(0,0,0,0.09)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 256); ctx.stroke();
+            }
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(3, 2.2);
+            return tex;
+        }
+        function makeMetalTexture() {
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#b9bcc2';
+            ctx.fillRect(0, 0, 128, 128);
+            for (let i = 0; i < 160; i++) {
+                ctx.strokeStyle = `rgba(255,255,255,${Math.random() * 0.15})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                const y = Math.random() * 128;
+                ctx.moveTo(0, y); ctx.lineTo(128, y + (Math.random() - 0.5) * 6);
+                ctx.stroke();
+            }
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+        function makeFabricNoiseTexture(baseColor) {
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = baseColor;
+            ctx.fillRect(0, 0, 128, 128);
+            for (let i = 0; i < 900; i++) {
+                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
+                ctx.fillRect(Math.random() * 128, Math.random() * 128, 1, 1);
+            }
+            for (let y = 0; y < 128; y += 2) {
+                ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(128, y); ctx.stroke();
+            }
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(2, 2);
+            return tex;
+        }
+        function makeSkinTexture(baseColor) {
+            const c = document.createElement('canvas');
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = baseColor;
+            ctx.fillRect(0, 0, 128, 128);
+            for (let i = 0; i < 500; i++) {
+                ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.04})`;
+                ctx.fillRect(Math.random() * 128, Math.random() * 128, 1, 1);
+            }
+            for (let i = 0; i < 500; i++) {
+                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.04})`;
+                ctx.fillRect(Math.random() * 128, Math.random() * 128, 1, 1);
+            }
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+        function makeSkylineTexture() {
+            const c = document.createElement('canvas');
+            c.width = 1024; c.height = 400;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, '#0a0a16');
+            grad.addColorStop(1, '#161320');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1024, 400);
+            const moonGlow = ctx.createRadialGradient(760, 80, 4, 760, 80, 100);
+            moonGlow.addColorStop(0, 'rgba(230,235,255,0.85)');
+            moonGlow.addColorStop(1, 'rgba(230,235,255,0)');
+            ctx.fillStyle = moonGlow;
+            ctx.fillRect(660, 0, 200, 200);
+            ctx.fillStyle = '#eef1ff';
+            ctx.beginPath(); ctx.arc(760, 80, 26, 0, Math.PI * 2); ctx.fill();
+            for (let i = 0; i < 22; i++) {
+                const bw = 35 + Math.random() * 80;
+                const bh = 110 + Math.random() * 260;
+                const bx = Math.random() * 1024;
+                const by = 400 - bh;
+                ctx.fillStyle = '#07070d';
+                ctx.fillRect(bx, by, bw, bh);
+                for (let wx = bx + 5; wx < bx + bw - 5; wx += 12) {
+                    for (let wy = by + 10; wy < 390; wy += 15) {
+                        if (Math.random() < 0.28) {
+                            ctx.fillStyle = Math.random() < 0.6 ? 'rgba(255,205,120,0.85)' : 'rgba(120,220,255,0.6)';
+                            ctx.fillRect(wx, wy, 4, 6);
+                        }
+                    }
+                }
+            }
+            return new THREE.CanvasTexture(c);
+        }
+        function makeNeonSignTexture(text, color) {
+            const c = document.createElement('canvas');
+            c.width = 320; c.height = 160;
+            const ctx = c.getContext('2d');
+            ctx.font = 'bold 90px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 24;
+            ctx.fillStyle = color;
+            ctx.fillText(text, 160, 82);
+            ctx.fillText(text, 160, 82);
+            return new THREE.CanvasTexture(c);
+        }
+
+        /* ===== INIT ===== */
+        function init() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x080505);
+            scene.fog = new THREE.Fog(0x080505, 6, 32);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 1.65, 0.5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isTouchDevice ? 1.5 : 1.5));
+            if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            const ambient = new THREE.AmbientLight(0x775544, 1.4);
+            scene.add(ambient);
+
+            const spotLight = new THREE.SpotLight(0xff9944, 3.8, 14, Math.PI / 3, 0.45);
+            spotLight.position.set(0, 3.4, -0.8);
+            spotLight.target.position.set(0, 1.0, -1.8);
+            scene.add(spotLight);
+            scene.add(spotLight.target);
+
+            const lanternLight = new THREE.PointLight(0xff2222, 2.2, 8);
+            lanternLight.position.set(0, 2.5, -1.6);
+            scene.add(lanternLight);
+
+            const fillLight = new THREE.PointLight(0x8899ff, 0.7, 6);
+            fillLight.position.set(0, 1.6, 1.5);
+            scene.add(fillLight);
+
+            buildTokyoRamenShop();
+            buildSteamParticles();
+            buildRainParticles();
+            buildHeldBowl();
+            setupControls();
+            setupMobileUI();
+            spawnCustomer();
+
+            window.addEventListener('resize', onResize);
+            window.addEventListener('orientationchange', checkOrientation);
+            checkOrientation();
+            requestAnimationFrame(renderLoop);
+        }
+
+        function checkOrientation() {
+            const overlay = document.getElementById('rotateOverlay');
+            if (isTouchDevice && window.innerHeight > window.innerWidth) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        /* ===== MOBILE UI SETUP ===== */
+        function setupMobileUI() {
+            if (!isTouchDevice) return;
+
+            document.getElementById('joystickZone').style.display = 'block';
+            document.getElementById('lookZone').style.display = 'block';
+            document.getElementById('mobileButtons').style.display = 'flex';
+            document.getElementById('escHint').style.display = 'none';
+            document.getElementById('desktopHints').style.display = 'none';
+            document.getElementById('mobileHints').style.display = 'flex';
+
+            const joystickZone = document.getElementById('joystickZone');
+            const joystickBase = document.getElementById('joystickBase');
+            const joystickKnob = document.getElementById('joystickKnob');
+            const lookZone = document.getElementById('lookZone');
+
+            function updateJoystick(clientX, clientY) {
+                let dx = clientX - joystickCenter.x;
+                let dy = clientY - joystickCenter.y;
+                const dist = Math.min(Math.hypot(dx, dy), JOYSTICK_RADIUS);
+                const angle = Math.atan2(dy, dx);
+                dx = Math.cos(angle) * dist;
+                dy = Math.sin(angle) * dist;
+                joystickVector = { x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS };
+                joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            }
+            function resetJoystick() {
+                joystickTouchId = null;
+                joystickVector = { x: 0, y: 0 };
+                joystickKnob.style.transform = 'translate(-50%, -50%)';
+            }
+
+            joystickZone.addEventListener('touchstart', (e) => {
+                const t = e.changedTouches[0];
+                joystickTouchId = t.identifier;
+                const rect = joystickBase.getBoundingClientRect();
+                joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                updateJoystick(t.clientX, t.clientY);
+                e.preventDefault();
+            }, { passive: false });
+
+            joystickZone.addEventListener('touchmove', (e) => {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === joystickTouchId) updateJoystick(t.clientX, t.clientY);
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            joystickZone.addEventListener('touchend', (e) => {
+                for (const t of e.changedTouches) if (t.identifier === joystickTouchId) resetJoystick();
+            });
+            joystickZone.addEventListener('touchcancel', (e) => {
+                for (const t of e.changedTouches) if (t.identifier === joystickTouchId) resetJoystick();
+            });
+
+            lookZone.addEventListener('touchstart', (e) => {
+                const t = e.changedTouches[0];
+                lookTouchId = t.identifier;
+                lookLast = { x: t.clientX, y: t.clientY };
+            }, { passive: true });
+
+            lookZone.addEventListener('touchmove', (e) => {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === lookTouchId) {
+                        const dx = t.clientX - lookLast.x;
+                        const dy = t.clientY - lookLast.y;
+                        yaw -= dx * 0.0032;
+                        pitch -= dy * 0.0032;
+                        pitch = Math.max(-Math.PI / 2.4, Math.min(Math.PI / 2.4, pitch));
+                        camera.rotation.order = 'YXZ';
+                        camera.rotation.y = yaw;
+                        camera.rotation.x = pitch;
+                        lookLast = { x: t.clientX, y: t.clientY };
+                    }
+                }
+            }, { passive: true });
+
+            lookZone.addEventListener('touchend', (e) => {
+                for (const t of e.changedTouches) if (t.identifier === lookTouchId) lookTouchId = null;
+            });
+            lookZone.addEventListener('touchcancel', (e) => {
+                for (const t of e.changedTouches) if (t.identifier === lookTouchId) lookTouchId = null;
+            });
+
+            document.getElementById('btnCook').addEventListener('touchstart', (e) => { e.preventDefault(); getAudio(); onCookKey(); });
+            document.getElementById('btnServe').addEventListener('touchstart', (e) => { e.preventDefault(); getAudio(); onServeKey(); });
+            document.getElementById('btnShutter').addEventListener('touchstart', (e) => { e.preventDefault(); getAudio(); onShutterKey(); });
+        }
+
+        /* ===== BOWL ===== */
+        function makeBowlGeometry(scale) {
+            scale = scale || 1;
+            const pts = [
+                new THREE.Vector2(0.00 * scale, 0.00 * scale),
+                new THREE.Vector2(0.09 * scale, 0.01 * scale),
+                new THREE.Vector2(0.19 * scale, 0.05 * scale),
+                new THREE.Vector2(0.25 * scale, 0.11 * scale),
+                new THREE.Vector2(0.26 * scale, 0.16 * scale),
+                new THREE.Vector2(0.245 * scale, 0.18 * scale),
+                new THREE.Vector2(0.27 * scale, 0.19 * scale)
+            ];
+            return new THREE.LatheGeometry(pts, 24);
+        }
+
+        function buildRamenContents(group, scale) {
+            scale = scale || 1;
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.235 * scale, 0.22 * scale, 0.02 * scale, 20), new THREE.MeshStandardMaterial({ color: 0xca8a04, roughness: 0.25 }));
+            broth.position.y = 0.15 * scale;
+            group.add(broth);
+            const noodleMat = new THREE.MeshStandardMaterial({ color: 0xf5e6a8, roughness: 0.5 });
+            for (let i = 0; i < 6; i++) {
+                const noodle = new THREE.Mesh(new THREE.TorusGeometry(0.05 * scale, 0.012 * scale, 6, 12, Math.PI * 1.4), noodleMat);
+                noodle.position.set((Math.random() - 0.5) * 0.16 * scale, 0.165 * scale, (Math.random() - 0.5) * 0.16 * scale);
+                noodle.rotation.set(Math.PI / 2 + (Math.random() - 0.5) * 0.6, Math.random() * Math.PI, 0);
+                group.add(noodle);
+            }
+            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.045 * scale, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xfff2d6, roughness: 0.4 }));
+            eggHalf.rotation.x = Math.PI;
+            eggHalf.position.set(0.09 * scale, 0.175 * scale, -0.05 * scale);
+            group.add(eggHalf);
+            const yolk = new THREE.Mesh(new THREE.CircleGeometry(0.022 * scale, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35 }));
+            yolk.rotation.x = -Math.PI / 2;
+            yolk.position.set(0.09 * scale, 0.176 * scale, -0.05 * scale);
+            group.add(yolk);
+            const chashuMat = new THREE.MeshStandardMaterial({ color: 0xb45f4a, roughness: 0.55 });
+            for (let i = 0; i < 2; i++) {
+                const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.045 * scale, 0.045 * scale, 0.012 * scale, 12), chashuMat);
+                chashu.position.set(-0.08 * scale + i * 0.02, 0.17 * scale, 0.06 * scale);
+                group.add(chashu);
+            }
+            const onionMat = new THREE.MeshStandardMaterial({ color: 0x4d7c0f, roughness: 0.6 });
+            for (let i = 0; i < 8; i++) {
+                const onion = new THREE.Mesh(new THREE.CylinderGeometry(0.006 * scale, 0.006 * scale, 0.02 * scale, 5), onionMat);
+                onion.position.set((Math.random() - 0.5) * 0.3 * scale, 0.17 * scale, (Math.random() - 0.5) * 0.3 * scale);
+                group.add(onion);
+            }
+            const nori = new THREE.Mesh(new THREE.PlaneGeometry(0.09 * scale, 0.11 * scale), new THREE.MeshStandardMaterial({ color: 0x1a2e1a, side: THREE.DoubleSide, roughness: 0.7 }));
+            nori.position.set(-0.05 * scale, 0.19 * scale, -0.09 * scale);
+            nori.rotation.x = -Math.PI / 2.3;
+            group.add(nori);
+        }
+
+        function buildHeldBowl() {
+            heldBowlGroup = new THREE.Group();
+            const bowl = new THREE.Mesh(makeBowlGeometry(0.75), new THREE.MeshStandardMaterial({ color: 0x1d3557, roughness: 0.3 }));
+            heldBowlGroup.add(bowl);
+            buildRamenContents(heldBowlGroup, 0.75);
+            heldBowlGroup.position.set(0.32, -0.34, -0.62);
+            heldBowlGroup.rotation.x = -0.15;
+            heldBowlGroup.visible = false;
+            camera.add(heldBowlGroup);
+            scene.add(camera);
+        }
+
+        /* ===== SHOP ===== */
+        function buildTokyoRamenShop() {
+            const woodTex = makeWoodTexture('#241206', '#100701', 3, 1.5);
+            const polishedWoodTex = makeWoodTexture('#733d1b', '#3d1f0c', 4, 1);
+            const tatamiTex = makeTatamiTexture();
+            const metalTex = makeMetalTexture();
+
+            const darkWoodMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.82 });
+            const polishedWoodMat = new THREE.MeshStandardMaterial({ map: polishedWoodTex, roughness: 0.32 });
+            const tatamiMat = new THREE.MeshStandardMaterial({ map: tatamiTex, roughness: 0.95 });
+            const metalMat = new THREE.MeshStandardMaterial({ map: metalTex, roughness: 0.35, metalness: 0.5 });
+            const streetMat = new THREE.MeshStandardMaterial({ color: 0x121216, roughness: 0.4 });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.4, roughness: 0.1 });
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), tatamiMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), darkWoodMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.set(0, 3.2, 0);
+            scene.add(ceiling);
+
+            const backWall = new THREE.Mesh(new THREE.BoxGeometry(8, 3.2, 0.2), darkWoodMat);
+            backWall.position.set(0, 1.6, 2.8);
+            scene.add(backWall);
+
+            const shelf = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.08, 0.4), polishedWoodMat);
+            shelf.position.set(0, 1.9, 2.6);
+            scene.add(shelf);
+            const bottleMat = new THREE.MeshStandardMaterial({ color: 0x0f5132, roughness: 0.15 });
+            for (let x = -2.4; x <= 2.4; x += 0.8) {
+                const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.32, 10), bottleMat);
+                bottle.position.set(x, 2.1, 2.6);
+                scene.add(bottle);
+            }
+
+            const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 6), darkWoodMat);
+            leftWall.position.set(-3.8, 1.6, 0);
+            scene.add(leftWall);
+
+            const fridge = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.9), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.3 }));
+            fridge.position.set(-3.2, 1.1, 1.8);
+            scene.add(fridge);
+            const fridgeGlass = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.0, 0.8), glassMat);
+            fridgeGlass.position.set(-2.7, 1.1, 1.8);
+            scene.add(fridgeGlass);
+
+            const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 6), darkWoodMat);
+            rightWall.position.set(3.8, 1.6, 0);
+            scene.add(rightWall);
+
+            const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.4, 1.4), polishedWoodMat);
+            doorFrame.position.set(3.7, 1.2, 0.5);
+            scene.add(doorFrame);
+
+            const mainCounter = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.05, 0.75), darkWoodMat);
+            mainCounter.position.set(0, 0.52, -1.5);
+            scene.add(mainCounter);
+
+            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.12, 0.95), polishedWoodMat);
+            counterTop.position.set(0, 1.06, -1.5);
+            scene.add(counterTop);
+
+            for (let x = -2.2; x <= 2.2; x += 1.4) {
+                const stoolSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.08, 14), polishedWoodMat);
+                stoolSeat.position.set(x, 0.78, -2.4);
+                scene.add(stoolSeat);
+            }
+
+            const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.32, 0.5, 18), metalMat);
+            pot.position.set(-1.8, 1.42, -1.4);
+            potMesh = pot;
+            scene.add(pot);
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.05, 18), new THREE.MeshStandardMaterial({ color: 0xca8a04, roughness: 0.25 }));
+            broth.position.set(-1.8, 1.62, -1.4);
+            scene.add(broth);
+
+            const counterBowl = new THREE.Mesh(makeBowlGeometry(1.0), new THREE.MeshStandardMaterial({ color: 0xe8ece9, roughness: 0.35 }));
+            counterBowl.position.set(-1.1, 1.06, -1.35);
+            scene.add(counterBowl);
+
+            const soyCruet = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.22, 12), new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.2 }));
+            soyCruet.position.set(1.2, 1.22, -1.4);
+            scene.add(soyCruet);
+
+            const lanternMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5, emissive: 0x330000 });
+            const lLeft = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10), lanternMat);
+            lLeft.scale.set(1, 1.2, 1);
+            lLeft.position.set(-2.4, 2.5, -1.5);
+            scene.add(lLeft);
+            const lRight = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10), lanternMat);
+            lRight.scale.set(1, 1.2, 1);
+            lRight.position.set(2.4, 2.5, -1.5);
+            scene.add(lRight);
+
+            shutterGroup = new THREE.Group();
+            const shutterBody = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.8, 0.08), new THREE.MeshStandardMaterial({ map: metalTex, color: 0x777777, roughness: 0.6, metalness: 0.4 }));
+            shutterBody.position.set(0, -0.9, 0);
+            shutterGroup.add(shutterBody);
+            const warnSlat = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.16, 0.1), new THREE.MeshStandardMaterial({ color: 0xca8a04, roughness: 0.5 }));
+            warnSlat.position.set(0, -1.8, 0);
+            shutterGroup.add(warnSlat);
+            shutterGroup.position.set(0, 3.6, -1.5);
+            scene.add(shutterGroup);
+
+            const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), streetMat);
+            street.rotation.x = -Math.PI / 2;
+            street.position.set(0, -0.02, -24);
+            scene.add(street);
+
+            const skylineTex = makeSkylineTexture();
+            const skyline = new THREE.Mesh(new THREE.PlaneGeometry(44, 17), new THREE.MeshBasicMaterial({ map: skylineTex, fog: false }));
+            skyline.position.set(0, 8.4, -29);
+            scene.add(skyline);
+
+            const reflection = new THREE.Mesh(new THREE.PlaneGeometry(44, 17), new THREE.MeshBasicMaterial({ map: skylineTex, transparent: true, opacity: 0.18, fog: false }));
+            reflection.position.set(0, -8.4, -29);
+            reflection.scale.y = -1;
+            scene.add(reflection);
+
+            const neonTexCyan = makeNeonSignTexture('営業中', '#00f0ff');
+            const neonSignL = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshBasicMaterial({ map: neonTexCyan, transparent: true, fog: false }));
+            neonSignL.position.set(-6.2, 7.2, -18);
+            neonSignL.rotation.y = 0.35;
+            scene.add(neonSignL);
+
+            const neonTexPurple = makeNeonSignTexture('屋台', '#c026d3');
+            const neonSignR = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshBasicMaterial({ map: neonTexPurple, transparent: true, fog: false }));
+            neonSignR.position.set(6.2, 7.2, -18);
+            neonSignR.rotation.y = -0.35;
+            scene.add(neonSignR);
+        }
+
+        function buildSteamParticles() {
+            const steamCount = isTouchDevice ? 16 : 25;
+            const steamGeo = new THREE.BufferGeometry();
+            const steamPos = new Float32Array(steamCount * 3);
+            for (let i = 0; i < steamCount * 3; i += 3) {
+                steamPos[i] = -1.8 + (Math.random() - 0.5) * 0.4;
+                steamPos[i + 1] = 1.7 + Math.random() * 0.8;
+                steamPos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.4;
+            }
+            steamGeo.setAttribute('position', new THREE.BufferAttribute(steamPos, 3));
+            steamParticles = new THREE.Points(steamGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.14, transparent: true, opacity: 0.4 }));
+            scene.add(steamParticles);
+        }
+
+        function buildRainParticles() {
+            const rainCount = isTouchDevice ? 260 : 400;
+            const rainGeo = new THREE.BufferGeometry();
+            const rainPos = new Float32Array(rainCount * 3);
+            for (let i = 0; i < rainCount * 3; i += 3) {
+                rainPos[i] = (Math.random() - 0.5) * 30;
+                rainPos[i + 1] = Math.random() * 16;
+                rainPos[i + 2] = -Math.random() * 30 - 1.8;
+            }
+            rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+            rainParticles = new THREE.Points(rainGeo, new THREE.PointsMaterial({ color: 0x88aacc, size: 0.08, transparent: true, opacity: 0.6 }));
+            scene.add(rainParticles);
+        }
+
+        /* ===== CHARACTER ===== */
+        function makeFaceTexture(anomaly, anomalyType) {
+            const c = document.createElement('canvas');
+            c.width = 256; c.height = 256;
+            const ctx = c.getContext('2d');
+            if (anomaly && anomalyType === 'black_eyes') {
+                ctx.fillStyle = '#000000';
+                ctx.beginPath(); ctx.arc(84, 118, 30, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(172, 118, 30, 0, Math.PI * 2); ctx.fill();
+            } else if (anomaly && anomalyType === 'slit_eyes') {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(84, 118, 21, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(172, 118, 21, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(80, 96, 8, 44);
+                ctx.fillRect(168, 96, 8, 44);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.ellipse(84, 118, 21, 13, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(172, 118, 21, 13, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#26140b';
+                ctx.beginPath(); ctx.arc(84, 118, 10, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(172, 118, 10, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#1a100a';
+                ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.moveTo(60, 92); ctx.lineTo(108, 88); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(148, 88); ctx.lineTo(196, 92); ctx.stroke();
+            }
+            if (anomaly && anomalyType === 'wide_mouth') {
+                ctx.fillStyle = '#5c0606';
+                ctx.beginPath(); ctx.ellipse(128, 195, 84, 38, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                for (let x = 58; x < 200; x += 14) ctx.fillRect(x, 174, 8, 14);
+            } else {
+                ctx.strokeStyle = '#7a3a26';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(98, 195); ctx.quadraticCurveTo(128, 206, 158, 195); ctx.stroke();
+            }
+            return new THREE.CanvasTexture(c);
+        }
+
+        function createCharacterModel(anomaly, arch, anomalyType) {
+            const group = new THREE.Group();
+            const skinColorHex = anomaly ? 0x889baa : arch.skin;
+            const skinColorStr = '#' + skinColorHex.toString(16).padStart(6, '0');
+            const skinTex = makeSkinTexture(skinColorStr);
+            const skinMat = new THREE.MeshStandardMaterial({ map: skinTex, roughness: 0.65 });
+            const isLongNeck = anomaly && anomalyType === 'long_neck';
+
+            const neckHeight = isLongNeck ? 0.62 : 0.18;
+            const headOffset = neckHeight - 0.18;
+
+            const headCluster = new THREE.Group();
+
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.23, 18, 14), skinMat);
+            head.scale.set(0.9, 1.05, 0.94);
+            head.position.y = 1.66;
+            headCluster.add(head);
+
+            const earL = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), skinMat);
+            earL.scale.set(0.6, 1, 1);
+            earL.position.set(-0.215, 1.64, 0);
+            headCluster.add(earL);
+            const earR = earL.clone();
+            earR.position.x = 0.215;
+            headCluster.add(earR);
+
+            const faceTex = makeFaceTexture(anomaly, anomalyType);
+            const face = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, alphaTest: 0.05 }));
+            face.position.set(0, 1.66, 0.205);
+            headCluster.add(face);
+
+            const clothTex = makeFabricNoiseTexture('#' + arch.clothesColor.toString(16).padStart(6, '0'));
+            const coatMat = new THREE.MeshStandardMaterial({ map: anomaly ? null : clothTex, color: anomaly ? 0x160808 : 0xffffff, roughness: 0.7 });
+
+            if (arch.hood) {
+                const hood = new THREE.Mesh(new THREE.SphereGeometry(0.27, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.65), coatMat);
+                hood.position.set(0, 1.72, -0.02);
+                headCluster.add(hood);
+            } else {
+                const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.235, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.4 }));
+                hairTop.position.set(0, 1.7, 0);
+                headCluster.add(hairTop);
+            }
+
+            if (arch.glasses && !anomaly) {
+                const glassesMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.4 });
+                const frameL = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.007, 6, 12), glassesMat);
+                frameL.position.set(-0.1, 1.67, 0.2);
+                headCluster.add(frameL);
+                const frameR = frameL.clone();
+                frameR.position.x = 0.1;
+                headCluster.add(frameR);
+            }
+
+            headCluster.position.y = headOffset;
+            group.add(headCluster);
+
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.13, neckHeight, 12), skinMat);
+            neck.position.y = 1.27 + neckHeight / 2;
+            group.add(neck);
+
+            const torsoProfile = [
+                new THREE.Vector2(0.30, 0.00),
+                new THREE.Vector2(0.335, 0.10),
+                new THREE.Vector2(0.325, 0.20),
+                new THREE.Vector2(0.28, 0.35),
+                new THREE.Vector2(0.265, 0.50),
+                new THREE.Vector2(0.275, 0.65),
+                new THREE.Vector2(0.30, 0.78),
+                new THREE.Vector2(0.35, 0.88),
+                new THREE.Vector2(0.395, 0.94),
+                new THREE.Vector2(0.36, 0.99),
+                new THREE.Vector2(0.30, 1.03),
+                new THREE.Vector2(0.13, 1.08)
+            ];
+            const torso = new THREE.Mesh(new THREE.LatheGeometry(torsoProfile, 14), coatMat);
+            torso.position.y = 0.28;
+            group.add(torso);
+
+            if (arch.tie && !anomaly) {
+                const tie = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.05, 0.42, 8), new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.5 }));
+                tie.scale.set(1, 1, 0.35);
+                tie.position.set(0, 1.0, -0.31);
+                group.add(tie);
+            }
+
+            if (arch.backpack && !anomaly) {
+                const backpack = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.7 }));
+                backpack.scale.set(1, 1.3, 0.55);
+                backpack.position.set(0, 0.95, 0.32);
+                group.add(backpack);
+            }
+
+            [-0.4, 0.4].forEach(sx => {
+                const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), coatMat);
+                shoulder.position.set(sx, 1.28, 0);
+                group.add(shoulder);
+                const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.075, 0.72, 10), coatMat);
+                arm.position.set(sx, 0.92, 0);
+                group.add(arm);
+                const hand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), skinMat);
+                hand.position.set(sx, 0.56, 0);
+                group.add(hand);
+            });
+
+            const pantsMat = new THREE.MeshStandardMaterial({ color: anomaly ? 0x0d0d0d : 0x1f2937, roughness: 0.75 });
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 0.4 });
+            [-0.15, 0.15].forEach(lx => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.095, 0.6, 10), pantsMat);
+                leg.position.set(lx, 0.3, 0);
+                group.add(leg);
+                const shoe = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), shoeMat);
+                shoe.scale.set(1, 0.55, 1.7);
+                shoe.position.set(lx, 0.03, 0.06);
+                group.add(shoe);
+            });
+
+            if (arch.umbrella && !anomaly) {
+                const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.85, 8), new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.5 }));
+                handle.position.set(0.52, 0.85, 0.05);
+                group.add(handle);
+                const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2.2), new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.5 }));
+                canopy.position.set(0.52, 1.28, 0.05);
+                group.add(canopy);
+            }
+
+            const shadowBlob = new THREE.Mesh(
+                new THREE.CircleGeometry(0.34, 16),
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false })
+            );
+            shadowBlob.rotation.x = -Math.PI / 2;
+            shadowBlob.position.y = 0.005;
+            group.add(shadowBlob);
+
+            if (anomaly) {
+                const glow = new THREE.PointLight(0xff1a1a, 0.8, 3, 2);
+                glow.position.set(0, 1.55, 0.3);
+                group.add(glow);
+            }
+
+            group.userData.headCluster = headCluster;
+            group.userData.isLongNeck = isLongNeck;
+
+            group.position.set(0, 0, -18);
+            scene.add(group);
+            return group;
+        }
+
+        /* ===== DESKTOP CONTROLS ===== */
+        function setupControls() {
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'KeyW') keys.w = true;
+                if (e.code === 'KeyS') keys.s = true;
+                if (e.code === 'KeyA') keys.a = true;
+                if (e.code === 'KeyD') keys.d = true;
+                if (e.code === 'KeyE') onCookKey();
+                if (e.code === 'KeyX') onServeKey();
+                if (e.code === 'KeyF' || e.code === 'Space') onShutterKey();
+            });
+            document.addEventListener('keyup', (e) => {
+                if (e.code === 'KeyW') keys.w = false;
+                if (e.code === 'KeyS') keys.s = false;
+                if (e.code === 'KeyA') keys.a = false;
+                if (e.code === 'KeyD') keys.d = false;
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!gameActive || isTouchDevice) return;
+                yaw -= e.movementX * 0.0022;
+                pitch -= e.movementY * 0.0022;
+                pitch = Math.max(-Math.PI / 2.4, Math.min(Math.PI / 2.4, pitch));
+                camera.rotation.order = 'YXZ';
+                camera.rotation.y = yaw;
+                camera.rotation.x = pitch;
+            });
+            document.addEventListener('pointerlockchange', () => {
+                if (isTouchDevice) return;
+                gameActive = (document.pointerLockElement === document.body);
+                if (!gameActive && document.getElementById('deathScreen').style.display !== 'flex') {
+                    document.getElementById('startModal').style.display = 'flex';
+                }
+            });
+        }
+
+        function startPlay() {
+            getAudio();
+            document.getElementById('startModal').style.display = 'none';
+            if (isTouchDevice) {
+                gameActive = true;
+                try {
+                    const el = document.documentElement;
+                    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+                    if (req) {
+                        req.call(el).then(() => {
+                            if (screen.orientation && screen.orientation.lock) {
+                                screen.orientation.lock('landscape').catch(() => {});
+                            }
+                        }).catch(() => {});
+                    }
+                } catch (e) {}
+            } else {
+                document.body.requestPointerLock();
+            }
+        }
+
+        function onCookKey() {
+            const dist = camera.position.distanceTo(potMesh.position);
+            if (dist < 2.5) {
+                playCookSound();
+                hasCookedRamen = true;
+                if (heldBowlGroup) heldBowlGroup.visible = true;
+                document.getElementById('handItemText').innerText = "🍜 DOLU";
+                document.getElementById('handItemText').style.color = "#00ff77";
+            }
+        }
+
+        function onServeKey() {
+            if (qteActive || !hasCookedRamen || shutterClosed) return;
+            if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
+                if (isAnomaly) {
+                    triggerJumpscare();
+                } else {
+                    playSound(1300, 'triangle', 0.2, 0.3);
+                    money += 85;
+                    hasCookedRamen = false;
+                    if (heldBowlGroup) heldBowlGroup.visible = false;
+                    document.getElementById('handItemText').innerText = "BOŞ";
+                    document.getElementById('handItemText').style.color = "#ffb703";
+                    document.getElementById('hudMoney').innerText = `$${money}`;
+                    advanceShift();
+                }
+            }
+        }
+
+        function onShutterKey() {
+            if (qteActive) {
+                qteActive = false;
+                clearTimeout(qteTimeout);
+                playShutterClang();
+                playLockSuccessSound();
+                money += 175;
+                document.getElementById('hudMoney').innerText = `$${money}`;
+                document.getElementById('customerCaption').style.display = 'none';
+                advanceShift();
+                shutterGroup.position.y = 3.6;
+                shutterClosed = false;
+                return;
+            }
+
+            playShutterClang();
+            shutterClosed = !shutterClosed;
+
+            if (shutterClosed) {
+                shutterGroup.position.y = 1.9;
+                if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
+                    if (isAnomaly && currentAnomalyType === 'long_neck') {
+                        qteActive = true;
+                        qteTimeout = setTimeout(() => {
+                            if (qteActive) {
+                                qteActive = false;
+                                triggerJumpscare();
+                            }
+                        }, 1300);
+                    } else {
+                        setTimeout(() => {
+                            if (isAnomaly) {
+                                playSound(1450, 'sine', 0.2, 0.3);
+                                money += 175;
+                                document.getElementById('hudMoney').innerText = `$${money}`;
+                            }
+                            document.getElementById('customerCaption').style.display = 'none';
+                            advanceShift();
+                            shutterGroup.position.y = 3.6;
+                            shutterClosed = false;
+                        }, 1300);
+                    }
+                }
+            } else {
+                shutterGroup.position.y = 3.6;
+            }
+        }
+
+        function spawnCustomer() {
+            if (customer3D) {
+                scene.remove(customer3D);
+                customer3D = null;
+            }
+            isAnomaly = Math.random() < 0.52;
+            currentAnomalyType = isAnomaly ? ANOMALY_TYPES[Math.floor(Math.random() * ANOMALY_TYPES.length)] : null;
+            const chosenArch = ARCHETYPES[Math.floor(Math.random() * ARCHETYPES.length)];
+            customer3D = createCharacterModel(isAnomaly, chosenArch, currentAnomalyType);
+            customerWalking = true;
+            document.getElementById('hudCustomerType').innerText = chosenArch.title;
+
+            const name = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
+            const caption = document.getElementById('customerCaption');
+            caption.innerText = `${name} — ${chosenArch.title}`;
+            caption.style.display = 'block';
+        }
+
+        function advanceShift() {
+            hourIndex++;
+            if (hourIndex >= HOURS.length) hourIndex = HOURS.length - 1;
+            document.getElementById('hudClock').innerText = HOURS[hourIndex];
+            if (hourIndex >= 6) {
+                document.getElementById('deathTitle').innerText = "SAAT 06:00 // GÜN DOĞDU!";
+                document.getElementById('deathTitle').style.color = "#00ff77";
+                document.getElementById('deathDesc').innerText = `Tebrikler usta! Geceyi hayatta tamamladın ve $${money} kazandın.`;
+                document.getElementById('deathScreen').style.display = 'flex';
+                document.getElementById('customerCaption').style.display = 'none';
+                gameActive = false;
+                if (!isTouchDevice) document.exitPointerLock();
+                return;
+            }
+            spawnCustomer();
+        }
+
+        function triggerJumpscare() {
+            playMonsterScream();
+            if (customer3D) {
+                customer3D.position.set(0, 1.4, -0.6);
+                customer3D.scale.set(2.4, 2.4, 2.4);
+            }
+            if (heldBowlGroup) heldBowlGroup.visible = false;
+            document.getElementById('customerCaption').style.display = 'none';
+            gameActive = false;
+            setTimeout(() => {
+                const isLN = customer3D && customer3D.userData.isLongNeck;
+                document.getElementById('deathTitle').innerText = "ÖLDÜRÜLDÜNÜZ!";
+                document.getElementById('deathTitle').style.color = "#ff1111";
+                document.getElementById('deathDesc').innerText = isLN
+                    ? "Kepengi indirdin ama yeterince hızlı değildin — boynu uzayıp seni tepeden yakaladı..."
+                    : "İçeri aldığın varlık insan değildi. Tezgaha atlayıp seni karanlığa sürükledi...";
+                document.getElementById('deathScreen').style.display = 'flex';
+                if (!isTouchDevice) document.exitPointerLock();
+            }, 350);
+        }
+
+        function restartGame() {
+            document.getElementById('deathScreen').style.display = 'none';
+            hourIndex = 0;
+            money = 0;
+            hasCookedRamen = false;
+            shutterClosed = false;
+            qteActive = false;
+            if (qteTimeout) clearTimeout(qteTimeout);
+            if (heldBowlGroup) heldBowlGroup.visible = false;
+            shutterGroup.position.y = 3.6;
+            document.getElementById('hudClock').innerText = "00:00";
+            document.getElementById('hudMoney').innerText = "$0";
+            document.getElementById('handItemText').innerText = "BOŞ";
+            camera.position.set(0, 1.65, 0.5);
+            startPlay();
+            spawnCustomer();
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            checkOrientation();
+        }
+
+        /* ===== RENDER LOOP ===== */
+        let lastTime = performance.now();
+        function renderLoop() {
+            requestAnimationFrame(renderLoop);
+            const now = performance.now();
+            const delta = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+
+            if (gameActive) {
+                const moveSpeed = 3.8 * delta;
+                const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+                const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+
+                let moveX, moveZforward;
+                if (isTouchDevice) {
+                    moveX = joystickVector.x;
+                    moveZforward = -joystickVector.y;
+                } else {
+                    moveX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+                    moveZforward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+                }
+
+                camera.position.addScaledVector(forward, moveZforward * moveSpeed);
+                camera.position.addScaledVector(right, moveX * moveSpeed);
+                camera.position.y = 1.65;
+                if (camera.position.x < -3.2) camera.position.x = -3.2;
+                if (camera.position.x > 3.2) camera.position.x = 3.2;
+                if (camera.position.z > 2.2) camera.position.z = 2.2;
+                if (camera.position.z < -0.9) camera.position.z = -0.9;
+            }
+
+            if (customer3D && customerWalking) {
+                customer3D.position.z += delta * 3.4;
+                if (customer3D.position.z >= -2.4) {
+                    customer3D.position.z = -2.4;
+                    customerWalking = false;
+                }
+            }
+
+            if (qteActive && customer3D && customer3D.userData.headCluster) {
+                customer3D.userData.headCluster.position.y += delta * 1.1;
+            }
+
+            if (steamParticles) {
+                const pos = steamParticles.geometry.attributes.position.array;
+                for (let i = 1; i < pos.length; i += 3) {
+                    pos[i] += delta * 0.6;
+                    if (pos[i] > 2.6) pos[i] = 1.6;
+                }
+                steamParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (rainParticles) {
+                const rPos = rainParticles.geometry.attributes.position.array;
+                for (let i = 1; i < rPos.length; i += 3) {
+                    rPos[i] -= delta * 20;
+                    if (rPos[i] < 0) rPos[i] = 16;
+                }
+                rainParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            const prompt = document.getElementById('promptText');
+            const pKey = document.getElementById('promptKey');
+            const pLbl = document.getElementById('promptLabel');
+            const crosshair = document.getElementById('crosshair');
+
+            if (qteActive) {
+                prompt.style.display = 'block';
+                prompt.classList.add('urgent');
+                pKey.innerText = isTouchDevice ? '🔒' : 'F';
+                pLbl.innerText = 'TEKRAR! BOYNUNU UZATIYOR!';
+                crosshair.classList.remove('interact');
+                crosshair.classList.add('danger');
+            } else {
+                prompt.classList.remove('urgent');
+                crosshair.classList.remove('danger');
+
+                const distToPot = camera.position.distanceTo(potMesh.position);
+                const nearCustomer = customer3D && !customerWalking && camera.position.distanceTo(customer3D.position) < 3.0;
+
+                if (distToPot < 2.3 && !hasCookedRamen) {
+                    prompt.style.display = 'block';
+                    pKey.innerText = isTouchDevice ? '🔥' : 'E';
+                    pLbl.innerText = 'KASEYİ DOLDUR';
+                    crosshair.classList.add('interact');
+                } else if (nearCustomer && hasCookedRamen && !shutterClosed) {
+                    prompt.style.display = 'block';
+                    pKey.innerText = isTouchDevice ? '🍜' : 'X';
+                    pLbl.innerText = 'TEZGAHA SERVİS ET';
+                    crosshair.classList.add('interact');
+                } else if (nearCustomer && !shutterClosed) {
+                    prompt.style.display = 'block';
+                    pKey.innerText = isTouchDevice ? '🔒' : 'F / SPACE';
+                    pLbl.innerText = 'KEPENGİ İNDİR (ANOMALİ!)';
+                    crosshair.classList.remove('interact');
+                } else {
+                    prompt.style.display = 'none';
+                    crosshair.classList.remove('interact');
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
