@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN 3D // REALISTIC EDITION v7.0</title>
+    <title>MIDNIGHT RAMEN 3D // OPTIMIZED EDITION v7.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -14,175 +14,144 @@
         #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
         #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; }
 
-        /* Sinematik Post-Overlay & Vignette */
         .cinematic-vignette {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 40%, rgba(5,2,2,0.65) 80%, rgba(0,0,0,0.92) 100%);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-        }
-        .film-grain {
-            position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0.04;
-            background-image: repeating-radial-gradient(circle at 17% 32%, #fff, #000 2px);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(4,2,3,0.6) 80%, rgba(0,0,0,0.92) 100%);
         }
         .horror-glitch {
             position: absolute; inset: 0; z-index: 8; pointer-events: none; display: none;
             background: rgba(255, 0, 30, 0.12);
-            mix-blend-mode: screen;
             animation: glitchAnim 0.1s infinite;
         }
         @keyframes glitchAnim {
-            0% { transform: translate(1px, -1px); filter: hue-rotate(0deg); }
-            50% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
-            100% { transform: translate(1px, 2px); filter: hue-rotate(0deg); }
+            0% { transform: translate(1px, -1px); }
+            50% { transform: translate(-2px, 1px); }
+            100% { transform: translate(1px, 2px); }
         }
 
-        /* Nişangah */
         .crosshair {
             position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: rgba(255,255,255,0.9);
             border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 2px #fff;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            transition: transform 0.15s ease-out;
         }
-        .crosshair::before, .crosshair::after {
-            content: ''; position: absolute; background: rgba(255,255,255,0.4);
-        }
-        .crosshair::before { top: 50%; left: -10px; width: 6px; height: 1px; transform: translateY(-50%); }
-        .crosshair::after { left: 50%; top: -10px; width: 1px; height: 6px; transform: translateX(-50%); }
-
         .crosshair.interact {
-            transform: translate(-50%, -50%) scale(2.8); background: #ffb703;
-            box-shadow: 0 0 16px #ffb703, inset 0 0 4px #ffe600;
+            transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 14px #ffb703;
         }
         .crosshair.danger {
-            transform: translate(-50%, -50%) scale(3.5); background: #ff1111;
-            box-shadow: 0 0 24px #ff0000; animation: crosshairPulse 0.3s infinite alternate;
+            transform: translate(-50%, -50%) scale(3.2); background: #ff1111; box-shadow: 0 0 20px #ff0000;
         }
-        @keyframes crosshairPulse { from { transform: translate(-50%, -50%) scale(3); } to { transform: translate(-50%, -50%) scale(4.2); } }
 
-        /* Etkileşim İpucu */
         .interaction-prompt {
             position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, rgba(20, 10, 10, 0.96) 0%, rgba(10, 5, 5, 0.98) 100%);
-            border: 1px solid #ff4444; color: #fff; padding: 12px 28px;
-            border-radius: 8px; font-size: 1.05rem; font-weight: 800; letter-spacing: 1.5px; z-index: 25;
+            background: rgba(14, 8, 10, 0.96); border: 1.5px solid #ff4444; color: #fff; padding: 10px 24px;
+            border-radius: 8px; font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; z-index: 25;
             display: none; text-align: center; pointer-events: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255, 68, 68, 0.25);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
         }
         .interaction-prompt.urgent {
-            border-color: #ffcc00; box-shadow: 0 0 35px rgba(255,204,0,0.85); animation: urgentShake 0.12s infinite;
+            border-color: #ffcc00; box-shadow: 0 0 30px rgba(255,204,0,0.8); animation: urgentShake 0.12s infinite;
         }
         @keyframes urgentShake {
             0% { transform: translateX(-50%) translate(0, 0); }
-            25% { transform: translateX(-50%) translate(-3px, 2px); }
-            75% { transform: translateX(-50%) translate(3px, -2px); }
+            50% { transform: translateX(-50%) translate(-2px, 2px); }
+            100% { transform: translateX(-50%) translate(2px, -2px); }
         }
         .interaction-prompt kbd {
-            background: linear-gradient(180deg, #ff4444 0%, #b31b1b 100%); color: #fff; padding: 4px 12px;
-            border-radius: 4px; font-family: 'Share Tech Mono', monospace; font-size: 1rem; margin-right: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5); text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            background: #ff3333; color: #fff; padding: 3px 10px; border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; margin-right: 8px;
         }
-        .interaction-prompt.urgent kbd { background: linear-gradient(180deg, #ffd000 0%, #d48800 100%); color: #000; text-shadow: none; font-weight: bold; }
+        .interaction-prompt.urgent kbd { background: #ffd000; color: #000; }
 
-        /* Müşteri İsim / Altyazı */
         .customer-caption {
             position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
-            background: rgba(12, 10, 15, 0.85); border: 1px solid rgba(255,255,255,0.15); padding: 8px 24px;
-            border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; color: #e2e8f0;
-            letter-spacing: 1.5px; z-index: 20; display: none; white-space: nowrap; backdrop-filter: blur(10px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            background: rgba(12, 10, 15, 0.85); border: 1px solid rgba(255,255,255,0.15); padding: 7px 20px;
+            border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: #e2e8f0;
+            letter-spacing: 1.2px; z-index: 20; display: none; white-space: nowrap;
         }
-        .customer-caption b { color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4); }
+        .customer-caption b { color: #00f0ff; }
 
-        /* Üst HUD */
         .hud-status {
-            position: absolute; top: 16px; left: 16px; z-index: 25; display: flex; gap: 12px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.88rem;
+            position: absolute; top: 14px; left: 14px; z-index: 25; display: flex; gap: 10px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
         }
         .hud-badge {
             background: rgba(12, 8, 10, 0.9); border: 1px solid rgba(255, 68, 68, 0.4);
-            padding: 6px 14px; border-radius: 6px; backdrop-filter: blur(8px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 5px 12px; border-radius: 5px;
         }
 
         .hand-item-hud {
-            position: absolute; top: 16px; right: 16px; background: rgba(12, 8, 10, 0.92);
-            border: 1.5px solid #ffb703; padding: 7px 18px; border-radius: 6px;
+            position: absolute; top: 14px; right: 14px; background: rgba(12, 8, 10, 0.92);
+            border: 1.5px solid #ffb703; padding: 6px 16px; border-radius: 6px;
             font-size: 0.85rem; font-weight: bold; color: #ffb703; z-index: 25;
-            backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(255, 183, 3, 0.2);
         }
 
         .model-status {
-            position: absolute; bottom: 8px; left: 12px; font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem; color: #718096; z-index: 25; pointer-events: none;
+            position: absolute; bottom: 6px; left: 10px; font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem; color: #64748b; z-index: 25; pointer-events: none;
         }
 
-        /* Başlangıç ve Ölüm Ekranları */
         .start-modal {
             position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 40%, rgba(26, 10, 10, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
+            background: radial-gradient(circle at 50% 40%, rgba(22, 8, 8, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
             z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 24px; cursor: pointer; overflow-y: auto; backdrop-filter: blur(15px);
+            text-align: center; padding: 20px; cursor: pointer; overflow-y: auto;
         }
         .start-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.6rem; color: #ff2a2a;
-            text-shadow: 0 0 35px rgba(255, 42, 42, 0.85), 0 0 10px #ff0000; margin-bottom: 12px; letter-spacing: 3px;
+            font-family: 'Orbitron', sans-serif; font-size: 2.4rem; color: #ff2a2a;
+            text-shadow: 0 0 30px rgba(255, 42, 42, 0.8); margin-bottom: 10px; letter-spacing: 2.5px;
         }
         .start-subtitle {
-            font-family: 'Cinzel', serif; font-size: 1.1rem; color: #cbd5e1; letter-spacing: 4px; margin-bottom: 24px; opacity: 0.9;
+            font-family: 'Cinzel', serif; font-size: 1rem; color: #cbd5e1; letter-spacing: 3px; margin-bottom: 20px;
         }
         .start-desc {
-            color: #d1d5db; font-size: 1.02rem; max-width: 720px; line-height: 1.65; margin-bottom: 24px;
-            background: rgba(0,0,0,0.4); padding: 18px 24px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);
+            color: #d1d5db; font-size: 0.98rem; max-width: 680px; line-height: 1.6; margin-bottom: 20px;
+            background: rgba(0,0,0,0.45); padding: 16px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);
         }
         .start-btn {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%); color: #fff; border: 1px solid #ff6666;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem;
-            padding: 16px 52px; border-radius: 8px; box-shadow: 0 0 35px rgba(255, 42, 42, 0.7);
-            cursor: pointer; letter-spacing: 2px; margin-top: 15px; transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem;
+            padding: 14px 46px; border-radius: 6px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.7);
+            cursor: pointer; letter-spacing: 2px; margin-top: 10px;
         }
-        .start-btn:hover { transform: scale(1.04); box-shadow: 0 0 45px rgba(255, 60, 60, 0.9); }
+        .start-btn:hover { transform: scale(1.03); }
 
         .death-screen {
             position: absolute; inset: 0; background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
             z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 25px; backdrop-filter: blur(20px);
+            text-align: center; padding: 20px;
         }
 
         .rotate-overlay {
             position: fixed; inset: 0; background: #050505; z-index: 999; display: none;
             flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 30px;
         }
-        .rotate-icon { font-size: 4.5rem; margin-bottom: 20px; animation: rotateHint 1.6s ease-in-out infinite; }
+        .rotate-icon { font-size: 4rem; margin-bottom: 18px; animation: rotateHint 1.6s ease-in-out infinite; }
         @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
 
-        /* Mobil Kontroller */
         .joystick-zone { position: absolute; left: 0; bottom: 0; width: 45%; height: 60%; z-index: 30; display: none; touch-action: none; }
         .joystick-base {
-            position: absolute; left: 80px; bottom: 80px; width: 115px; height: 115px; border-radius: 50%;
-            background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.25); backdrop-filter: blur(6px);
+            position: absolute; left: 75px; bottom: 75px; width: 110px; height: 110px; border-radius: 50%;
+            background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.25);
         }
         .joystick-knob {
-            position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%;
-            background: radial-gradient(circle at center, #ffb703 0%, #c48200 100%);
-            border: 2px solid #fff; transform: translate(-50%, -50%); box-shadow: 0 0 15px rgba(255,183,3,0.6);
+            position: absolute; left: 50%; top: 50%; width: 50px; height: 50px; border-radius: 50%;
+            background: #ffb703; border: 2px solid #fff; transform: translate(-50%, -50%);
         }
         .look-zone { position: absolute; inset: 0; z-index: 20; touch-action: none; display: none; }
         .mobile-buttons {
-            position: absolute; right: 20px; bottom: 24px; z-index: 30; display: none; flex-direction: column; gap: 15px; align-items: center;
+            position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
         }
         .mobile-btn {
-            width: 74px; height: 74px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; font-weight: bold;
-            border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85); backdrop-filter: blur(8px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; font-weight: bold;
+            border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85);
         }
-        .mobile-btn .big { font-size: 1.45rem; margin-bottom: 2px; }
-        .mobile-btn.cook { border-color: #00ff77; color: #00ff77; box-shadow: 0 0 15px rgba(0,255,119,0.3); }
-        .mobile-btn.serve { border-color: #ffb703; color: #ffb703; box-shadow: 0 0 15px rgba(255,183,3,0.3); }
-        .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255,51,51,0.35); }
+        .mobile-btn .big { font-size: 1.4rem; margin-bottom: 2px; }
+        .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
+        .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
+        .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
     </style>
-    <!-- Three.js + Loaders -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
@@ -192,7 +161,6 @@
     <div id="canvas-container"></div>
     <div class="crosshair" id="crosshair"></div>
     <div class="cinematic-vignette"></div>
-    <div class="film-grain"></div>
     <div class="horror-glitch" id="horrorGlitch"></div>
 
     <div class="interaction-prompt" id="promptText">
@@ -207,13 +175,12 @@
         <div class="hud-badge">MÜŞTERİ: <b style="color:#00f0ff;" id="hudCustomerType">BEKLENİYOR...</b></div>
     </div>
 
-    <div class="model-status" id="modelStatus">Gerçekçi 3D Varlıklar Yükleniyor...</div>
+    <div class="model-status" id="modelStatus">3D Varlıklar Optimize Ediliyor...</div>
 
     <div class="hand-item-hud" id="handItemHud">
         <span id="handItemText">BOŞ EL</span>
     </div>
 
-    <!-- Mobil Arayüz -->
     <div class="look-zone" id="lookZone"></div>
     <div class="joystick-zone" id="joystickZone">
         <div class="joystick-base" id="joystickBase">
@@ -226,86 +193,49 @@
         <div class="mobile-btn cook" id="btnCook"><div class="big">🔥</div>PİŞİR</div>
     </div>
 
-    <!-- Başlangıç Modalı -->
     <div class="start-modal" id="startModal" onclick="startPlay()">
         <h1 class="start-title">深夜拉麺 3D</h1>
         <div class="start-subtitle">REALISTIC MIDNIGHT RAMEN SHOP</div>
         <div class="start-desc">
             Gece yarısı yağmurlu Tokyo ara sokağında nöbetçi ramen ustasısın.<br><br>
-            Tezgahına <b>İş Adamları, Öğrenciler, Gezginler ve Mahalle Sakinleri</b> gelecek.<br>
-            <span style="color:#ffd166;">👁️ DİKKATLE BAK:</span> Gözleri simsiyah olan, kırmızı dikey göz bebeklerine sahip veya yüzünde anormallik bulunanlar <b>İNSAN DEĞİLDİR!</b><br>
-            Anomalilere asla ramen verme, <b>hemen kepengi indir!</b><br>
-            <span style="color:#ff4444;">⚠️ ANİ TEHLİKE:</span> Boynu uzayan bir anomali kepenkle karşılaştığında zorlayabilir, <b>hemen tekrar kepenge bas!</b>
+            Tezgahına gelen müşterilerin yüzlerine <b>dikkatle bak:</b><br>
+            <span style="color:#ffd166;">👁️ ANOMALİLER:</span> Gözleri simsiyah, kırmızı yarık veya anormal olanlar insan değildir! Kepengi kapat!<br>
+            <span style="color:#ff4444;">⚠️ TEHLİKE:</span> Boynu uzayan bir varlık kepengi zorlarsa <b>hızlıca tekrar kepenge bas!</b>
         </div>
         <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
             <div>[W,A,S,D] Yürü</div>
-            <div>[FARE] Çevreye Bak</div>
+            <div>[FARE] Bak</div>
             <div>[E] Ramen Hazırla</div>
             <div>[X] Tezgaha Servis Et</div>
             <div>[F / SPACE] Kepenk İndir</div>
         </div>
         <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.9rem; color:#ffd166;">
-            <div>Sol Bölge: Joystick ile Yürü</div>
-            <div>Ekran: Parmağını Kaydırarak Bak</div>
-            <div>Sağ Butonlar: 🔥 Pişir | 🍜 Servis | 🔒 Kepenk</div>
+            <div>Sol: Joystick | Ekran: Bakış | Butonlar: Pişir / Servis / Kepenk</div>
         </div>
         <button class="start-btn">DÜKKANI AÇ</button>
     </div>
 
-    <!-- Ölüm Ekranı -->
     <div class="death-screen" id="deathScreen">
         <h1 style="font-family:'Orbitron'; font-size:2.8rem; color:#ff1111; text-shadow:0 0 35px #ff0000; letter-spacing:4px;" id="deathTitle">ÖLDÜRÜLDÜNÜZ!</h1>
         <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:620px; line-height:1.6;" id="deathDesc">
-            İçeri aldığın varlık insan değildi. Tezgaha sıçrayıp seni karanlığa sürükledi...
+            İçeri aldığın varlık insan değildi. Tezgaha sıçrayıp seni karanlığa çekti...
         </p>
         <button class="start-btn" onclick="restartGame()">YENİDEN DENE</button>
     </div>
 
-    <!-- Yatay Çevir Uyarısı -->
     <div class="rotate-overlay" id="rotateOverlay">
         <div class="rotate-icon">📱</div>
         <h2 style="font-family:'Orbitron'; color:#ff2a2a; margin-bottom:10px;">TELEFONU YATAY ÇEVİRİN</h2>
-        <p style="color:#94a3b8; font-family:'Share Tech Mono', monospace; font-size:0.9rem;">En iyi atmosfer ve kontrol için yatay mod gereklidir.</p>
     </div>
 
     <script>
-        /* ===== GELİŞMİŞ SES SENTEZLEYİCİ & AMBİYANS (Web Audio API) ===== */
+        /* ===== SES SİSTEMİ ===== */
         let audioCtx = null;
-        let ambientGain = null;
-        let rainNoiseNode = null;
-
         function initAudioEngine() {
             if (audioCtx) return;
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-
-                // Gerçekçi Yağmur & Sokak Ambiyansı Jeneratörü
-                const bufferSize = audioCtx.sampleRate * 2;
-                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const output = noiseBuffer.getChannelData(0);
-                let lastOut = 0.0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                }
-
-                rainNoiseNode = audioCtx.createBufferSource();
-                rainNoiseNode.buffer = noiseBuffer;
-                rainNoiseNode.loop = true;
-
-                const rainFilter = audioCtx.createBiquadFilter();
-                rainFilter.type = 'lowpass';
-                rainFilter.frequency.value = 1200;
-
-                ambientGain = audioCtx.createGain();
-                ambientGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-
-                rainNoiseNode.connect(rainFilter);
-                rainFilter.connect(ambientGain);
-                ambientGain.connect(audioCtx.destination);
-                rainNoiseNode.start();
             } catch(e) {}
         }
 
@@ -329,14 +259,12 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.45);
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.45);
-
-                setTimeout(() => playSound(1100, 'sine', 0.08, 0.25), 180);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
             } catch(e) {}
         }
 
@@ -346,27 +274,12 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(22, audioCtx.currentTime + 0.65);
-                gain.gain.setValueAtTime(0.65, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+                osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.55);
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.7);
-            } catch(e) {}
-        }
-
-        function playHeartbeat() {
-            try {
-                if (!audioCtx) initAudioEngine();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(65, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.18);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
             } catch(e) {}
         }
 
@@ -376,16 +289,16 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 1.2);
-                gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+                osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 1.1);
+                gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.1);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.1);
             } catch(e) {}
         }
 
-        /* ===== GLOBAL OYUN DURUMU ===== */
+        /* ===== DURUM & DEĞİŞKENLER ===== */
         const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
         let scene, camera, renderer;
         let gameActive = false;
@@ -396,7 +309,7 @@
         let lookTouchId = null, lookLast = { x: 0, y: 0 };
         const JOYSTICK_RADIUS = 55;
 
-        let shutterGroup, boilerMesh, steamParticles, rainParticles, customer3D = null;
+        let shutterMesh, boilerMesh, steamParticles, rainParticles, customer3D = null;
         let heldBowlGroup = null;
         let counterServedBowl = null;
         let customerWalking = false;
@@ -415,135 +328,105 @@
         let gltfLoaded = false;
 
         const ARCHETYPES = [
-            { id: 'salaryman', title: 'Yorgun Şirket Çalışanı', clothesColor: 0x1a2332, tieColor: 0x8b0000, heightScale: 1.0, speed: 3.2 },
-            { id: 'student', title: 'Üniversite Öğrencisi', clothesColor: 0x1d3557, backpack: true, heightScale: 0.95, speed: 3.6 },
-            { id: 'traveler', title: 'Yağmurluklu Seyyah', clothesColor: 0x854d0e, heightScale: 1.04, speed: 3.0 },
-            { id: 'elderly', title: 'Gece Sakini Amca', clothesColor: 0x334155, heightScale: 0.9, speed: 2.5 }
+            { id: 'salaryman', title: 'Yorgun Şirket Çalışanı', clothesColor: 0x1a2332, heightScale: 1.0 },
+            { id: 'student', title: 'Üniversite Öğrencisi', clothesColor: 0x1d3557, heightScale: 0.95 },
+            { id: 'traveler', title: 'Yağmurluklu Seyyah', clothesColor: 0x854d0e, heightScale: 1.04 },
+            { id: 'elderly', title: 'Gece Sakini Amca', clothesColor: 0x334155, heightScale: 0.9 }
         ];
 
         const ANOMALY_TYPES = ['black_eyes', 'slit_eyes', 'wide_mouth', 'long_neck'];
         const CUSTOMER_NAMES = ["Kaito", "Ren", "Haruto", "Daichi", "Aoi", "Yuto", "Kazuki", "Takumi", "Shin", "Kenzo", "Sora", "Hayato"];
 
-        /* ===== GERÇEKÇİ PBR DOKU ÜRETECİLERİ ===== */
-        function createWoodPBRTexture() {
-            const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+        /* ===== HAFİF DOKU ÜRETİCİLERİ ===== */
+        function createWoodTexture() {
+            const c = document.createElement('canvas'); c.width = 256; c.height = 256;
             const ctx = c.getContext('2d');
             ctx.fillStyle = '#3c2415';
-            ctx.fillRect(0, 0, 512, 512);
-
-            for (let i = 0; i < 90; i++) {
+            ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 45; i++) {
                 ctx.strokeStyle = i % 2 === 0 ? '#26140b' : '#4d301c';
-                ctx.lineWidth = 1 + Math.random() * 3;
-                ctx.globalAlpha = 0.18 + Math.random() * 0.25;
+                ctx.lineWidth = 1 + Math.random() * 2;
+                ctx.globalAlpha = 0.25;
                 ctx.beginPath();
-                let y = Math.random() * 512;
+                let y = Math.random() * 256;
                 ctx.moveTo(0, y);
-                for (let x = 0; x <= 512; x += 32) {
-                    y += (Math.random() - 0.5) * 8;
+                for (let x = 0; x <= 256; x += 32) {
+                    y += (Math.random() - 0.5) * 6;
                     ctx.lineTo(x, y);
                 }
                 ctx.stroke();
             }
-            ctx.globalAlpha = 1;
             const tex = new THREE.CanvasTexture(c);
             tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(4, 2);
+            tex.repeat.set(3, 1.5);
             return tex;
         }
 
-        function createWetAsphaltTexture() {
-            const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+        function createAsphaltTexture() {
+            const c = document.createElement('canvas'); c.width = 256; c.height = 256;
             const ctx = c.getContext('2d');
             ctx.fillStyle = '#111215';
-            ctx.fillRect(0, 0, 512, 512);
-
-            for (let i = 0; i < 4000; i++) {
-                const lum = Math.floor(Math.random() * 45);
-                ctx.fillStyle = `rgb(${lum}, ${lum}, ${lum + 5})`;
-                ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+            ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 1500; i++) {
+                const lum = Math.floor(Math.random() * 35);
+                ctx.fillStyle = `rgb(${lum}, ${lum}, ${lum + 4})`;
+                ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
             }
             const tex = new THREE.CanvasTexture(c);
             tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(12, 12);
+            tex.repeat.set(8, 8);
             return tex;
         }
 
-        function createJapaneseCurtainTexture(kanjiText) {
-            const c = document.createElement('canvas'); c.width = 512; c.height = 256;
+        function createCurtainTexture(kanjiText) {
+            const c = document.createElement('canvas'); c.width = 256; c.height = 128;
             const ctx = c.getContext('2d');
             ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, 512, 256);
-
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            for (let x = 0; x < 512; x += 4) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 256); ctx.stroke();
-            }
-
+            ctx.fillRect(0, 0, 256, 128);
             ctx.fillStyle = '#f8fafc';
-            ctx.font = 'bold 110px serif';
+            ctx.font = 'bold 55px serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(kanjiText, 256, 128);
-
+            ctx.fillText(kanjiText, 128, 64);
             return new THREE.CanvasTexture(c);
         }
 
         function createLanternTexture(kanji) {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+            const c = document.createElement('canvas'); c.width = 128; c.height = 128;
             const ctx = c.getContext('2d');
-            const grad = ctx.createLinearGradient(0, 0, 0, 256);
-            grad.addColorStop(0, '#e11d48');
-            grad.addColorStop(0.5, '#be123c');
-            grad.addColorStop(1, '#881337');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 256, 256);
-
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 4;
-            for (let y = 20; y < 256; y += 35) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(256, y); ctx.stroke();
-            }
-
+            ctx.fillStyle = '#be123c';
+            ctx.fillRect(0, 0, 128, 128);
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 90px serif';
+            ctx.font = 'bold 50px serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(kanji, 128, 128);
-
+            ctx.fillText(kanji, 64, 64);
             return new THREE.CanvasTexture(c);
         }
 
         function createTokyoSkylineTexture() {
-            const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+            const c = document.createElement('canvas'); c.width = 512; c.height = 256;
             const ctx = c.getContext('2d');
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, 512);
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, 256);
             skyGrad.addColorStop(0, '#020208');
-            skyGrad.addColorStop(0.7, '#070913');
-            skyGrad.addColorStop(1, '#111422');
+            skyGrad.addColorStop(1, '#0f1322');
             ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, 1024, 512);
+            ctx.fillRect(0, 0, 512, 256);
 
-            const moonGlow = ctx.createRadialGradient(820, 90, 5, 820, 90, 120);
-            moonGlow.addColorStop(0, 'rgba(240,245,255,0.9)');
-            moonGlow.addColorStop(1, 'rgba(240,245,255,0)');
-            ctx.fillStyle = moonGlow;
-            ctx.fillRect(700, 0, 240, 240);
             ctx.fillStyle = '#f8fafc';
-            ctx.beginPath(); ctx.arc(820, 90, 24, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(420, 45, 15, 0, Math.PI * 2); ctx.fill();
 
-            for (let i = 0; i < 35; i++) {
-                const bw = 30 + Math.random() * 70;
-                const bh = 140 + Math.random() * 320;
-                const bx = Math.random() * 1024;
-                const by = 512 - bh;
+            for (let i = 0; i < 24; i++) {
+                const bw = 25 + Math.random() * 50;
+                const bh = 80 + Math.random() * 160;
+                const bx = Math.random() * 512;
                 ctx.fillStyle = '#06070a';
-                ctx.fillRect(bx, by, bw, bh);
-
-                for (let wx = bx + 6; wx < bx + bw - 6; wx += 12) {
-                    for (let wy = by + 12; wy < 500; wy += 16) {
-                        if (Math.random() < 0.28) {
-                            ctx.fillStyle = Math.random() < 0.65 ? 'rgba(255,214,153,0.85)' : 'rgba(147,197,253,0.7)';
-                            ctx.fillRect(wx, wy, 4, 6);
+                ctx.fillRect(bx, 256 - bh, bw, bh);
+                for (let wx = bx + 5; wx < bx + bw - 5; wx += 10) {
+                    for (let wy = 256 - bh + 8; wy < 250; wy += 14) {
+                        if (Math.random() < 0.25) {
+                            ctx.fillStyle = Math.random() < 0.6 ? 'rgba(255,214,153,0.8)' : 'rgba(147,197,253,0.6)';
+                            ctx.fillRect(wx, wy, 3, 5);
                         }
                     }
                 }
@@ -551,55 +434,52 @@
             return new THREE.CanvasTexture(c);
         }
 
-        /* ===== INIT 3D ENGINE & ATMOSPHERE ===== */
+        /* ===== BAŞLATMA (OPTIMIZE) ===== */
         function init() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x040407);
-            scene.fog = new THREE.FogExp2(0x05060a, 0.045);
+            scene.fog = new THREE.FogExp2(0x05060a, 0.04);
 
-            camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.08, 120);
+            camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 80);
             camera.position.set(0, 1.62, 0.4);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+            renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.15;
-            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.enabled = !isTouchDevice;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0x4a3b32, 1.2);
+            const ambient = new THREE.AmbientLight(0x55443a, 1.3);
             scene.add(ambient);
 
-            const counterSpot = new THREE.SpotLight(0xffb066, 4.5, 9, Math.PI / 3.2, 0.35, 1.5);
+            const counterSpot = new THREE.SpotLight(0xffb066, 4.0, 8, Math.PI / 3.2, 0.35, 1.5);
             counterSpot.position.set(0, 3.2, -0.6);
             counterSpot.target.position.set(0, 0.9, -1.5);
-            counterSpot.castShadow = true;
-            counterSpot.shadow.mapSize.width = 1024;
-            counterSpot.shadow.mapSize.height = 1024;
-            counterSpot.shadow.bias = -0.001;
+            if (renderer.shadowMap.enabled) {
+                counterSpot.castShadow = true;
+                counterSpot.shadow.mapSize.width = 512;
+                counterSpot.shadow.mapSize.height = 512;
+            }
             scene.add(counterSpot);
             scene.add(counterSpot.target);
 
-            const lanternLightL = new THREE.PointLight(0xff2222, 2.8, 6, 1.8);
+            const lanternLightL = new THREE.PointLight(0xff2222, 2.2, 5, 1.8);
             lanternLightL.position.set(-2.2, 2.3, -1.4);
             scene.add(lanternLightL);
 
-            const lanternLightR = new THREE.PointLight(0xff2222, 2.8, 6, 1.8);
+            const lanternLightR = new THREE.PointLight(0xff2222, 2.2, 5, 1.8);
             lanternLightR.position.set(2.2, 2.3, -1.4);
             scene.add(lanternLightR);
 
-            const streetFill = new THREE.DirectionalLight(0x38bdf8, 0.75);
-            streetFill.position.set(0, 10, -15);
-            scene.add(streetFill);
-
-            buildRealisticTokyoRamenShop();
-            buildDetailedBoilerAndProps();
-            buildSteamParticleSystem();
-            buildRainParticleSystem();
+            buildShopEnvironment();
+            buildBoilerAndProps();
+            buildSteamParticles();
+            buildRainParticles();
             buildHeldRamenBowl();
             setupControls();
             setupMobileUI();
@@ -609,13 +489,13 @@
             checkOrientation();
             requestAnimationFrame(renderLoop);
 
-            loadRiggedHumanModel(() => {
-                document.getElementById('modelStatus').innerText = '✓ Gerçek 3D İskeletli Karakter Modelleri Aktif';
+            loadHumanModel(() => {
+                document.getElementById('modelStatus').innerText = '✓ 3D Karakterler & Optimizasyon Aktif';
                 spawnCustomer();
             });
         }
 
-        function loadRiggedHumanModel(callback) {
+        function loadHumanModel(callback) {
             let finished = false;
             function done() {
                 if (finished) return;
@@ -623,7 +503,6 @@
                 gltfLoaded = true;
                 callback();
             }
-
             try {
                 const loader = new THREE.GLTFLoader();
                 loader.load(
@@ -631,12 +510,6 @@
                     (gltf) => {
                         gltfHumanModel = gltf.scene;
                         gltfHumanAnimations = gltf.animations || [];
-                        gltfHumanModel.traverse((child) => {
-                            if (child.isMesh) {
-                                child.castShadow = true;
-                                child.receiveShadow = true;
-                            }
-                        });
                         done();
                     },
                     undefined,
@@ -645,64 +518,30 @@
             } catch(e) {
                 done();
             }
-            setTimeout(done, 6000);
+            setTimeout(done, 5000);
         }
 
-        function buildRealisticTokyoRamenShop() {
-            const woodTex = createWoodPBRTexture();
-            const asphaltTex = createWetAsphaltTexture();
+        function buildShopEnvironment() {
+            const woodTex = createWoodTexture();
+            const asphaltTex = createAsphaltTexture();
             const skylineTex = createTokyoSkylineTexture();
 
-            const woodMaterial = new THREE.MeshStandardMaterial({
-                map: woodTex, roughness: 0.45, metalness: 0.05
-            });
-            const polishedCounterMat = new THREE.MeshStandardMaterial({
-                map: woodTex, roughness: 0.25, metalness: 0.1
-            });
-            const darkWoodMat = new THREE.MeshStandardMaterial({
-                color: 0x1f140e, roughness: 0.7
-            });
-            const metalMat = new THREE.MeshStandardMaterial({
-                color: 0x8e9299, metalness: 0.85, roughness: 0.28
-            });
+            const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.5 });
+            const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.7 });
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x8e9299, metalness: 0.8, roughness: 0.3 });
 
-            const floorGeo = new THREE.PlaneGeometry(7.2, 5.5);
-            const floor = new THREE.Mesh(floorGeo, woodMaterial);
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), woodMat);
             floor.rotation.x = -Math.PI / 2;
-            floor.receiveShadow = true;
             scene.add(floor);
 
-            const ceiling = new THREE.Mesh(floorGeo, darkWoodMat);
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), darkWoodMat);
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.set(0, 3.4, 0);
             scene.add(ceiling);
 
-            for (let z = -1.2; z <= 2.2; z += 1.1) {
-                const beam = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.2, 0.2), woodMaterial);
-                beam.position.set(0, 3.3, z);
-                beam.castShadow = true;
-                scene.add(beam);
-            }
-
             const backWall = new THREE.Mesh(new THREE.BoxGeometry(7.2, 3.4, 0.2), darkWoodMat);
             backWall.position.set(0, 1.7, 2.7);
-            backWall.receiveShadow = true;
             scene.add(backWall);
-
-            const shelf = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.08, 0.4), polishedCounterMat);
-            shelf.position.set(0, 2.0, 2.5);
-            shelf.castShadow = true;
-            scene.add(shelf);
-
-            const glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0x064e3b, roughness: 0.1, transmission: 0.8, thickness: 0.5, transparent: true
-            });
-            for (let x = -2.2; x <= 2.2; x += 0.6) {
-                const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.075, 0.38, 16), glassMat);
-                bottle.position.set(x, 2.22, 2.5);
-                bottle.castShadow = true;
-                scene.add(bottle);
-            }
 
             const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 5.5), darkWoodMat);
             wallL.position.set(-3.6, 1.7, 0);
@@ -714,119 +553,64 @@
 
             const counterBase = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.02, 0.7), darkWoodMat);
             counterBase.position.set(0, 0.51, -1.5);
-            counterBase.receiveShadow = true;
             scene.add(counterBase);
 
-            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.12, 0.95), polishedCounterMat);
+            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.12, 0.95), woodMat);
             counterTop.position.set(0, 1.08, -1.5);
-            counterTop.castShadow = true;
-            counterTop.receiveShadow = true;
             scene.add(counterTop);
 
             const lanternTex = createLanternTexture('拉麺');
-            const lanternMat = new THREE.MeshStandardMaterial({
-                map: lanternTex, roughness: 0.5, emissive: 0xb91c1c, emissiveIntensity: 0.45
-            });
-
+            const lanternMat = new THREE.MeshStandardMaterial({ map: lanternTex, roughness: 0.5, emissive: 0xb91c1c, emissiveIntensity: 0.4 });
             [-2.2, 2.2].forEach(lx => {
-                const lanternGroup = new THREE.Group();
-                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.65, 20), lanternMat);
-                body.castShadow = true;
-                lanternGroup.add(body);
-
-                const topCap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.23, 0.08, 16), metalMat);
-                topCap.position.y = 0.35;
-                lanternGroup.add(topCap);
-
-                const botCap = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.12, 0.08, 16), metalMat);
-                botCap.position.y = -0.35;
-                lanternGroup.add(botCap);
-
-                lanternGroup.position.set(lx, 2.45, -1.4);
-                scene.add(lanternGroup);
+                const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 14), lanternMat);
+                lantern.position.set(lx, 2.45, -1.4);
+                scene.add(lantern);
             });
 
-            const curtainTex = createJapaneseCurtainTexture('深夜拉麺');
-            const curtainMat = new THREE.MeshStandardMaterial({
-                map: curtainTex, roughness: 0.7, side: THREE.DoubleSide
-            });
-            const curtain = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.75), curtainMat);
-            curtain.position.set(0, 2.9, -1.45);
+            const curtainTex = createCurtainTexture('深夜拉麺');
+            const curtain = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.65), new THREE.MeshStandardMaterial({ map: curtainTex, side: THREE.DoubleSide }));
+            curtain.position.set(0, 3.0, -1.45);
             scene.add(curtain);
 
-            shutterGroup = new THREE.Group();
-            const shutterSlatMat = new THREE.MeshStandardMaterial({
-                color: 0x475569, metalness: 0.75, roughness: 0.35
+            const shutterBox = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.35, 0.25), metalMat);
+            shutterBox.position.set(0, 3.25, -1.48);
+            scene.add(shutterBox);
+
+            [-3.25, 3.25].forEach(rx => {
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 0.15), metalMat);
+                rail.position.set(rx, 2.15, -1.48);
+                scene.add(rail);
             });
-            const shutterSlat = new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.1, 0.08), shutterSlatMat);
-            shutterSlat.position.set(0, -1.05, 0);
-            shutterSlat.castShadow = true;
-            shutterGroup.add(shutterSlat);
 
-            const hazardMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.5 });
-            const hazardStrip = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.14, 0.09), hazardMat);
-            hazardStrip.position.set(0, -2.05, 0);
-            shutterGroup.add(hazardStrip);
+            const shutterGeo = new THREE.BoxGeometry(6.4, 2.35, 0.08);
+            const shutterMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.75, roughness: 0.35 });
+            shutterMesh = new THREE.Mesh(shutterGeo, shutterMat);
+            shutterMesh.position.set(0, 4.4, -1.48);
+            scene.add(shutterMesh);
 
-            shutterGroup.position.set(0, 3.65, -1.48);
-            scene.add(shutterGroup);
-
-            const street = new THREE.Mesh(new THREE.PlaneGeometry(50, 60), new THREE.MeshStandardMaterial({
-                map: asphaltTex, roughness: 0.18, metalness: 0.3
-            }));
+            const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), new THREE.MeshStandardMaterial({ map: asphaltTex, roughness: 0.25 }));
             street.rotation.x = -Math.PI / 2;
-            street.position.set(0, -0.01, -26);
-            street.receiveShadow = true;
+            street.position.set(0, -0.01, -24);
             scene.add(street);
 
-            const skyline = new THREE.Mesh(new THREE.PlaneGeometry(60, 24), new THREE.MeshBasicMaterial({
-                map: skylineTex, fog: false
-            }));
-            skyline.position.set(0, 11, -40);
+            const skyline = new THREE.Mesh(new THREE.PlaneGeometry(50, 20), new THREE.MeshBasicMaterial({ map: skylineTex, fog: false }));
+            skyline.position.set(0, 10, -35);
             scene.add(skyline);
         }
 
-        function buildDetailedBoilerAndProps() {
-            const metalMat = new THREE.MeshStandardMaterial({
-                color: 0xd1d5db, metalness: 0.9, roughness: 0.2
-            });
-            const copperMat = new THREE.MeshStandardMaterial({
-                color: 0xb45309, metalness: 0.8, roughness: 0.3
-            });
-
+        function buildBoilerAndProps() {
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.85, roughness: 0.25 });
             const boilerGroup = new THREE.Group();
-            const mainBody = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.55, 24), metalMat);
-            mainBody.castShadow = true;
+            const mainBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.33, 0.5, 18), metalMat);
             boilerGroup.add(mainBody);
 
-            const rim = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.02, 12, 24), metalMat);
-            rim.rotation.x = Math.PI / 2;
-            rim.position.y = 0.275;
-            boilerGroup.add(rim);
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.02, 18), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.1 }));
+            broth.position.y = 0.22;
+            boilerGroup.add(broth);
 
-            [-0.37, 0.37].forEach(kx => {
-                const handle = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.015, 8, 16), copperMat);
-                handle.position.set(kx, 0.1, 0);
-                handle.rotation.y = Math.PI / 2;
-                boilerGroup.add(handle);
-            });
-
-            const brothMat = new THREE.MeshStandardMaterial({
-                color: 0xd97706, roughness: 0.1, metalness: 0.1
-            });
-            const brothSurface = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.02, 24), brothMat);
-            brothSurface.position.y = 0.24;
-            boilerGroup.add(brothSurface);
-
-            boilerGroup.position.set(-1.8, 1.42, -1.4);
+            boilerGroup.position.set(-1.8, 1.4, -1.4);
             boilerMesh = boilerGroup;
             scene.add(boilerGroup);
-
-            const ceramicMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.2 });
-            const soyBottle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.24, 16), ceramicMat);
-            soyBottle.position.set(1.4, 1.25, -1.4);
-            soyBottle.castShadow = true;
-            scene.add(soyBottle);
 
             counterServedBowl = buildCompleteRamenBowl(1.0);
             counterServedBowl.position.set(0, 1.15, -1.45);
@@ -836,68 +620,39 @@
 
         function buildCompleteRamenBowl(scale = 1.0) {
             const bowlGroup = new THREE.Group();
-
-            const bowlPoints = [
-                new THREE.Vector2(0.00 * scale, 0.00 * scale),
+            const pts = [
+                new THREE.Vector2(0, 0),
                 new THREE.Vector2(0.08 * scale, 0.01 * scale),
                 new THREE.Vector2(0.18 * scale, 0.06 * scale),
                 new THREE.Vector2(0.26 * scale, 0.14 * scale),
                 new THREE.Vector2(0.28 * scale, 0.21 * scale),
-                new THREE.Vector2(0.265 * scale, 0.23 * scale),
                 new THREE.Vector2(0.29 * scale, 0.24 * scale)
             ];
-            const bowlGeo = new THREE.LatheGeometry(bowlPoints, 32);
-            const bowlMat = new THREE.MeshStandardMaterial({
-                color: 0x0f172a, roughness: 0.25, metalness: 0.1
-            });
-            const bowlMesh = new THREE.Mesh(bowlGeo, bowlMat);
-            bowlMesh.castShadow = true;
+            const bowlMesh = new THREE.Mesh(new THREE.LatheGeometry(pts, 20), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.25 }));
             bowlGroup.add(bowlMesh);
 
-            const brothGeo = new THREE.CylinderGeometry(0.255 * scale, 0.24 * scale, 0.02 * scale, 24);
-            const brothMat = new THREE.MeshStandardMaterial({
-                color: 0xd97706, roughness: 0.15, metalness: 0.05
-            });
-            const broth = new THREE.Mesh(brothGeo, brothMat);
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * scale, 0.23 * scale, 0.02 * scale, 16), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.15 }));
             broth.position.y = 0.19 * scale;
             bowlGroup.add(broth);
 
             const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.4 });
-            for (let i = 0; i < 8; i++) {
-                const noodle = new THREE.Mesh(new THREE.TorusGeometry(0.06 * scale, 0.014 * scale, 8, 16, Math.PI * 1.5), noodleMat);
-                noodle.position.set((Math.random() - 0.5) * 0.18 * scale, 0.205 * scale, (Math.random() - 0.5) * 0.18 * scale);
-                noodle.rotation.set(Math.PI / 2 + (Math.random() - 0.5) * 0.4, Math.random() * Math.PI, 0);
+            for (let i = 0; i < 5; i++) {
+                const noodle = new THREE.Mesh(new THREE.TorusGeometry(0.06 * scale, 0.014 * scale, 6, 10, Math.PI * 1.4), noodleMat);
+                noodle.position.set((Math.random() - 0.5) * 0.16 * scale, 0.205 * scale, (Math.random() - 0.5) * 0.16 * scale);
+                noodle.rotation.set(Math.PI / 2, Math.random() * Math.PI, 0);
                 bowlGroup.add(noodle);
             }
 
-            const eggWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.3 });
-            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.05 * scale, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), eggWhiteMat);
+            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.05 * scale, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.3 }));
             eggHalf.rotation.x = Math.PI;
             eggHalf.position.set(0.1 * scale, 0.22 * scale, -0.06 * scale);
             bowlGroup.add(eggHalf);
 
-            const yolkMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.2 });
-            const eggYolk = new THREE.Mesh(new THREE.CircleGeometry(0.025 * scale, 16), yolkMat);
-            eggYolk.rotation.x = -Math.PI / 2;
-            eggYolk.position.set(0.1 * scale, 0.221 * scale, -0.06 * scale);
-            bowlGroup.add(eggYolk);
+            const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.014 * scale, 12), new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.6 }));
+            chashu.position.set(-0.08 * scale, 0.215 * scale, 0.07 * scale);
+            bowlGroup.add(chashu);
 
-            const chashuMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.6 });
-            for (let i = 0; i < 2; i++) {
-                const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.014 * scale, 16), chashuMat);
-                chashu.position.set(-0.09 * scale + i * 0.02, 0.215 * scale, 0.07 * scale);
-                bowlGroup.add(chashu);
-            }
-
-            const scallionMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.5 });
-            for (let i = 0; i < 10; i++) {
-                const scallion = new THREE.Mesh(new THREE.CylinderGeometry(0.008 * scale, 0.008 * scale, 0.02 * scale, 6), scallionMat);
-                scallion.position.set((Math.random() - 0.5) * 0.3 * scale, 0.215 * scale, (Math.random() - 0.5) * 0.3 * scale);
-                bowlGroup.add(scallion);
-            }
-
-            const noriMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, side: THREE.DoubleSide, roughness: 0.8 });
-            const nori = new THREE.Mesh(new THREE.PlaneGeometry(0.1 * scale, 0.13 * scale), noriMat);
+            const nori = new THREE.Mesh(new THREE.PlaneGeometry(0.1 * scale, 0.13 * scale), new THREE.MeshStandardMaterial({ color: 0x0f172a, side: THREE.DoubleSide }));
             nori.position.set(-0.06 * scale, 0.24 * scale, -0.11 * scale);
             nori.rotation.x = -Math.PI / 2.4;
             bowlGroup.add(nori);
@@ -914,35 +669,31 @@
             scene.add(camera);
         }
 
-        function buildSteamParticleSystem() {
-            const count = isTouchDevice ? 25 : 45;
+        function buildSteamParticles() {
+            const count = 18;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = -1.8 + (Math.random() - 0.5) * 0.45;
-                pos[i + 1] = 1.68 + Math.random() * 0.9;
-                pos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.45;
+                pos[i] = -1.8 + (Math.random() - 0.5) * 0.4;
+                pos[i + 1] = 1.65 + Math.random() * 0.8;
+                pos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.4;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            steamParticles = new THREE.Points(geo, new THREE.PointsMaterial({
-                color: 0xffffff, size: 0.16, transparent: true, opacity: 0.38
-            }));
+            steamParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.35 }));
             scene.add(steamParticles);
         }
 
-        function buildRainParticleSystem() {
-            const count = isTouchDevice ? 350 : 650;
+        function buildRainParticles() {
+            const count = isTouchDevice ? 180 : 320;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = (Math.random() - 0.5) * 36;
-                pos[i + 1] = Math.random() * 18;
-                pos[i + 2] = -Math.random() * 32 - 1.8;
+                pos[i] = (Math.random() - 0.5) * 30;
+                pos[i + 1] = Math.random() * 16;
+                pos[i + 2] = -Math.random() * 26 - 1.8;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({
-                color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.55
-            }));
+            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.5 }));
             scene.add(rainParticles);
         }
 
@@ -962,39 +713,45 @@
                         mat.color = new THREE.Color(clothesColor);
                         mat.roughness = 0.65;
                         o.material = mat;
-                        o.castShadow = true;
                     }
                 });
 
                 let mixer = null;
+                let walkAction = null;
+                let idleAction = null;
+
                 if (gltfHumanAnimations && gltfHumanAnimations.length > 0) {
                     mixer = new THREE.AnimationMixer(modelClone);
-                    const walkClip = gltfHumanAnimations.find(a => /walk|run/i.test(a.name)) || gltfHumanAnimations[0];
-                    const action = mixer.clipAction(walkClip);
-                    action.play();
+                    const walkClip = gltfHumanAnimations.find(a => /walk|run/i.test(a.name)) || gltfHumanAnimations[1] || gltfHumanAnimations[0];
+                    const idleClip = gltfHumanAnimations.find(a => /idle/i.test(a.name)) || gltfHumanAnimations[0];
+
+                    walkAction = mixer.clipAction(walkClip);
+                    idleAction = mixer.clipAction(idleClip);
+
+                    walkAction.play();
                 }
 
                 let headBone = null;
                 modelClone.traverse((o) => {
-                    if (o.isBone && /head|neck/i.test(o.name)) {
-                        headBone = o;
-                    }
+                    if (o.isBone && /head|neck/i.test(o.name)) headBone = o;
                 });
 
                 if (anomaly) {
-                    const curseLight = new THREE.PointLight(0xff1111, 1.4, 3, 2);
+                    const curseLight = new THREE.PointLight(0xff1111, 1.4, 2.5, 2);
                     curseLight.position.set(0, 1.68 * (arch.heightScale || 1.0), 0.25);
                     charGroup.add(curseLight);
                 }
 
                 charGroup.userData.mixer = mixer;
+                charGroup.userData.walkAction = walkAction;
+                charGroup.userData.idleAction = idleAction;
                 charGroup.userData.headBone = headBone;
                 charGroup.userData.isLongNeck = anomaly && anomalyType === 'long_neck';
             }
 
             const shadowBlob = new THREE.Mesh(
-                new THREE.CircleGeometry(0.36, 24),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false })
+                new THREE.CircleGeometry(0.34, 16),
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4, depthWrite: false })
             );
             shadowBlob.rotation.x = -Math.PI / 2;
             shadowBlob.position.y = 0.005;
@@ -1083,7 +840,6 @@
             }, { passive: false });
 
             joystickZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) if (t.identifier === joystickTouchId) resetJoy(); });
-            joystickZone.addEventListener('touchcancel', (e) => { for (const t of e.changedTouches) if (t.identifier === joystickTouchId) resetJoy(); });
 
             lookZone.addEventListener('touchstart', (e) => {
                 const t = e.changedTouches[0];
@@ -1146,7 +902,7 @@
                 if (isAnomaly) {
                     triggerJumpscare();
                 } else {
-                    playSound(1200, 'triangle', 0.25, 0.35);
+                    playSound(1200, 'triangle', 0.25, 0.3);
                     money += 85;
                     hasCookedRamen = false;
                     if (heldBowlGroup) heldBowlGroup.visible = false;
@@ -1172,7 +928,7 @@
                 document.getElementById('customerCaption').style.display = 'none';
                 document.getElementById('horrorGlitch').style.display = 'none';
                 advanceShift();
-                shutterGroup.position.y = 3.65;
+                shutterMesh.position.y = 4.4;
                 shutterClosed = false;
                 return;
             }
@@ -1181,12 +937,11 @@
             shutterClosed = !shutterClosed;
 
             if (shutterClosed) {
-                shutterGroup.position.y = 1.9;
+                shutterMesh.position.y = 2.25;
                 if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
                     if (isAnomaly && currentAnomalyType === 'long_neck') {
                         qteActive = true;
                         document.getElementById('horrorGlitch').style.display = 'block';
-                        playHeartbeat();
                         qteTimeout = setTimeout(() => {
                             if (qteActive) {
                                 qteActive = false;
@@ -1196,19 +951,19 @@
                     } else {
                         setTimeout(() => {
                             if (isAnomaly) {
-                                playSound(1450, 'sine', 0.25, 0.35);
+                                playSound(1450, 'sine', 0.25, 0.3);
                                 money += 175;
                                 document.getElementById('hudMoney').innerText = `$${money}`;
                             }
                             document.getElementById('customerCaption').style.display = 'none';
                             advanceShift();
-                            shutterGroup.position.y = 3.65;
+                            shutterMesh.position.y = 4.4;
                             shutterClosed = false;
                         }, 1200);
                     }
                 }
             } else {
-                shutterGroup.position.y = 3.65;
+                shutterMesh.position.y = 4.4;
             }
         }
 
@@ -1252,7 +1007,7 @@
             document.getElementById('horrorGlitch').style.display = 'block';
             if (customer3D) {
                 customer3D.position.set(0, 1.45, -0.5);
-                customer3D.scale.set(2.5, 2.5, 2.5);
+                customer3D.scale.set(2.4, 2.4, 2.4);
             }
             if (heldBowlGroup) heldBowlGroup.visible = false;
             document.getElementById('customerCaption').style.display = 'none';
@@ -1277,7 +1032,7 @@
             qteActive = false;
             if (qteTimeout) clearTimeout(qteTimeout);
             if (heldBowlGroup) heldBowlGroup.visible = false;
-            shutterGroup.position.y = 3.65;
+            shutterMesh.position.y = 4.4;
             document.getElementById('hudClock').innerText = "00:00";
             document.getElementById('hudMoney').innerText = "$0";
             document.getElementById('handItemText').innerText = "BOŞ EL";
@@ -1333,27 +1088,36 @@
                 if (camera.position.z < -0.9) camera.position.z = -0.9;
             }
 
-            if (customer3D && customerWalking) {
-                customer3D.position.z += delta * 3.4;
-                if (customer3D.position.z >= -2.4) {
-                    customer3D.position.z = -2.4;
-                    customerWalking = false;
+            if (customer3D) {
+                if (customerWalking) {
+                    customer3D.position.z += delta * 3.2;
+                    if (customer3D.position.z >= -2.4) {
+                        customer3D.position.z = -2.4;
+                        customerWalking = false;
+
+                        if (customer3D.userData.walkAction && customer3D.userData.idleAction) {
+                            customer3D.userData.walkAction.fadeOut(0.3);
+                            customer3D.userData.idleAction.reset().fadeIn(0.3).play();
+                        } else if (customer3D.userData.walkAction) {
+                            customer3D.userData.walkAction.stop();
+                        }
+                    }
                 }
-            }
 
-            if (customer3D && customer3D.userData.mixer) {
-                customer3D.userData.mixer.update(delta);
-            }
+                if (customer3D.userData.mixer) {
+                    customer3D.userData.mixer.update(delta);
+                }
 
-            if (qteActive && customer3D && customer3D.userData.headBone) {
-                customer3D.userData.headBone.position.y += delta * 1.5;
+                if (qteActive && customer3D.userData.headBone) {
+                    customer3D.userData.headBone.position.y += delta * 1.5;
+                }
             }
 
             if (steamParticles) {
                 const sPos = steamParticles.geometry.attributes.position.array;
                 for (let i = 1; i < sPos.length; i += 3) {
-                    sPos[i] += delta * 0.65;
-                    if (sPos[i] > 2.6) sPos[i] = 1.68;
+                    sPos[i] += delta * 0.6;
+                    if (sPos[i] > 2.6) sPos[i] = 1.65;
                 }
                 steamParticles.geometry.attributes.position.needsUpdate = true;
             }
@@ -1362,7 +1126,7 @@
                 const rPos = rainParticles.geometry.attributes.position.array;
                 for (let i = 1; i < rPos.length; i += 3) {
                     rPos[i] -= delta * 24;
-                    if (rPos[i] < 0) rPos[i] = 18;
+                    if (rPos[i] < 0) rPos[i] = 16;
                 }
                 rainParticles.geometry.attributes.position.needsUpdate = true;
             }
