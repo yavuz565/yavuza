@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN // İNSANLAR VE CANAVARLAR (10 MÜŞTERİ)</title>
+    <title>MIDNIGHT RAMEN // İNSANLAR VE CANAVARLAR v8.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -16,100 +16,92 @@
 
         .cinematic-vignette {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(4,2,3,0.65) 80%, rgba(0,0,0,0.94) 100%);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 50%, rgba(4,2,3,0.6) 80%, rgba(0,0,0,0.92) 100%);
         }
         .monster-danger-overlay {
             position: absolute; inset: 0; z-index: 7; pointer-events: none; display: none;
-            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.7) 100%);
-            animation: dangerPulse 0.4s infinite alternate;
+            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.75) 100%);
+            animation: dangerPulse 0.35s infinite alternate;
         }
-        @keyframes dangerPulse {
-            from { opacity: 0.4; } to { opacity: 0.95; }
-        }
+        @keyframes dangerPulse { from { opacity: 0.4; } to { opacity: 0.95; } }
 
         .crosshair {
             position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.9);
             border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-            transition: transform 0.15s ease-out;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
         }
-        .crosshair.interact { transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 14px #ffb703; }
-        .crosshair.danger { transform: translate(-50%, -50%) scale(3.5); background: #ff1111; box-shadow: 0 0 24px #ff0000; }
+        .crosshair.interact { transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 12px #ffb703; }
+        .crosshair.danger { transform: translate(-50%, -50%) scale(3.5); background: #ff1111; box-shadow: 0 0 20px #ff0000; }
 
-        /* Müşteri Konuşma / Durum Balonu */
         .customer-dialog {
             position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
-            background: rgba(10, 8, 12, 0.92); border: 2px solid rgba(255,255,255,0.25); padding: 12px 28px;
-            border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; color: #fff;
-            letter-spacing: 1px; z-index: 20; display: none; text-align: center; backdrop-filter: blur(10px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.8); max-width: 90vw;
+            background: rgba(10, 8, 12, 0.92); border: 2px solid rgba(255,255,255,0.25); padding: 10px 24px;
+            border-radius: 8px; font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: #fff;
+            z-index: 20; display: none; text-align: center; backdrop-filter: blur(8px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.8); max-width: 90vw;
         }
         .customer-dialog.monster {
             border-color: #ff1111; color: #ff6666; animation: monsterShake 0.15s infinite;
-            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 30px rgba(255,0,0,0.6);
+            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 25px rgba(255,0,0,0.6);
         }
         @keyframes monsterShake {
             0% { transform: translateX(-50%) translate(0, 0); }
-            50% { transform: translateX(-50%) translate(-3px, 2px); }
-            100% { transform: translateX(-50%) translate(3px, -2px); }
+            50% { transform: translateX(-50%) translate(-2px, 2px); }
+            100% { transform: translateX(-50%) translate(2px, -2px); }
         }
 
-        /* Etkileşim İpucu */
         .interaction-prompt {
             position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
-            background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 12px 26px;
-            border-radius: 8px; font-size: 1.1rem; font-weight: 800; letter-spacing: 1.5px; z-index: 25;
-            display: none; text-align: center; pointer-events: none; box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 10px 22px;
+            border-radius: 8px; font-size: 1.05rem; font-weight: 800; z-index: 25;
+            display: none; text-align: center; pointer-events: none;
         }
         .interaction-prompt.monster-warn {
-            border-color: #ff0000; background: #2a0000; color: #ffcccc; box-shadow: 0 0 35px #ff0000;
-            animation: warnPulse 0.3s infinite alternate; font-size: 1.25rem;
+            border-color: #ff0000; background: #2a0000; color: #ffcccc; box-shadow: 0 0 30px #ff0000;
+            animation: warnPulse 0.3s infinite alternate; font-size: 1.2rem;
         }
-        @keyframes warnPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.08); } }
+        @keyframes warnPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.06); } }
         .interaction-prompt kbd {
-            background: #ff3333; color: #fff; padding: 3px 10px; border-radius: 4px;
-            font-family: 'Share Tech Mono', monospace; font-size: 1rem; margin-right: 8px;
+            background: #ff3333; color: #fff; padding: 2px 8px; border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; margin-right: 6px;
         }
-        .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; font-weight: bold; }
+        .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; }
 
-        /* Üst HUD */
         .hud-status {
-            position: absolute; top: 14px; left: 14px; z-index: 25; display: flex; gap: 10px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.9rem;
+            position: absolute; top: 12px; left: 12px; z-index: 25; display: flex; gap: 8px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
         }
         .hud-badge {
             background: rgba(12, 8, 10, 0.92); border: 1.5px solid rgba(255, 68, 68, 0.5);
-            padding: 6px 14px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            padding: 5px 12px; border-radius: 6px;
         }
 
         .hand-item-hud {
-            position: absolute; top: 14px; right: 14px; background: rgba(12, 8, 10, 0.92);
-            border: 2px solid #ffb703; padding: 6px 18px; border-radius: 6px;
-            font-size: 0.9rem; font-weight: bold; color: #ffb703; z-index: 25;
+            position: absolute; top: 12px; right: 12px; background: rgba(12, 8, 10, 0.92);
+            border: 2px solid #ffb703; padding: 5px 16px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: bold; color: #ffb703; z-index: 25;
         }
 
-        /* Modallar */
         .start-modal {
             position: absolute; inset: 0;
             background: radial-gradient(circle at 50% 40%, rgba(26, 8, 8, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
             z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 24px; cursor: pointer; overflow-y: auto;
+            text-align: center; padding: 20px; cursor: pointer; overflow-y: auto;
         }
         .start-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #ff2a2a;
-            text-shadow: 0 0 30px rgba(255, 42, 42, 0.85); margin-bottom: 10px; letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif; font-size: 2.3rem; color: #ff2a2a;
+            text-shadow: 0 0 25px rgba(255, 42, 42, 0.85); margin-bottom: 8px; letter-spacing: 2px;
         }
         .start-desc {
-            color: #e2e8f0; font-size: 1.05rem; max-width: 720px; line-height: 1.65; margin-bottom: 22px;
-            background: rgba(0,0,0,0.55); padding: 18px 24px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0; font-size: 1rem; max-width: 700px; line-height: 1.6; margin-bottom: 20px;
+            background: rgba(0,0,0,0.5); padding: 16px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
         }
         .start-btn {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%); color: #fff; border: 1px solid #ff6666;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem;
-            padding: 16px 50px; border-radius: 8px; box-shadow: 0 0 35px rgba(255, 42, 42, 0.8);
-            cursor: pointer; letter-spacing: 2px; margin-top: 12px;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem;
+            padding: 14px 44px; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.8);
+            cursor: pointer; letter-spacing: 2px; margin-top: 10px;
         }
-        .start-btn:hover { transform: scale(1.04); }
 
         .end-screen {
             position: absolute; inset: 0; background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
@@ -124,7 +116,6 @@
         .rotate-icon { font-size: 4rem; margin-bottom: 18px; animation: rotateHint 1.6s ease-in-out infinite; }
         @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
 
-        /* Mobil Kontroller */
         .joystick-zone { position: absolute; left: 0; bottom: 0; width: 45%; height: 60%; z-index: 30; display: none; touch-action: none; }
         .joystick-base {
             position: absolute; left: 75px; bottom: 75px; width: 110px; height: 110px; border-radius: 50%;
@@ -139,18 +130,16 @@
             position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
         }
         .mobile-btn {
-            width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; font-weight: bold;
             border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85);
         }
-        .mobile-btn .big { font-size: 1.45rem; margin-bottom: 2px; }
+        .mobile-btn .big { font-size: 1.4rem; margin-bottom: 2px; }
         .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
         .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
         .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 </head>
 <body>
 
@@ -188,24 +177,25 @@
     </div>
 
     <div class="start-modal" id="startModal" onclick="startPlay()">
-        <h1 class="start-title">深夜拉麺 // GECE NÖBETİ</h1>
-        <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.1rem; letter-spacing:3px; margin-bottom:18px;">
-            10 MÜŞTERİ SIRASI (5 İNSAN + 5 CANAVAR)
+        <h1 class="start-title">深夜拉麺 // 10 KİŞİLİK NÖBET</h1>
+        <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.05rem; letter-spacing:2px; margin-bottom:14px;">
+            5 GERÇEK İNSAN + 5 KORKUNÇ CANAVAR
         </div>
         <div class="start-desc">
-            Bu gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
-            👨‍💼 <b>5 Tanesi Normal İnsan:</b> Düzgün konuşurlar, acıkmışlardır. Kazandan ramen hazırla (<b>E</b>) ve tezgaha servis et (<b>X</b>).<br><br>
-            👹 <b>5 Tanesi Korkunç Canavar:</b> Kırmızı parlayan gözleri, karanlık yaratık auraları ve canavar sesleri vardır.<br>
-            <span style="color:#ff4444; font-weight:bold;">DİKKAT:</span> Canavar tezgaha geldiğinde <b>hemen kepengi indir (F / SPACE)!</b> Kepenk kapanınca canavar korkup kaçar. Kepengi açık bırakırsan sana saldırır ve ölürsün!
+            Gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
+            👨‍💼 <b>İNSANLAR:</b> Normal insan yüzleri, saçları ve kıyafetleri vardır. Kibarca ramen isterler.<br>
+            👉 <b>E</b> ile kazandan ramen doldur, <b>X</b> ile tezgaha servis et!<br><br>
+            👹 <b>CANAVARLAR:</b> Kırmızı/mor/yeşil parlayan gözleri, boynuzları, şeytani karanlık derileri ve canavar sesleri vardır.<br>
+            👉 Canavar görünce <b>HEMEN KEPENGİ İNDİR (F / SPACE)!</b> Kepengi kapatmazsan 3 saniye sonra saldırıp seni yer!
         </div>
-        <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
+        <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
             <div>[W,A,S,D] Yürü</div>
             <div>[FARE] Bak</div>
-            <div>[E] Ramen Hazırla</div>
-            <div>[X] İnsana Servis Et</div>
+            <div>[E] Ramen Doldur</div>
+            <div>[X] İnsana Ver</div>
             <div>[F / SPACE] Canavara Kepenk İndir</div>
         </div>
-        <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.9rem; color:#ffd166;">
+        <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:14px; font-family:'Share Tech Mono'; font-size:0.88rem; color:#ffd166;">
             <div>Sol Joystick: Yürü | Ekran: Bak | Butonlar: 🔥 Pişir / 🍜 Servis / 🔒 Kepenk Kapat</div>
         </div>
         <button class="start-btn">DÜKKANI AÇ</button>
@@ -226,16 +216,16 @@
 
     <script>
         const SHIFT_CUSTOMERS = [
-            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: 0x1d4ed8, skinColor: 0xffd1b3, scale: 0.95, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
-            { isMonster: true, name: "Gölge İblisi", role: "Karanlık Canavar", clothesColor: 0x050505, skinColor: 0x1a0505, scale: 1.15, auraColor: 0xff0000, dialog: "ETTT... TAZE İNSAN ETİİİ! SENİ YİYECEĞİM!" },
-            { isMonster: false, name: "Sato", role: "Yorgun Memur", clothesColor: 0x334155, skinColor: 0xfbbf24, scale: 1.0, dialog: "Selamlar usta. Mesai yeni bitti, midem kazınıyor, lezzetli bir ramen rica edeyim." },
-            { isMonster: true, name: "Kanlı Oni", role: "Boynuzlu Canavar", clothesColor: 0x450a0a, skinColor: 0x880000, scale: 1.22, auraColor: 0xff1111, dialog: "KEMİKLERİNİ KIRACAĞIM! KEPENGİ AÇIK UNUTTUN!" },
-            { isMonster: false, name: "Yuki", role: "Yağmurluklu Seyyah", clothesColor: 0xd97706, skinColor: 0xffedd5, scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, ışığı görünce daldım. Bir kase ramen yaparsan minnettar olurum." },
-            { isMonster: true, name: "Çürümüş Gulyabani", role: "Zombi Canavar", clothesColor: 0x1e293b, skinColor: 0x224422, scale: 1.08, auraColor: 0x00ff44, dialog: "BEYİİİN... SICAK KAN VE ETLERİNİ İSTİYORUM!" },
-            { isMonster: false, name: "Aiko", role: "Gece Nöbetçisi Doktor", clothesColor: 0x0284c7, skinColor: 0xffe4e6, scale: 0.92, dialog: "Nöbetten yeni çıktım usta, kokusu sokağı sarmış. Ellerine sağlık şimdiden." },
-            { isMonster: true, name: "Uzun Boyunlu İfrit", role: "Şeytani Varlık", clothesColor: 0x000000, skinColor: 0x4a044e, scale: 1.25, auraColor: 0xc026d3, dialog: "BOYNUMU TEZGAHA UZATIP KALBİNİ SÖKECEĞİM!" },
-            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı Amca", clothesColor: 0x475569, skinColor: 0xd97706, scale: 0.88, dialog: "Hayırlı işler evlat! Şöyle bol çorbalı, yumurtalı bir ramen patlat bakalım." },
-            { isMonster: true, name: "Kabus Hükümdarı", role: "Baş Canavar", clothesColor: 0x180000, skinColor: 0x000000, scale: 1.35, auraColor: 0xff0000, dialog: "SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
+            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: 0x1d4ed8, pantsColor: 0x1e293b, skinColor: 0xffd1b3, hairColor: 0x1c1917, hairStyle: 'short', scale: 0.96, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
+            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothesColor: 0x3b0764, skinColor: 0xdc2626, eyeColor: 0xffff00, scale: 1.25, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
+            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothesColor: 0x0f172a, pantsColor: 0x1e293b, tieColor: 0xb91c1c, skinColor: 0xf5d0b5, hairColor: 0x292524, hairStyle: 'side', scale: 1.0, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
+            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothesColor: 0x1c1917, skinColor: 0x3f6212, eyeColor: 0xffffff, scale: 1.12, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
+            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothesColor: 0xd97706, pantsColor: 0x334155, skinColor: 0xfde047, hairColor: 0x451a03, hairStyle: 'long', scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
+            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothesColor: 0x000000, skinColor: 0x09090b, eyeColor: 0xff0000, scale: 1.3, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
+            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothesColor: 0x0284c7, pantsColor: 0x475569, skinColor: 0xffe4e6, hairColor: 0x18181b, hairStyle: 'long', scale: 0.93, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
+            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothesColor: 0x450a0a, skinColor: 0x581c87, eyeColor: 0x22c55e, scale: 1.28, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
+            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothesColor: 0x4b5563, pantsColor: 0x1f2937, skinColor: 0xd4a373, hairColor: 0xe2e8f0, hairStyle: 'elder', scale: 0.9, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
+            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothesColor: 0x180000, skinColor: 0x000000, eyeColor: 0xff0000, scale: 1.4, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
         ];
 
         let audioCtx = null;
@@ -279,12 +269,12 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(130, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.65, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.55);
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.45);
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.55);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } catch(e) {}
         }
 
@@ -294,12 +284,12 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(700, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 1.2);
+                osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 1.1);
                 gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.1);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.1);
             } catch(e) {}
         }
 
@@ -309,12 +299,12 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.6);
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5);
                 gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } catch(e) {}
         }
 
@@ -339,44 +329,50 @@
         let monsterAttackTimer = null;
         let money = 0;
 
-        let gltfHumanModel = null;
-        let gltfHumanAnimations = [];
-        let gltfLoaded = false;
-
         function createWoodTex() {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+            const c = document.createElement('canvas'); c.width = 128; c.height = 128;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#3c2415'; ctx.fillRect(0, 0, 256, 256);
-            for (let i = 0; i < 40; i++) {
-                ctx.strokeStyle = i % 2 === 0 ? '#26140b' : '#4d301c';
-                ctx.lineWidth = 1 + Math.random() * 2; ctx.globalAlpha = 0.25;
-                ctx.beginPath(); let y = Math.random() * 256; ctx.moveTo(0, y);
-                for (let x = 0; x <= 256; x += 32) { y += (Math.random() - 0.5) * 6; ctx.lineTo(x, y); }
-                ctx.stroke();
-            }
+            ctx.fillStyle = '#3c2415'; ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = '#26140b';
+            for (let i = 0; i < 20; i++) ctx.fillRect(0, Math.random() * 128, 128, 2);
             const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 1.5);
             return tex;
         }
 
-        function createAsphaltTex() {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 256;
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#111215'; ctx.fillRect(0, 0, 256, 256);
-            for (let i = 0; i < 1000; i++) {
-                const lum = Math.floor(Math.random() * 35);
-                ctx.fillStyle = `rgb(${lum}, ${lum}, ${lum + 4})`;
-                ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
-            }
-            const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(8, 8);
-            return tex;
-        }
-
-        function createLanternTex() {
+        function createFaceTex(isMonster, custData) {
             const c = document.createElement('canvas'); c.width = 128; c.height = 128;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#be123c'; ctx.fillRect(0, 0, 128, 128);
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('拉麺', 64, 64);
+            if (isMonster) {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, 128, 128);
+                ctx.fillStyle = custData.eyeColor ? '#' + custData.eyeColor.toString(16).padStart(6, '0') : '#ff0000';
+                ctx.beginPath(); ctx.arc(38, 48, 12, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(90, 48, 12, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(36, 38, 4, 20); ctx.fillRect(88, 38, 4, 20);
+                ctx.fillStyle = '#7f1d1d';
+                ctx.fillRect(24, 82, 80, 24);
+                ctx.fillStyle = '#ffffff';
+                for (let x = 28; x < 100; x += 12) {
+                    ctx.beginPath(); ctx.moveTo(x, 82); ctx.lineTo(x + 6, 94); ctx.lineTo(x + 12, 82); ctx.fill();
+                }
+            } else {
+                ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
+                ctx.fillRect(0, 0, 128, 128);
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.ellipse(40, 52, 11, 7, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(88, 52, 11, 7, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#292524';
+                ctx.beginPath(); ctx.arc(40, 52, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(88, 52, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(28, 40); ctx.lineTo(52, 42); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(76, 42); ctx.lineTo(100, 40); ctx.stroke();
+                ctx.strokeStyle = '#b45309'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(64, 52); ctx.lineTo(60, 68); ctx.lineTo(68, 68); ctx.stroke();
+                ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(64, 86, 16, 0.2, Math.PI - 0.2); ctx.stroke();
+            }
             return new THREE.CanvasTexture(c);
         }
 
@@ -384,37 +380,32 @@
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x040407);
-            scene.fog = new THREE.FogExp2(0x05060a, 0.04);
+            scene.fog = new THREE.Fog(0x040407, 4, 38);
 
-            camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 80);
+            camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 60);
             camera.position.set(0, 1.62, 0.4);
 
-            renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice, powerPreference: 'high-performance' });
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.15;
-            if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.setPixelRatio(1.0);
             container.appendChild(renderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0x55443a, 1.3);
+            const ambient = new THREE.AmbientLight(0x887766, 1.3);
             scene.add(ambient);
 
-            const counterSpot = new THREE.SpotLight(0xffb066, 4.0, 8, Math.PI / 3.2, 0.35, 1.5);
-            counterSpot.position.set(0, 3.2, -0.6);
-            counterSpot.target.position.set(0, 0.9, -1.5);
+            const counterSpot = new THREE.PointLight(0xffb066, 3.5, 9);
+            counterSpot.position.set(0, 2.8, -1.0);
             scene.add(counterSpot);
-            scene.add(counterSpot.target);
 
-            const lanternLightL = new THREE.PointLight(0xff2222, 2.2, 5, 1.8);
-            lanternLightL.position.set(-2.2, 2.3, -1.4);
-            scene.add(lanternLightL);
+            const lanternL = new THREE.PointLight(0xff2222, 2.0, 5);
+            lanternL.position.set(-2.2, 2.3, -1.4);
+            scene.add(lanternL);
 
-            const lanternLightR = new THREE.PointLight(0xff2222, 2.2, 5, 1.8);
-            lanternLightR.position.set(2.2, 2.3, -1.4);
-            scene.add(lanternLightR);
+            const lanternR = new THREE.PointLight(0xff2222, 2.0, 5);
+            lanternR.position.set(2.2, 2.3, -1.4);
+            scene.add(lanternR);
 
-            buildShopEnvironment();
+            buildShop();
             buildBoilerAndProps();
             buildSteamParticles();
             buildRainParticles();
@@ -427,41 +418,14 @@
             checkOrientation();
             requestAnimationFrame(renderLoop);
 
-            loadHumanModel(() => {
-                spawnCurrentCustomer();
-            });
+            spawnCurrentCustomer();
         }
 
-        function loadHumanModel(callback) {
-            let finished = false;
-            function done() {
-                if (finished) return;
-                finished = true;
-                gltfLoaded = true;
-                callback();
-            }
-            try {
-                const loader = new THREE.GLTFLoader();
-                loader.load(
-                    'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/models/gltf/Soldier.glb',
-                    (gltf) => {
-                        gltfHumanModel = gltf.scene;
-                        gltfHumanAnimations = gltf.animations || [];
-                        done();
-                    },
-                    undefined,
-                    () => { done(); }
-                );
-            } catch(e) {
-                done();
-            }
-            setTimeout(done, 5000);
-        }
-
-        function buildShopEnvironment() {
-            const woodMat = new THREE.MeshStandardMaterial({ map: createWoodTex(), roughness: 0.5 });
-            const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.7 });
-            const metalMat = new THREE.MeshStandardMaterial({ color: 0x8e9299, metalness: 0.8, roughness: 0.3 });
+        function buildShop() {
+            const woodTex = createWoodTex();
+            const woodMat = new THREE.MeshLambertMaterial({ map: woodTex });
+            const darkWoodMat = new THREE.MeshLambertMaterial({ color: 0x1f140e });
+            const metalMat = new THREE.MeshLambertMaterial({ color: 0x8e9299 });
 
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), woodMat);
             floor.rotation.x = -Math.PI / 2;
@@ -492,9 +456,9 @@
             counterTop.position.set(0, 1.08, -1.5);
             scene.add(counterTop);
 
-            const lanternMat = new THREE.MeshStandardMaterial({ map: createLanternTex(), roughness: 0.5, emissive: 0xb91c1c, emissiveIntensity: 0.4 });
+            const lanternMat = new THREE.MeshLambertMaterial({ color: 0xdc2626, emissive: 0x990000 });
             [-2.2, 2.2].forEach(lx => {
-                const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 14), lanternMat);
+                const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 10), lanternMat);
                 lantern.position.set(lx, 2.45, -1.4);
                 scene.add(lantern);
             });
@@ -510,24 +474,24 @@
             });
 
             const shutterGeo = new THREE.BoxGeometry(6.4, 2.35, 0.08);
-            const shutterMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.75, roughness: 0.35 });
+            const shutterMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
             shutterMesh = new THREE.Mesh(shutterGeo, shutterMat);
             shutterMesh.position.set(0, 4.4, -1.48);
             scene.add(shutterMesh);
 
-            const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), new THREE.MeshStandardMaterial({ map: createAsphaltTex(), roughness: 0.25 }));
+            const street = new THREE.Mesh(new THREE.PlaneGeometry(35, 45), new THREE.MeshLambertMaterial({ color: 0x111215 }));
             street.rotation.x = -Math.PI / 2;
-            street.position.set(0, -0.01, -24);
+            street.position.set(0, -0.01, -22);
             scene.add(street);
         }
 
         function buildBoilerAndProps() {
-            const metalMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.85, roughness: 0.25 });
+            const metalMat = new THREE.MeshLambertMaterial({ color: 0xd1d5db });
             const boilerGroup = new THREE.Group();
-            const mainBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.33, 0.5, 18), metalMat);
+            const mainBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.33, 0.5, 14), metalMat);
             boilerGroup.add(mainBody);
 
-            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.02, 18), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.1 }));
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.02, 14), new THREE.MeshLambertMaterial({ color: 0xd97706 }));
             broth.position.y = 0.22;
             boilerGroup.add(broth);
 
@@ -551,34 +515,21 @@
                 new THREE.Vector2(0.28 * scale, 0.21 * scale),
                 new THREE.Vector2(0.29 * scale, 0.24 * scale)
             ];
-            const bowlMesh = new THREE.Mesh(new THREE.LatheGeometry(pts, 20), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.25 }));
+            const bowlMesh = new THREE.Mesh(new THREE.LatheGeometry(pts, 16), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
             bowlGroup.add(bowlMesh);
 
-            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * scale, 0.23 * scale, 0.02 * scale, 16), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.15 }));
+            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * scale, 0.23 * scale, 0.02 * scale, 12), new THREE.MeshLambertMaterial({ color: 0xd97706 }));
             broth.position.y = 0.19 * scale;
             bowlGroup.add(broth);
 
-            const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.4 });
-            for (let i = 0; i < 5; i++) {
-                const noodle = new THREE.Mesh(new THREE.TorusGeometry(0.06 * scale, 0.014 * scale, 6, 10, Math.PI * 1.4), noodleMat);
-                noodle.position.set((Math.random() - 0.5) * 0.16 * scale, 0.205 * scale, (Math.random() - 0.5) * 0.16 * scale);
-                noodle.rotation.set(Math.PI / 2, Math.random() * Math.PI, 0);
-                bowlGroup.add(noodle);
-            }
-
-            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.05 * scale, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.3 }));
+            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.05 * scale, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0xffedd5 }));
             eggHalf.rotation.x = Math.PI;
             eggHalf.position.set(0.1 * scale, 0.22 * scale, -0.06 * scale);
             bowlGroup.add(eggHalf);
 
-            const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.014 * scale, 12), new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.6 }));
+            const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.014 * scale, 10), new THREE.MeshLambertMaterial({ color: 0x9a3412 }));
             chashu.position.set(-0.08 * scale, 0.215 * scale, 0.07 * scale);
             bowlGroup.add(chashu);
-
-            const nori = new THREE.Mesh(new THREE.PlaneGeometry(0.1 * scale, 0.13 * scale), new THREE.MeshStandardMaterial({ color: 0x0f172a, side: THREE.DoubleSide }));
-            nori.position.set(-0.06 * scale, 0.24 * scale, -0.11 * scale);
-            nori.rotation.x = -Math.PI / 2.4;
-            bowlGroup.add(nori);
 
             return bowlGroup;
         }
@@ -593,93 +544,130 @@
         }
 
         function buildSteamParticles() {
-            const count = 18;
+            const count = 12;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = -1.8 + (Math.random() - 0.5) * 0.4;
-                pos[i + 1] = 1.65 + Math.random() * 0.8;
-                pos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.4;
+                pos[i] = -1.8 + (Math.random() - 0.5) * 0.35;
+                pos[i + 1] = 1.65 + Math.random() * 0.7;
+                pos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.35;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            steamParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.35 }));
+            steamParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.14, transparent: true, opacity: 0.3 }));
             scene.add(steamParticles);
         }
 
         function buildRainParticles() {
-            const count = isTouchDevice ? 150 : 260;
+            const count = 120;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = (Math.random() - 0.5) * 30;
-                pos[i + 1] = Math.random() * 16;
-                pos[i + 2] = -Math.random() * 26 - 1.8;
+                pos[i] = (Math.random() - 0.5) * 24;
+                pos[i + 1] = Math.random() * 14;
+                pos[i + 2] = -Math.random() * 22 - 1.8;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.45 }));
+            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.4 }));
             scene.add(rainParticles);
         }
 
         function createCharacterMesh(custData) {
-            const charGroup = new THREE.Group();
+            const group = new THREE.Group();
+            const isMonster = custData.isMonster;
 
-            if (gltfHumanModel && gltfLoaded) {
-                const modelClone = THREE.SkeletonUtils.clone(gltfHumanModel);
-                modelClone.rotation.y = Math.PI;
-                modelClone.scale.setScalar(custData.scale || 1.0);
-                charGroup.add(modelClone);
+            const skinMat = new THREE.MeshLambertMaterial({ color: custData.skinColor });
+            const clothesMat = new THREE.MeshLambertMaterial({ color: custData.clothesColor });
+            const pantsMat = new THREE.MeshLambertMaterial({ color: custData.pantsColor || 0x111827 });
+            const shoeMat = new THREE.MeshLambertMaterial({ color: 0x09090b });
 
-                modelClone.traverse((o) => {
-                    if (o.isMesh && o.material) {
-                        const mat = o.material.clone();
-                        mat.color = new THREE.Color(custData.clothesColor);
-                        if (custData.isMonster) {
-                            mat.roughness = 0.2;
-                            mat.metalness = 0.4;
-                        } else {
-                            mat.roughness = 0.7;
-                        }
-                        o.material = mat;
-                    }
-                });
+            const torsoGeo = new THREE.CylinderGeometry(0.24, 0.21, 0.68, 10);
+            const torso = new THREE.Mesh(torsoGeo, clothesMat);
+            torso.position.y = 1.05;
+            group.add(torso);
 
-                let mixer = null;
-                let walkAction = null;
-                let idleAction = null;
-
-                if (gltfHumanAnimations && gltfHumanAnimations.length > 0) {
-                    mixer = new THREE.AnimationMixer(modelClone);
-                    const walkClip = gltfHumanAnimations.find(a => /walk|run/i.test(a.name)) || gltfHumanAnimations[1] || gltfHumanAnimations[0];
-                    const idleClip = gltfHumanAnimations.find(a => /idle/i.test(a.name)) || gltfHumanAnimations[0];
-
-                    walkAction = mixer.clipAction(walkClip);
-                    idleAction = mixer.clipAction(idleClip);
-
-                    walkAction.play();
-                }
-
-                if (custData.isMonster) {
-                    const eyeLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4, 1.8);
-                    eyeLight.position.set(0, 1.7 * custData.scale, 0.3);
-                    charGroup.add(eyeLight);
-                }
-
-                charGroup.userData.mixer = mixer;
-                charGroup.userData.walkAction = walkAction;
-                charGroup.userData.idleAction = idleAction;
+            if (custData.tieColor && !isMonster) {
+                const tie = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.35, 0.02), new THREE.MeshLambertMaterial({ color: custData.tieColor }));
+                tie.position.set(0, 1.15, 0.22);
+                group.add(tie);
             }
 
-            const shadowBlob = new THREE.Mesh(
-                new THREE.CircleGeometry(0.35, 16),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false })
-            );
-            shadowBlob.rotation.x = -Math.PI / 2;
-            shadowBlob.position.y = 0.005;
-            charGroup.add(shadowBlob);
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.14, 8), skinMat);
+            neck.position.y = 1.45;
+            group.add(neck);
 
-            charGroup.position.set(0, 0, -18);
-            scene.add(charGroup);
-            return charGroup;
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), skinMat);
+            head.position.y = 1.62;
+            head.scale.set(0.92, 1.05, 0.95);
+            group.add(head);
+
+            const faceTex = createFaceTex(isMonster, custData);
+            const facePlane = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ map: faceTex, transparent: true }));
+            facePlane.position.set(0, 1.62, 0.18);
+            group.add(facePlane);
+
+            if (isMonster) {
+                const hornMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+                [-0.14, 0.14].forEach(hx => {
+                    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.26, 6), hornMat);
+                    horn.position.set(hx, 1.84, 0.02);
+                    horn.rotation.z = hx > 0 ? -0.35 : 0.35;
+                    horn.rotation.x = -0.2;
+                    group.add(horn);
+                });
+
+                const eyeLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4);
+                eyeLight.position.set(0, 1.65, 0.35);
+                group.add(eyeLight);
+            } else {
+                const hairMat = new THREE.MeshLambertMaterial({ color: custData.hairColor || 0x1c1917 });
+                const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.21, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
+                hairCap.position.set(0, 1.65, -0.01);
+                group.add(hairCap);
+
+                if (custData.hairStyle === 'long') {
+                    const hairBack = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.4, 0.1), hairMat);
+                    hairBack.position.set(0, 1.48, -0.15);
+                    group.add(hairBack);
+                }
+            }
+
+            const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 8), clothesMat);
+            armL.position.set(-0.32, 1.05, 0);
+            group.add(armL);
+            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), skinMat);
+            handL.position.set(-0.32, 0.74, 0);
+            group.add(handL);
+
+            const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 8), clothesMat);
+            armR.position.set(0.32, 1.05, 0);
+            group.add(armR);
+            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), skinMat);
+            handR.position.set(0.32, 0.74, 0);
+            group.add(handR);
+
+            const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.65, 8), pantsMat);
+            legL.position.set(-0.13, 0.38, 0);
+            group.add(legL);
+            const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.22), shoeMat);
+            shoeL.position.set(-0.13, 0.04, 0.05);
+            group.add(shoeL);
+
+            const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.65, 8), pantsMat);
+            legR.position.set(0.13, 0.38, 0);
+            group.add(legR);
+            const shoeR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.22), shoeMat);
+            shoeR.position.set(0.13, 0.04, 0.05);
+            group.add(shoeR);
+
+            const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.35, 12), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 }));
+            shadow.rotation.x = -Math.PI / 2;
+            shadow.position.y = 0.005;
+            group.add(shadow);
+
+            group.scale.setScalar(custData.scale || 1.0);
+            group.position.set(0, 0, -18);
+            scene.add(group);
+            return group;
         }
 
         function spawnCurrentCustomer() {
@@ -712,7 +700,6 @@
             document.getElementById('hudCustomerCount').innerText = `${customerIndex + 1} / 10`;
             const hours = ["00:00", "00:40", "01:20", "02:00", "02:40", "03:20", "04:00", "04:40", "05:20", "05:50"];
             document.getElementById('hudClock').innerText = hours[customerIndex] || "05:50";
-
             document.getElementById('customerDialog').style.display = 'none';
         }
 
@@ -722,7 +709,7 @@
 
             if (currentCustomerData.isMonster) {
                 dialogBox.className = 'customer-dialog monster';
-                dialogBox.innerHTML = `👹 <b>${currentCustomerData.name} (${currentCustomerData.role}):</b> "${currentCustomerData.dialog}"`;
+                dialogBox.innerHTML = `👹 <b>${currentCustomerData.name}:</b> "${currentCustomerData.dialog}"`;
                 document.getElementById('monsterDangerOverlay').style.display = 'block';
                 playMonsterRoar();
 
@@ -730,7 +717,7 @@
                     if (!shutterClosed && currentCustomerData.isMonster) {
                         triggerGameOverByMonster();
                     }
-                }, 3600);
+                }, 3500);
             } else {
                 dialogBox.className = 'customer-dialog';
                 dialogBox.innerHTML = `👨‍💼 <b>${currentCustomerData.name} (${currentCustomerData.role}):</b> "${currentCustomerData.dialog}"`;
@@ -742,7 +729,7 @@
             playMonsterRoar();
             if (customer3D) {
                 customer3D.position.set(0, 1.45, -0.5);
-                customer3D.scale.set(2.5, 2.5, 2.5);
+                customer3D.scale.set(2.4, 2.4, 2.4);
             }
             if (heldBowlGroup) heldBowlGroup.visible = false;
             document.getElementById('customerDialog').style.display = 'none';
@@ -751,7 +738,7 @@
             setTimeout(() => {
                 document.getElementById('endTitle').innerText = "ÖLDÜRÜLDÜNÜZ!";
                 document.getElementById('endTitle').style.color = "#ff1111";
-                document.getElementById('endDesc').innerText = `${currentCustomerData.name} tezgaha sıçrayıp seni paramparça etti! Canavarı görünce kepengi kapatmalıydın!`;
+                document.getElementById('endDesc').innerText = `${currentCustomerData.name} tezgaha atlayıp seni paramparça etti! Canavarı görünce kepengi kapatmalıydın!`;
                 document.getElementById('endScreen').style.display = 'flex';
                 if (!isTouchDevice) document.exitPointerLock();
             }, 400);
@@ -780,7 +767,7 @@
                     if (heldBowlGroup) heldBowlGroup.visible = false;
                     if (counterServedBowl) {
                         counterServedBowl.visible = true;
-                        setTimeout(() => { counterServedBowl.visible = false; }, 700);
+                        setTimeout(() => { counterServedBowl.visible = false; }, 600);
                     }
                     document.getElementById('handItemText').innerText = "BOŞ EL";
                     document.getElementById('handItemText').style.color = "#ffb703";
@@ -790,7 +777,7 @@
                     setTimeout(() => {
                         customerIndex++;
                         spawnCurrentCustomer();
-                    }, 1200);
+                    }, 1100);
                 }
             }
         }
@@ -815,15 +802,15 @@
                             shutterClosed = false;
                             customerIndex++;
                             spawnCurrentCustomer();
-                        }, 1600);
+                        }, 1400);
                     } else {
-                        document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Aaa dükkanı kapattınız galiba, başka yere gideyim o zaman..."`;
+                        document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Dükkanı kapattınız galiba, başka yere gideyim o zaman..."`;
                         setTimeout(() => {
                             shutterMesh.position.y = 4.4;
                             shutterClosed = false;
                             customerIndex++;
                             spawnCurrentCustomer();
-                        }, 1500);
+                        }, 1300);
                     }
                 }
             } else {
@@ -1019,22 +1006,14 @@
 
             if (customer3D) {
                 if (customerWalking) {
-                    customer3D.position.z += delta * 3.2;
+                    customer3D.position.z += delta * 3.4;
+                    customer3D.position.y = Math.abs(Math.sin(now * 0.008)) * 0.06;
                     if (customer3D.position.z >= -2.4) {
                         customer3D.position.z = -2.4;
+                        customer3D.position.y = 0;
                         customerWalking = false;
-
-                        if (customer3D.userData.walkAction && customer3D.userData.idleAction) {
-                            customer3D.userData.walkAction.fadeOut(0.3);
-                            customer3D.userData.idleAction.reset().fadeIn(0.3).play();
-                        }
-
                         onCustomerArrived();
                     }
-                }
-
-                if (customer3D.userData.mixer) {
-                    customer3D.userData.mixer.update(delta);
                 }
             }
 
@@ -1042,7 +1021,7 @@
                 const sPos = steamParticles.geometry.attributes.position.array;
                 for (let i = 1; i < sPos.length; i += 3) {
                     sPos[i] += delta * 0.6;
-                    if (sPos[i] > 2.6) sPos[i] = 1.65;
+                    if (sPos[i] > 2.5) sPos[i] = 1.65;
                 }
                 steamParticles.geometry.attributes.position.needsUpdate = true;
             }
@@ -1050,8 +1029,8 @@
             if (rainParticles) {
                 const rPos = rainParticles.geometry.attributes.position.array;
                 for (let i = 1; i < rPos.length; i += 3) {
-                    rPos[i] -= delta * 24;
-                    if (rPos[i] < 0) rPos[i] = 16;
+                    rPos[i] -= delta * 22;
+                    if (rPos[i] < 0) rPos[i] = 14;
                 }
                 rainParticles.geometry.attributes.position.needsUpdate = true;
             }
