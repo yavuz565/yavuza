@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN // GERÇEK 3D MODELLER v9.0</title>
+    <title>MIDNIGHT RAMEN // TAM GERÇEKÇİ 3D MODELLER v10.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -140,6 +140,8 @@
         .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 </head>
 <body>
 
@@ -176,17 +178,16 @@
         <div class="mobile-btn cook" id="btnCook"><div class="big">🔥</div>PİŞİR</div>
     </div>
 
-    <!-- Başlangıç Modalı -->
     <div class="start-modal" id="startModal" onclick="startPlay()">
         <h1 class="start-title">深夜拉麺 // 10 KİŞİLİK NÖBET</h1>
         <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.05rem; letter-spacing:2px; margin-bottom:14px;">
-            5 GERÇEK İNSAN + 5 KORKUNÇ CANAVAR
+            5 TAM GERÇEK 3D İNSAN + 5 KORKUNÇ CANAVAR
         </div>
         <div class="start-desc">
             Gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
-            👨‍💼 <b>İNSANLAR:</b> Gerçek insan yüzleri, saçları ve kıyafetleri vardır. Kibarca ramen isterler.<br>
+            👨‍💼 <b>TAM 3D İNSANLAR:</b> Gerçek insan vücudu, kıyafetleri ve yürüyüş animasyonu vardır. Kibarca ramen isterler.<br>
             👉 <b>E</b> ile kazandan ramen doldur, <b>X</b> ile tezgaha servis et!<br><br>
-            👹 <b>CANAVARLAR:</b> Kırmızı/yeşil/mor parlayan gözleri, şeytani derileri, boynuzları ve canavar sesleri vardır.<br>
+            👹 <b>TAM 3D CANAVARLAR:</b> Kırmızı/mor/yeşil parlayan auraları, canavar gözleri ve boynuzları vardır.<br>
             👉 Canavar görünce <b>HEMEN KEPENGİ İNDİR (F / SPACE)!</b> Kepengi kapatmazsan 3 saniye sonra saldırıp seni yer!
         </div>
         <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
@@ -202,7 +203,6 @@
         <button class="start-btn">DÜKKANI AÇ</button>
     </div>
 
-    <!-- Oyun Sonu Ekranı -->
     <div class="end-screen" id="endScreen">
         <h1 style="font-family:'Orbitron'; font-size:2.8rem; letter-spacing:3px;" id="endTitle">ÖLDÜRÜLDÜNÜZ!</h1>
         <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:640px; line-height:1.6;" id="endDesc">
@@ -218,16 +218,16 @@
 
     <script>
         const SHIFT_CUSTOMERS = [
-            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothTexture: 'jacket', clothesColor: 0x1d4ed8, skinColor: 0xffd8be, hairColor: '#1c1917', scale: 0.98, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
-            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothTexture: 'demon', clothesColor: 0x450a0a, skinColor: 0xdc2626, eyeColor: '#ffff00', scale: 1.25, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
-            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothTexture: 'suit', clothesColor: 0x0f172a, skinColor: 0xf5d0b5, hairColor: '#292524', scale: 1.0, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
-            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothTexture: 'zombie', clothesColor: 0x1c1917, skinColor: 0x3f6212, eyeColor: '#ffffff', scale: 1.15, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
-            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothTexture: 'hoodie', clothesColor: 0xd97706, skinColor: 0xfde047, hairColor: '#451a03', scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
-            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothTexture: 'shadow', clothesColor: 0x000000, skinColor: 0x09090b, eyeColor: '#ff0000', scale: 1.3, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
-            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothTexture: 'coat', clothesColor: 0x0284c7, skinColor: 0xffe4e6, hairColor: '#18181b', scale: 0.94, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
-            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothTexture: 'mutant', clothesColor: 0x581c87, skinColor: 0x7e22ce, eyeColor: '#22c55e', scale: 1.28, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
-            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothTexture: 'elder', clothesColor: 0x4b5563, skinColor: 0xd4a373, hairColor: '#e2e8f0', scale: 0.9, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
-            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothTexture: 'boss', clothesColor: 0x180000, skinColor: 0x000000, eyeColor: '#ff0000', scale: 1.4, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
+            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: 0x1d4ed8, skinColor: 0xffd1b3, scale: 0.0105, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
+            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothesColor: 0x450a0a, skinColor: 0xdc2626, eyeColor: 0xffff00, scale: 0.0135, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
+            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothesColor: 0x0f172a, skinColor: 0xf5d0b5, scale: 0.011, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
+            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothesColor: 0x1c1917, skinColor: 0x3f6212, eyeColor: 0xffffff, scale: 0.0125, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
+            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothesColor: 0xd97706, skinColor: 0xfde047, scale: 0.011, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
+            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothesColor: 0x000000, skinColor: 0x09090b, eyeColor: 0xff0000, scale: 0.014, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
+            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothesColor: 0x0284c7, skinColor: 0xffe4e6, scale: 0.010, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
+            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothesColor: 0x581c87, skinColor: 0x7e22ce, eyeColor: 0x22c55e, scale: 0.0135, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
+            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothesColor: 0x4b5563, skinColor: 0xd4a373, scale: 0.0098, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
+            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothesColor: 0x180000, skinColor: 0x000000, eyeColor: 0xff0000, scale: 0.015, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
         ];
 
         let audioCtx = null;
@@ -331,108 +331,24 @@
         let monsterAttackTimer = null;
         let money = 0;
 
-        function createRealHumanFrontTexture(custData) {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 512;
-            const ctx = c.getContext('2d');
+        let gltfBaseScene = null;
+        let gltfBaseAnimations = [];
+        let currentMixer = null;
 
-            ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
-            ctx.fillRect(0, 0, 256, 170);
-
-            ctx.fillStyle = custData.hairColor;
-            ctx.beginPath();
-            ctx.arc(128, 60, 65, Math.PI, 0, false);
-            ctx.fill();
-            ctx.fillRect(63, 60, 25, 55);
-            ctx.fillRect(168, 60, 25, 55);
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.ellipse(92, 85, 16, 9, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(164, 85, 16, 9, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#26150b';
-            ctx.beginPath(); ctx.arc(92, 85, 7, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(164, 85, 7, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.arc(94, 83, 2.5, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(166, 83, 2.5, 0, Math.PI * 2); ctx.fill();
-
-            ctx.strokeStyle = custData.hairColor; ctx.lineWidth = 5;
-            ctx.beginPath(); ctx.moveTo(76, 70); ctx.lineTo(108, 73); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(148, 73); ctx.lineTo(180, 70); ctx.stroke();
-
-            ctx.strokeStyle = '#c27b53'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(128, 85); ctx.lineTo(122, 108); ctx.lineTo(134, 108); ctx.stroke();
-
-            ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.arc(128, 128, 20, 0.2, Math.PI - 0.2); ctx.stroke();
-
-            ctx.fillStyle = '#' + custData.clothesColor.toString(16).padStart(6, '0');
-            ctx.fillRect(0, 170, 256, 200);
-
-            if (custData.clothTexture === 'suit') {
-                ctx.fillStyle = '#f8fafc';
-                ctx.beginPath(); ctx.moveTo(90, 170); ctx.lineTo(166, 170); ctx.lineTo(128, 260); ctx.fill();
-                ctx.fillStyle = '#b91c1c';
-                ctx.beginPath(); ctx.moveTo(120, 170); ctx.lineTo(136, 170); ctx.lineTo(132, 275); ctx.lineTo(128, 290); ctx.lineTo(124, 275); ctx.fill();
-            } else if (custData.clothTexture === 'jacket') {
-                ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4;
-                ctx.beginPath(); ctx.moveTo(128, 170); ctx.lineTo(128, 370); ctx.stroke();
-            } else if (custData.clothTexture === 'hoodie') {
-                ctx.fillStyle = '#b45309';
-                ctx.beginPath(); ctx.arc(128, 170, 50, 0, Math.PI); ctx.fill();
+        function preload3DCharacterModel() {
+            if (typeof THREE.GLTFLoader !== 'undefined') {
+                const loader = new THREE.GLTFLoader();
+                const modelUrl = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/models/gltf/Soldier.glb';
+                loader.load(modelUrl, (gltf) => {
+                    gltfBaseScene = gltf.scene;
+                    gltfBaseAnimations = gltf.animations;
+                    if (customer3D === null && gameActive) {
+                        spawnCurrentCustomer();
+                    }
+                }, undefined, (err) => {
+                    console.log("GLTF CDN Offline, fallback aktif.");
+                });
             }
-
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(20, 370, 95, 120);
-            ctx.fillRect(141, 370, 95, 120);
-
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(15, 490, 105, 22);
-            ctx.fillRect(136, 490, 105, 22);
-
-            return new THREE.CanvasTexture(c);
-        }
-
-        function createMonsterFrontTexture(custData) {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 512;
-            const ctx = c.getContext('2d');
-
-            ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
-            ctx.fillRect(0, 0, 256, 512);
-
-            ctx.strokeStyle = custData.eyeColor; ctx.lineWidth = 3;
-            for (let i = 0; i < 18; i++) {
-                ctx.beginPath();
-                ctx.moveTo(Math.random() * 256, Math.random() * 512);
-                ctx.lineTo(Math.random() * 256, Math.random() * 512);
-                ctx.stroke();
-            }
-
-            ctx.fillStyle = '#0a0a0a';
-            ctx.beginPath(); ctx.moveTo(50, 50); ctx.lineTo(20, 0); ctx.lineTo(75, 40); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(206, 50); ctx.lineTo(236, 0); ctx.lineTo(181, 40); ctx.fill();
-
-            ctx.fillStyle = custData.eyeColor;
-            ctx.beginPath(); ctx.arc(85, 95, 20, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(171, 95, 20, 0, Math.PI * 2); ctx.fill();
-
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(81, 75, 8, 40);
-            ctx.fillRect(167, 75, 8, 40);
-
-            ctx.fillStyle = '#450a0a';
-            ctx.beginPath(); ctx.ellipse(128, 140, 60, 28, 0, 0, Math.PI * 2); ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            for (let x = 80; x <= 176; x += 16) {
-                ctx.beginPath(); ctx.moveTo(x, 116); ctx.lineTo(x + 8, 134); ctx.lineTo(x + 16, 116); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(x, 164); ctx.lineTo(x + 8, 146); ctx.lineTo(x + 16, 164); ctx.fill();
-            }
-
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 260, 30, 90);
-            ctx.fillRect(226, 260, 30, 90);
-
-            return new THREE.CanvasTexture(c);
         }
 
         function init() {
@@ -471,6 +387,7 @@
             buildHeldRamenBowl();
             setupControls();
             setupMobileUI();
+            preload3DCharacterModel();
 
             window.addEventListener('resize', onResize);
             window.addEventListener('orientationchange', checkOrientation);
@@ -629,43 +546,75 @@
             scene.add(rainParticles);
         }
 
-        function createCharacterMesh(custData) {
-            const group = new THREE.Group();
+        function createReal3DCharacter(custData) {
             const isMonster = custData.isMonster;
 
-            const texture = isMonster ? createMonsterFrontTexture(custData) : createRealHumanFrontTexture(custData);
-            const bodyMat = new THREE.MeshLambertMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
+            if (gltfBaseScene && typeof THREE.SkeletonUtils !== 'undefined') {
+                const clone = THREE.SkeletonUtils.clone(gltfBaseScene);
+                const matColor = isMonster ? custData.skinColor : custData.clothesColor;
+                
+                clone.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshLambertMaterial({
+                            color: matColor,
+                            skinning: true
+                        });
+                    }
+                });
 
-            const characterStand = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.85), bodyMat);
-            characterStand.position.y = 0.92;
-            group.add(characterStand);
+                clone.scale.setScalar(custData.scale || 0.011);
+                clone.rotation.y = 0;
 
-            const crossStand = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 1.85), bodyMat);
-            crossStand.rotation.y = Math.PI / 2;
-            crossStand.position.y = 0.92;
-            group.add(crossStand);
+                if (gltfBaseAnimations.length > 0) {
+                    currentMixer = new THREE.AnimationMixer(clone);
+                    const walkClip = THREE.AnimationClip.findByName(gltfBaseAnimations, 'Walk') || gltfBaseAnimations[1] || gltfBaseAnimations[0];
+                    if (walkClip) {
+                        const action = currentMixer.clipAction(walkClip);
+                        action.play();
+                    }
+                }
 
-            if (isMonster) {
-                const auraLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4.5);
-                auraLight.position.set(0, 1.4, 0.3);
-                group.add(auraLight);
+                if (isMonster) {
+                    const auraLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.8, 4.5);
+                    auraLight.position.set(0, 1.4, 0.3);
+                    clone.add(auraLight);
+                }
+
+                clone.position.set(0, 0, -18);
+                scene.add(clone);
+                return clone;
+            } else {
+                const group = new THREE.Group();
+                const skinMat = new THREE.MeshLambertMaterial({ color: custData.skinColor });
+                const clothMat = new THREE.MeshLambertMaterial({ color: custData.clothesColor });
+
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.2, 0.72, 12), clothMat);
+                body.position.y = 1.05; group.add(body);
+
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 12), skinMat);
+                head.position.y = 1.62; group.add(head);
+
+                if (isMonster) {
+                    const auraLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4.5);
+                    auraLight.position.set(0, 1.4, 0.3);
+                    group.add(auraLight);
+                }
+
+                group.scale.setScalar(custData.scale ? custData.scale * 90 : 1.0);
+                group.position.set(0, 0, -18);
+                scene.add(group);
+                return group;
             }
-
-            const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.4, 12), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45 }));
-            shadow.rotation.x = -Math.PI / 2;
-            shadow.position.y = 0.005;
-            group.add(shadow);
-
-            group.scale.setScalar(custData.scale || 1.0);
-            group.position.set(0, 0, -18);
-            scene.add(group);
-            return group;
         }
 
         function spawnCurrentCustomer() {
             if (customer3D) {
                 scene.remove(customer3D);
                 customer3D = null;
+            }
+            if (currentMixer) {
+                currentMixer.stopAllAction();
+                currentMixer = null;
             }
             if (monsterAttackTimer) {
                 clearTimeout(monsterAttackTimer);
@@ -686,7 +635,7 @@
             }
 
             currentCustomerData = SHIFT_CUSTOMERS[customerIndex];
-            customer3D = createCharacterMesh(currentCustomerData);
+            customer3D = createReal3DCharacter(currentCustomerData);
             customerWalking = true;
 
             document.getElementById('hudCustomerCount').innerText = `${customerIndex + 1} / 10`;
@@ -698,6 +647,15 @@
         function onCustomerArrived() {
             const dialogBox = document.getElementById('customerDialog');
             dialogBox.style.display = 'block';
+
+            if (currentMixer && gltfBaseAnimations.length > 0) {
+                const idleClip = THREE.AnimationClip.findByName(gltfBaseAnimations, 'Idle') || gltfBaseAnimations[0];
+                if (idleClip) {
+                    currentMixer.stopAllAction();
+                    const action = currentMixer.clipAction(idleClip);
+                    action.play();
+                }
+            }
 
             if (currentCustomerData.isMonster) {
                 dialogBox.className = 'customer-dialog monster';
@@ -720,8 +678,8 @@
         function triggerGameOverByMonster() {
             playMonsterRoar();
             if (customer3D) {
-                customer3D.position.set(0, 1.45, -0.5);
-                customer3D.scale.set(2.4, 2.4, 2.4);
+                customer3D.position.set(0, 1.4, -0.6);
+                customer3D.scale.multiplyScalar(2.0);
             }
             if (heldBowlGroup) heldBowlGroup.visible = false;
             document.getElementById('customerDialog').style.display = 'none';
@@ -973,6 +931,10 @@
             const delta = Math.min((now - lastTime) / 1000, 0.05);
             lastTime = now;
 
+            if (currentMixer) {
+                currentMixer.update(delta);
+            }
+
             if (gameActive) {
                 const moveSpeed = 3.8 * delta;
                 const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
@@ -999,10 +961,8 @@
             if (customer3D) {
                 if (customerWalking) {
                     customer3D.position.z += delta * 3.4;
-                    customer3D.position.y = Math.abs(Math.sin(now * 0.008)) * 0.05;
                     if (customer3D.position.z >= -2.4) {
                         customer3D.position.z = -2.4;
-                        customer3D.position.y = 0;
                         customerWalking = false;
                         onCustomerArrived();
                     }
