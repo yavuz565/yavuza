@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN 3D // OPTIMIZED EDITION v7.5</title>
+    <title>MIDNIGHT RAMEN // İNSANLAR VE CANAVARLAR (10 MÜŞTERİ)</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -16,110 +16,105 @@
 
         .cinematic-vignette {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(4,2,3,0.6) 80%, rgba(0,0,0,0.92) 100%);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(4,2,3,0.65) 80%, rgba(0,0,0,0.94) 100%);
         }
-        .horror-glitch {
-            position: absolute; inset: 0; z-index: 8; pointer-events: none; display: none;
-            background: rgba(255, 0, 30, 0.12);
-            animation: glitchAnim 0.1s infinite;
+        .monster-danger-overlay {
+            position: absolute; inset: 0; z-index: 7; pointer-events: none; display: none;
+            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.7) 100%);
+            animation: dangerPulse 0.4s infinite alternate;
         }
-        @keyframes glitchAnim {
-            0% { transform: translate(1px, -1px); }
-            50% { transform: translate(-2px, 1px); }
-            100% { transform: translate(1px, 2px); }
+        @keyframes dangerPulse {
+            from { opacity: 0.4; } to { opacity: 0.95; }
         }
 
         .crosshair {
-            position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: rgba(255,255,255,0.9);
+            position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.9);
             border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15;
             box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
             transition: transform 0.15s ease-out;
         }
-        .crosshair.interact {
-            transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 14px #ffb703;
+        .crosshair.interact { transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 14px #ffb703; }
+        .crosshair.danger { transform: translate(-50%, -50%) scale(3.5); background: #ff1111; box-shadow: 0 0 24px #ff0000; }
+
+        /* Müşteri Konuşma / Durum Balonu */
+        .customer-dialog {
+            position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 8, 12, 0.92); border: 2px solid rgba(255,255,255,0.25); padding: 12px 28px;
+            border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; color: #fff;
+            letter-spacing: 1px; z-index: 20; display: none; text-align: center; backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8); max-width: 90vw;
         }
-        .crosshair.danger {
-            transform: translate(-50%, -50%) scale(3.2); background: #ff1111; box-shadow: 0 0 20px #ff0000;
+        .customer-dialog.monster {
+            border-color: #ff1111; color: #ff6666; animation: monsterShake 0.15s infinite;
+            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 30px rgba(255,0,0,0.6);
+        }
+        @keyframes monsterShake {
+            0% { transform: translateX(-50%) translate(0, 0); }
+            50% { transform: translateX(-50%) translate(-3px, 2px); }
+            100% { transform: translateX(-50%) translate(3px, -2px); }
         }
 
+        /* Etkileşim İpucu */
         .interaction-prompt {
-            position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
-            background: rgba(14, 8, 10, 0.96); border: 1.5px solid #ff4444; color: #fff; padding: 10px 24px;
-            border-radius: 8px; font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; z-index: 25;
-            display: none; text-align: center; pointer-events: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
+            background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 12px 26px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 800; letter-spacing: 1.5px; z-index: 25;
+            display: none; text-align: center; pointer-events: none; box-shadow: 0 8px 25px rgba(0,0,0,0.8);
         }
-        .interaction-prompt.urgent {
-            border-color: #ffcc00; box-shadow: 0 0 30px rgba(255,204,0,0.8); animation: urgentShake 0.12s infinite;
+        .interaction-prompt.monster-warn {
+            border-color: #ff0000; background: #2a0000; color: #ffcccc; box-shadow: 0 0 35px #ff0000;
+            animation: warnPulse 0.3s infinite alternate; font-size: 1.25rem;
         }
-        @keyframes urgentShake {
-            0% { transform: translateX(-50%) translate(0, 0); }
-            50% { transform: translateX(-50%) translate(-2px, 2px); }
-            100% { transform: translateX(-50%) translate(2px, -2px); }
-        }
+        @keyframes warnPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.08); } }
         .interaction-prompt kbd {
             background: #ff3333; color: #fff; padding: 3px 10px; border-radius: 4px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; margin-right: 8px;
+            font-family: 'Share Tech Mono', monospace; font-size: 1rem; margin-right: 8px;
         }
-        .interaction-prompt.urgent kbd { background: #ffd000; color: #000; }
+        .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; font-weight: bold; }
 
-        .customer-caption {
-            position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
-            background: rgba(12, 10, 15, 0.85); border: 1px solid rgba(255,255,255,0.15); padding: 7px 20px;
-            border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: #e2e8f0;
-            letter-spacing: 1.2px; z-index: 20; display: none; white-space: nowrap;
-        }
-        .customer-caption b { color: #00f0ff; }
-
+        /* Üst HUD */
         .hud-status {
             position: absolute; top: 14px; left: 14px; z-index: 25; display: flex; gap: 10px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.9rem;
         }
         .hud-badge {
-            background: rgba(12, 8, 10, 0.9); border: 1px solid rgba(255, 68, 68, 0.4);
-            padding: 5px 12px; border-radius: 5px;
+            background: rgba(12, 8, 10, 0.92); border: 1.5px solid rgba(255, 68, 68, 0.5);
+            padding: 6px 14px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
 
         .hand-item-hud {
             position: absolute; top: 14px; right: 14px; background: rgba(12, 8, 10, 0.92);
-            border: 1.5px solid #ffb703; padding: 6px 16px; border-radius: 6px;
-            font-size: 0.85rem; font-weight: bold; color: #ffb703; z-index: 25;
+            border: 2px solid #ffb703; padding: 6px 18px; border-radius: 6px;
+            font-size: 0.9rem; font-weight: bold; color: #ffb703; z-index: 25;
         }
 
-        .model-status {
-            position: absolute; bottom: 6px; left: 10px; font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem; color: #64748b; z-index: 25; pointer-events: none;
-        }
-
+        /* Modallar */
         .start-modal {
             position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 40%, rgba(22, 8, 8, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
+            background: radial-gradient(circle at 50% 40%, rgba(26, 8, 8, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
             z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px; cursor: pointer; overflow-y: auto;
+            text-align: center; padding: 24px; cursor: pointer; overflow-y: auto;
         }
         .start-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.4rem; color: #ff2a2a;
-            text-shadow: 0 0 30px rgba(255, 42, 42, 0.8); margin-bottom: 10px; letter-spacing: 2.5px;
-        }
-        .start-subtitle {
-            font-family: 'Cinzel', serif; font-size: 1rem; color: #cbd5e1; letter-spacing: 3px; margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #ff2a2a;
+            text-shadow: 0 0 30px rgba(255, 42, 42, 0.85); margin-bottom: 10px; letter-spacing: 2px;
         }
         .start-desc {
-            color: #d1d5db; font-size: 0.98rem; max-width: 680px; line-height: 1.6; margin-bottom: 20px;
-            background: rgba(0,0,0,0.45); padding: 16px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);
+            color: #e2e8f0; font-size: 1.05rem; max-width: 720px; line-height: 1.65; margin-bottom: 22px;
+            background: rgba(0,0,0,0.55); padding: 18px 24px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
         }
         .start-btn {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%); color: #fff; border: 1px solid #ff6666;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem;
-            padding: 14px 46px; border-radius: 6px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.7);
-            cursor: pointer; letter-spacing: 2px; margin-top: 10px;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem;
+            padding: 16px 50px; border-radius: 8px; box-shadow: 0 0 35px rgba(255, 42, 42, 0.8);
+            cursor: pointer; letter-spacing: 2px; margin-top: 12px;
         }
-        .start-btn:hover { transform: scale(1.03); }
+        .start-btn:hover { transform: scale(1.04); }
 
-        .death-screen {
+        .end-screen {
             position: absolute; inset: 0; background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
             z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px;
+            text-align: center; padding: 25px;
         }
 
         .rotate-overlay {
@@ -129,6 +124,7 @@
         .rotate-icon { font-size: 4rem; margin-bottom: 18px; animation: rotateHint 1.6s ease-in-out infinite; }
         @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
 
+        /* Mobil Kontroller */
         .joystick-zone { position: absolute; left: 0; bottom: 0; width: 45%; height: 60%; z-index: 30; display: none; touch-action: none; }
         .joystick-base {
             position: absolute; left: 75px; bottom: 75px; width: 110px; height: 110px; border-radius: 50%;
@@ -143,11 +139,11 @@
             position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
         }
         .mobile-btn {
-            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; font-weight: bold;
             border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85);
         }
-        .mobile-btn .big { font-size: 1.4rem; margin-bottom: 2px; }
+        .mobile-btn .big { font-size: 1.45rem; margin-bottom: 2px; }
         .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
         .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
         .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
@@ -161,21 +157,19 @@
     <div id="canvas-container"></div>
     <div class="crosshair" id="crosshair"></div>
     <div class="cinematic-vignette"></div>
-    <div class="horror-glitch" id="horrorGlitch"></div>
+    <div class="monster-danger-overlay" id="monsterDangerOverlay"></div>
 
     <div class="interaction-prompt" id="promptText">
         <kbd id="promptKey">E</kbd> <span id="promptLabel">RAMEN PİŞİR</span>
     </div>
 
-    <div class="customer-caption" id="customerCaption"></div>
+    <div class="customer-dialog" id="customerDialog"></div>
 
     <div class="hud-status">
         <div class="hud-badge">VAKİT: <b style="color:#ffb703;" id="hudClock">00:00</b></div>
+        <div class="hud-badge">MÜŞTERİ: <b style="color:#00f0ff;" id="hudCustomerCount">1 / 10</b></div>
         <div class="hud-badge">KASA: <b style="color:#00ff77;" id="hudMoney">$0</b></div>
-        <div class="hud-badge">MÜŞTERİ: <b style="color:#00f0ff;" id="hudCustomerType">BEKLENİYOR...</b></div>
     </div>
-
-    <div class="model-status" id="modelStatus">3D Varlıklar Optimize Ediliyor...</div>
 
     <div class="hand-item-hud" id="handItemHud">
         <span id="handItemText">BOŞ EL</span>
@@ -194,33 +188,35 @@
     </div>
 
     <div class="start-modal" id="startModal" onclick="startPlay()">
-        <h1 class="start-title">深夜拉麺 3D</h1>
-        <div class="start-subtitle">REALISTIC MIDNIGHT RAMEN SHOP</div>
+        <h1 class="start-title">深夜拉麺 // GECE NÖBETİ</h1>
+        <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.1rem; letter-spacing:3px; margin-bottom:18px;">
+            10 MÜŞTERİ SIRASI (5 İNSAN + 5 CANAVAR)
+        </div>
         <div class="start-desc">
-            Gece yarısı yağmurlu Tokyo ara sokağında nöbetçi ramen ustasısın.<br><br>
-            Tezgahına gelen müşterilerin yüzlerine <b>dikkatle bak:</b><br>
-            <span style="color:#ffd166;">👁️ ANOMALİLER:</span> Gözleri simsiyah, kırmızı yarık veya anormal olanlar insan değildir! Kepengi kapat!<br>
-            <span style="color:#ff4444;">⚠️ TEHLİKE:</span> Boynu uzayan bir varlık kepengi zorlarsa <b>hızlıca tekrar kepenge bas!</b>
+            Bu gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
+            👨‍💼 <b>5 Tanesi Normal İnsan:</b> Düzgün konuşurlar, acıkmışlardır. Kazandan ramen hazırla (<b>E</b>) ve tezgaha servis et (<b>X</b>).<br><br>
+            👹 <b>5 Tanesi Korkunç Canavar:</b> Kırmızı parlayan gözleri, karanlık yaratık auraları ve canavar sesleri vardır.<br>
+            <span style="color:#ff4444; font-weight:bold;">DİKKAT:</span> Canavar tezgaha geldiğinde <b>hemen kepengi indir (F / SPACE)!</b> Kepenk kapanınca canavar korkup kaçar. Kepengi açık bırakırsan sana saldırır ve ölürsün!
         </div>
         <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
             <div>[W,A,S,D] Yürü</div>
             <div>[FARE] Bak</div>
             <div>[E] Ramen Hazırla</div>
-            <div>[X] Tezgaha Servis Et</div>
-            <div>[F / SPACE] Kepenk İndir</div>
+            <div>[X] İnsana Servis Et</div>
+            <div>[F / SPACE] Canavara Kepenk İndir</div>
         </div>
         <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.9rem; color:#ffd166;">
-            <div>Sol: Joystick | Ekran: Bakış | Butonlar: Pişir / Servis / Kepenk</div>
+            <div>Sol Joystick: Yürü | Ekran: Bak | Butonlar: 🔥 Pişir / 🍜 Servis / 🔒 Kepenk Kapat</div>
         </div>
         <button class="start-btn">DÜKKANI AÇ</button>
     </div>
 
-    <div class="death-screen" id="deathScreen">
-        <h1 style="font-family:'Orbitron'; font-size:2.8rem; color:#ff1111; text-shadow:0 0 35px #ff0000; letter-spacing:4px;" id="deathTitle">ÖLDÜRÜLDÜNÜZ!</h1>
-        <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:620px; line-height:1.6;" id="deathDesc">
-            İçeri aldığın varlık insan değildi. Tezgaha sıçrayıp seni karanlığa çekti...
+    <div class="end-screen" id="endScreen">
+        <h1 style="font-family:'Orbitron'; font-size:2.8rem; letter-spacing:3px;" id="endTitle">ÖLDÜRÜLDÜNÜZ!</h1>
+        <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:640px; line-height:1.6;" id="endDesc">
+            Canavara kepengi kapatmadın. Tezgaha atlayıp seni parçaladı!
         </p>
-        <button class="start-btn" onclick="restartGame()">YENİDEN DENE</button>
+        <button class="start-btn" onclick="restartGame()">TEKRAR OYNA</button>
     </div>
 
     <div class="rotate-overlay" id="rotateOverlay">
@@ -229,19 +225,28 @@
     </div>
 
     <script>
-        /* ===== SES SİSTEMİ ===== */
+        const SHIFT_CUSTOMERS = [
+            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: 0x1d4ed8, skinColor: 0xffd1b3, scale: 0.95, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
+            { isMonster: true, name: "Gölge İblisi", role: "Karanlık Canavar", clothesColor: 0x050505, skinColor: 0x1a0505, scale: 1.15, auraColor: 0xff0000, dialog: "ETTT... TAZE İNSAN ETİİİ! SENİ YİYECEĞİM!" },
+            { isMonster: false, name: "Sato", role: "Yorgun Memur", clothesColor: 0x334155, skinColor: 0xfbbf24, scale: 1.0, dialog: "Selamlar usta. Mesai yeni bitti, midem kazınıyor, lezzetli bir ramen rica edeyim." },
+            { isMonster: true, name: "Kanlı Oni", role: "Boynuzlu Canavar", clothesColor: 0x450a0a, skinColor: 0x880000, scale: 1.22, auraColor: 0xff1111, dialog: "KEMİKLERİNİ KIRACAĞIM! KEPENGİ AÇIK UNUTTUN!" },
+            { isMonster: false, name: "Yuki", role: "Yağmurluklu Seyyah", clothesColor: 0xd97706, skinColor: 0xffedd5, scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, ışığı görünce daldım. Bir kase ramen yaparsan minnettar olurum." },
+            { isMonster: true, name: "Çürümüş Gulyabani", role: "Zombi Canavar", clothesColor: 0x1e293b, skinColor: 0x224422, scale: 1.08, auraColor: 0x00ff44, dialog: "BEYİİİN... SICAK KAN VE ETLERİNİ İSTİYORUM!" },
+            { isMonster: false, name: "Aiko", role: "Gece Nöbetçisi Doktor", clothesColor: 0x0284c7, skinColor: 0xffe4e6, scale: 0.92, dialog: "Nöbetten yeni çıktım usta, kokusu sokağı sarmış. Ellerine sağlık şimdiden." },
+            { isMonster: true, name: "Uzun Boyunlu İfrit", role: "Şeytani Varlık", clothesColor: 0x000000, skinColor: 0x4a044e, scale: 1.25, auraColor: 0xc026d3, dialog: "BOYNUMU TEZGAHA UZATIP KALBİNİ SÖKECEĞİM!" },
+            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı Amca", clothesColor: 0x475569, skinColor: 0xd97706, scale: 0.88, dialog: "Hayırlı işler evlat! Şöyle bol çorbalı, yumurtalı bir ramen patlat bakalım." },
+            { isMonster: true, name: "Kabus Hükümdarı", role: "Baş Canavar", clothesColor: 0x180000, skinColor: 0x000000, scale: 1.35, auraColor: 0xff0000, dialog: "SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
+        ];
+
         let audioCtx = null;
-        function initAudioEngine() {
-            if (audioCtx) return;
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-            } catch(e) {}
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function playSound(freq, type = 'sine', duration = 0.1, vol = 0.2) {
             try {
-                if (!audioCtx) initAudioEngine();
+                initAudio();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
@@ -255,12 +260,12 @@
 
         function playCookSound() {
             try {
-                if (!audioCtx) initAudioEngine();
+                initAudio();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+                osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.35);
                 gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
                 osc.connect(gain); gain.connect(audioCtx.destination);
@@ -268,37 +273,51 @@
             } catch(e) {}
         }
 
-        function playShutterClang() {
+        function playShutterSound() {
             try {
-                if (!audioCtx) initAudioEngine();
+                initAudio();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(130, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.55);
-                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.65, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.55);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.55);
+            } catch(e) {}
+        }
+
+        function playMonsterRoar() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 1.2);
+                gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+            } catch(e) {}
+        }
+
+        function playMonsterFleeSound() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.6);
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.6);
             } catch(e) {}
         }
 
-        function playMonsterScream() {
-            try {
-                if (!audioCtx) initAudioEngine();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(750, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 1.1);
-                gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.1);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 1.1);
-            } catch(e) {}
-        }
-
-        /* ===== DURUM & DEĞİŞKENLER ===== */
         const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
         let scene, camera, renderer;
         let gameActive = false;
@@ -313,128 +332,54 @@
         let heldBowlGroup = null;
         let counterServedBowl = null;
         let customerWalking = false;
-        let isAnomaly = false;
-        let currentAnomalyType = null;
+        let currentCustomerData = null;
+        let customerIndex = 0;
         let hasCookedRamen = false;
         let shutterClosed = false;
-        let qteActive = false;
-        let qteTimeout = null;
+        let monsterAttackTimer = null;
         let money = 0;
-        let hourIndex = 0;
-        const HOURS = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00"];
 
         let gltfHumanModel = null;
         let gltfHumanAnimations = [];
         let gltfLoaded = false;
 
-        const ARCHETYPES = [
-            { id: 'salaryman', title: 'Yorgun Şirket Çalışanı', clothesColor: 0x1a2332, heightScale: 1.0 },
-            { id: 'student', title: 'Üniversite Öğrencisi', clothesColor: 0x1d3557, heightScale: 0.95 },
-            { id: 'traveler', title: 'Yağmurluklu Seyyah', clothesColor: 0x854d0e, heightScale: 1.04 },
-            { id: 'elderly', title: 'Gece Sakini Amca', clothesColor: 0x334155, heightScale: 0.9 }
-        ];
-
-        const ANOMALY_TYPES = ['black_eyes', 'slit_eyes', 'wide_mouth', 'long_neck'];
-        const CUSTOMER_NAMES = ["Kaito", "Ren", "Haruto", "Daichi", "Aoi", "Yuto", "Kazuki", "Takumi", "Shin", "Kenzo", "Sora", "Hayato"];
-
-        /* ===== HAFİF DOKU ÜRETİCİLERİ ===== */
-        function createWoodTexture() {
+        function createWoodTex() {
             const c = document.createElement('canvas'); c.width = 256; c.height = 256;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#3c2415';
-            ctx.fillRect(0, 0, 256, 256);
-            for (let i = 0; i < 45; i++) {
+            ctx.fillStyle = '#3c2415'; ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 40; i++) {
                 ctx.strokeStyle = i % 2 === 0 ? '#26140b' : '#4d301c';
-                ctx.lineWidth = 1 + Math.random() * 2;
-                ctx.globalAlpha = 0.25;
-                ctx.beginPath();
-                let y = Math.random() * 256;
-                ctx.moveTo(0, y);
-                for (let x = 0; x <= 256; x += 32) {
-                    y += (Math.random() - 0.5) * 6;
-                    ctx.lineTo(x, y);
-                }
+                ctx.lineWidth = 1 + Math.random() * 2; ctx.globalAlpha = 0.25;
+                ctx.beginPath(); let y = Math.random() * 256; ctx.moveTo(0, y);
+                for (let x = 0; x <= 256; x += 32) { y += (Math.random() - 0.5) * 6; ctx.lineTo(x, y); }
                 ctx.stroke();
             }
-            const tex = new THREE.CanvasTexture(c);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(3, 1.5);
+            const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 1.5);
             return tex;
         }
 
-        function createAsphaltTexture() {
+        function createAsphaltTex() {
             const c = document.createElement('canvas'); c.width = 256; c.height = 256;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#111215';
-            ctx.fillRect(0, 0, 256, 256);
-            for (let i = 0; i < 1500; i++) {
+            ctx.fillStyle = '#111215'; ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 1000; i++) {
                 const lum = Math.floor(Math.random() * 35);
                 ctx.fillStyle = `rgb(${lum}, ${lum}, ${lum + 4})`;
                 ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
             }
-            const tex = new THREE.CanvasTexture(c);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(8, 8);
+            const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(8, 8);
             return tex;
         }
 
-        function createCurtainTexture(kanjiText) {
-            const c = document.createElement('canvas'); c.width = 256; c.height = 128;
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, 256, 128);
-            ctx.fillStyle = '#f8fafc';
-            ctx.font = 'bold 55px serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(kanjiText, 128, 64);
-            return new THREE.CanvasTexture(c);
-        }
-
-        function createLanternTexture(kanji) {
+        function createLanternTex() {
             const c = document.createElement('canvas'); c.width = 128; c.height = 128;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#be123c';
-            ctx.fillRect(0, 0, 128, 128);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 50px serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(kanji, 64, 64);
+            ctx.fillStyle = '#be123c'; ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('拉麺', 64, 64);
             return new THREE.CanvasTexture(c);
         }
 
-        function createTokyoSkylineTexture() {
-            const c = document.createElement('canvas'); c.width = 512; c.height = 256;
-            const ctx = c.getContext('2d');
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, 256);
-            skyGrad.addColorStop(0, '#020208');
-            skyGrad.addColorStop(1, '#0f1322');
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, 512, 256);
-
-            ctx.fillStyle = '#f8fafc';
-            ctx.beginPath(); ctx.arc(420, 45, 15, 0, Math.PI * 2); ctx.fill();
-
-            for (let i = 0; i < 24; i++) {
-                const bw = 25 + Math.random() * 50;
-                const bh = 80 + Math.random() * 160;
-                const bx = Math.random() * 512;
-                ctx.fillStyle = '#06070a';
-                ctx.fillRect(bx, 256 - bh, bw, bh);
-                for (let wx = bx + 5; wx < bx + bw - 5; wx += 10) {
-                    for (let wy = 256 - bh + 8; wy < 250; wy += 14) {
-                        if (Math.random() < 0.25) {
-                            ctx.fillStyle = Math.random() < 0.6 ? 'rgba(255,214,153,0.8)' : 'rgba(147,197,253,0.6)';
-                            ctx.fillRect(wx, wy, 3, 5);
-                        }
-                    }
-                }
-            }
-            return new THREE.CanvasTexture(c);
-        }
-
-        /* ===== BAŞLATMA (OPTIMIZE) ===== */
         function init() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
@@ -449,8 +394,6 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.15;
-            renderer.shadowMap.enabled = !isTouchDevice;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
@@ -460,11 +403,6 @@
             const counterSpot = new THREE.SpotLight(0xffb066, 4.0, 8, Math.PI / 3.2, 0.35, 1.5);
             counterSpot.position.set(0, 3.2, -0.6);
             counterSpot.target.position.set(0, 0.9, -1.5);
-            if (renderer.shadowMap.enabled) {
-                counterSpot.castShadow = true;
-                counterSpot.shadow.mapSize.width = 512;
-                counterSpot.shadow.mapSize.height = 512;
-            }
             scene.add(counterSpot);
             scene.add(counterSpot.target);
 
@@ -490,8 +428,7 @@
             requestAnimationFrame(renderLoop);
 
             loadHumanModel(() => {
-                document.getElementById('modelStatus').innerText = '✓ 3D Karakterler & Optimizasyon Aktif';
-                spawnCustomer();
+                spawnCurrentCustomer();
             });
         }
 
@@ -522,11 +459,7 @@
         }
 
         function buildShopEnvironment() {
-            const woodTex = createWoodTexture();
-            const asphaltTex = createAsphaltTexture();
-            const skylineTex = createTokyoSkylineTexture();
-
-            const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.5 });
+            const woodMat = new THREE.MeshStandardMaterial({ map: createWoodTex(), roughness: 0.5 });
             const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.7 });
             const metalMat = new THREE.MeshStandardMaterial({ color: 0x8e9299, metalness: 0.8, roughness: 0.3 });
 
@@ -559,18 +492,12 @@
             counterTop.position.set(0, 1.08, -1.5);
             scene.add(counterTop);
 
-            const lanternTex = createLanternTexture('拉麺');
-            const lanternMat = new THREE.MeshStandardMaterial({ map: lanternTex, roughness: 0.5, emissive: 0xb91c1c, emissiveIntensity: 0.4 });
+            const lanternMat = new THREE.MeshStandardMaterial({ map: createLanternTex(), roughness: 0.5, emissive: 0xb91c1c, emissiveIntensity: 0.4 });
             [-2.2, 2.2].forEach(lx => {
                 const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 14), lanternMat);
                 lantern.position.set(lx, 2.45, -1.4);
                 scene.add(lantern);
             });
-
-            const curtainTex = createCurtainTexture('深夜拉麺');
-            const curtain = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.65), new THREE.MeshStandardMaterial({ map: curtainTex, side: THREE.DoubleSide }));
-            curtain.position.set(0, 3.0, -1.45);
-            scene.add(curtain);
 
             const shutterBox = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.35, 0.25), metalMat);
             shutterBox.position.set(0, 3.25, -1.48);
@@ -588,14 +515,10 @@
             shutterMesh.position.set(0, 4.4, -1.48);
             scene.add(shutterMesh);
 
-            const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), new THREE.MeshStandardMaterial({ map: asphaltTex, roughness: 0.25 }));
+            const street = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), new THREE.MeshStandardMaterial({ map: createAsphaltTex(), roughness: 0.25 }));
             street.rotation.x = -Math.PI / 2;
             street.position.set(0, -0.01, -24);
             scene.add(street);
-
-            const skyline = new THREE.Mesh(new THREE.PlaneGeometry(50, 20), new THREE.MeshBasicMaterial({ map: skylineTex, fog: false }));
-            skyline.position.set(0, 10, -35);
-            scene.add(skyline);
         }
 
         function buildBoilerAndProps() {
@@ -684,7 +607,7 @@
         }
 
         function buildRainParticles() {
-            const count = isTouchDevice ? 180 : 320;
+            const count = isTouchDevice ? 150 : 260;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
@@ -693,25 +616,29 @@
                 pos[i + 2] = -Math.random() * 26 - 1.8;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.5 }));
+            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.45 }));
             scene.add(rainParticles);
         }
 
-        function createRealisticCharacter(anomaly, arch, anomalyType) {
+        function createCharacterMesh(custData) {
             const charGroup = new THREE.Group();
 
             if (gltfHumanModel && gltfLoaded) {
                 const modelClone = THREE.SkeletonUtils.clone(gltfHumanModel);
                 modelClone.rotation.y = Math.PI;
-                modelClone.scale.setScalar(arch.heightScale || 1.0);
+                modelClone.scale.setScalar(custData.scale || 1.0);
                 charGroup.add(modelClone);
 
-                const clothesColor = anomaly ? 0x0f172a : arch.clothesColor;
                 modelClone.traverse((o) => {
                     if (o.isMesh && o.material) {
                         const mat = o.material.clone();
-                        mat.color = new THREE.Color(clothesColor);
-                        mat.roughness = 0.65;
+                        mat.color = new THREE.Color(custData.clothesColor);
+                        if (custData.isMonster) {
+                            mat.roughness = 0.2;
+                            mat.metalness = 0.4;
+                        } else {
+                            mat.roughness = 0.7;
+                        }
                         o.material = mat;
                     }
                 });
@@ -731,27 +658,20 @@
                     walkAction.play();
                 }
 
-                let headBone = null;
-                modelClone.traverse((o) => {
-                    if (o.isBone && /head|neck/i.test(o.name)) headBone = o;
-                });
-
-                if (anomaly) {
-                    const curseLight = new THREE.PointLight(0xff1111, 1.4, 2.5, 2);
-                    curseLight.position.set(0, 1.68 * (arch.heightScale || 1.0), 0.25);
-                    charGroup.add(curseLight);
+                if (custData.isMonster) {
+                    const eyeLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4, 1.8);
+                    eyeLight.position.set(0, 1.7 * custData.scale, 0.3);
+                    charGroup.add(eyeLight);
                 }
 
                 charGroup.userData.mixer = mixer;
                 charGroup.userData.walkAction = walkAction;
                 charGroup.userData.idleAction = idleAction;
-                charGroup.userData.headBone = headBone;
-                charGroup.userData.isLongNeck = anomaly && anomalyType === 'long_neck';
             }
 
             const shadowBlob = new THREE.Mesh(
-                new THREE.CircleGeometry(0.34, 16),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4, depthWrite: false })
+                new THREE.CircleGeometry(0.35, 16),
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false })
             );
             shadowBlob.rotation.x = -Math.PI / 2;
             shadowBlob.position.y = 0.005;
@@ -760,6 +680,172 @@
             charGroup.position.set(0, 0, -18);
             scene.add(charGroup);
             return charGroup;
+        }
+
+        function spawnCurrentCustomer() {
+            if (customer3D) {
+                scene.remove(customer3D);
+                customer3D = null;
+            }
+            if (monsterAttackTimer) {
+                clearTimeout(monsterAttackTimer);
+                monsterAttackTimer = null;
+            }
+
+            document.getElementById('monsterDangerOverlay').style.display = 'none';
+
+            if (customerIndex >= SHIFT_CUSTOMERS.length) {
+                document.getElementById('endTitle').innerText = "SAAT 06:00 // TEBRİKLER!";
+                document.getElementById('endTitle').style.color = "#00ff77";
+                document.getElementById('endDesc').innerText = `10 müşteriyi başarıyla tamamladın! İnsanları doyurdun, canavarları püskürttün ve toplam $${money} kazandın.`;
+                document.getElementById('endScreen').style.display = 'flex';
+                document.getElementById('customerDialog').style.display = 'none';
+                gameActive = false;
+                if (!isTouchDevice) document.exitPointerLock();
+                return;
+            }
+
+            currentCustomerData = SHIFT_CUSTOMERS[customerIndex];
+            customer3D = createCharacterMesh(currentCustomerData);
+            customerWalking = true;
+
+            document.getElementById('hudCustomerCount').innerText = `${customerIndex + 1} / 10`;
+            const hours = ["00:00", "00:40", "01:20", "02:00", "02:40", "03:20", "04:00", "04:40", "05:20", "05:50"];
+            document.getElementById('hudClock').innerText = hours[customerIndex] || "05:50";
+
+            document.getElementById('customerDialog').style.display = 'none';
+        }
+
+        function onCustomerArrived() {
+            const dialogBox = document.getElementById('customerDialog');
+            dialogBox.style.display = 'block';
+
+            if (currentCustomerData.isMonster) {
+                dialogBox.className = 'customer-dialog monster';
+                dialogBox.innerHTML = `👹 <b>${currentCustomerData.name} (${currentCustomerData.role}):</b> "${currentCustomerData.dialog}"`;
+                document.getElementById('monsterDangerOverlay').style.display = 'block';
+                playMonsterRoar();
+
+                monsterAttackTimer = setTimeout(() => {
+                    if (!shutterClosed && currentCustomerData.isMonster) {
+                        triggerGameOverByMonster();
+                    }
+                }, 3600);
+            } else {
+                dialogBox.className = 'customer-dialog';
+                dialogBox.innerHTML = `👨‍💼 <b>${currentCustomerData.name} (${currentCustomerData.role}):</b> "${currentCustomerData.dialog}"`;
+                playSound(850, 'sine', 0.15, 0.25);
+            }
+        }
+
+        function triggerGameOverByMonster() {
+            playMonsterRoar();
+            if (customer3D) {
+                customer3D.position.set(0, 1.45, -0.5);
+                customer3D.scale.set(2.5, 2.5, 2.5);
+            }
+            if (heldBowlGroup) heldBowlGroup.visible = false;
+            document.getElementById('customerDialog').style.display = 'none';
+            gameActive = false;
+
+            setTimeout(() => {
+                document.getElementById('endTitle').innerText = "ÖLDÜRÜLDÜNÜZ!";
+                document.getElementById('endTitle').style.color = "#ff1111";
+                document.getElementById('endDesc').innerText = `${currentCustomerData.name} tezgaha sıçrayıp seni paramparça etti! Canavarı görünce kepengi kapatmalıydın!`;
+                document.getElementById('endScreen').style.display = 'flex';
+                if (!isTouchDevice) document.exitPointerLock();
+            }, 400);
+        }
+
+        function onCookKey() {
+            const dist = camera.position.distanceTo(boilerMesh.position);
+            if (dist < 2.5) {
+                playCookSound();
+                hasCookedRamen = true;
+                if (heldBowlGroup) heldBowlGroup.visible = true;
+                document.getElementById('handItemText').innerText = "🍜 RAMEN DOLU";
+                document.getElementById('handItemText').style.color = "#00ff77";
+            }
+        }
+
+        function onServeKey() {
+            if (!hasCookedRamen || shutterClosed) return;
+            if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
+                if (currentCustomerData.isMonster) {
+                    triggerGameOverByMonster();
+                } else {
+                    playSound(1200, 'triangle', 0.25, 0.35);
+                    money += 100;
+                    hasCookedRamen = false;
+                    if (heldBowlGroup) heldBowlGroup.visible = false;
+                    if (counterServedBowl) {
+                        counterServedBowl.visible = true;
+                        setTimeout(() => { counterServedBowl.visible = false; }, 700);
+                    }
+                    document.getElementById('handItemText').innerText = "BOŞ EL";
+                    document.getElementById('handItemText').style.color = "#ffb703";
+                    document.getElementById('hudMoney').innerText = `$${money}`;
+
+                    document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Harika olmuş usta, eline sağlık! İyi geceler!"`;
+                    setTimeout(() => {
+                        customerIndex++;
+                        spawnCurrentCustomer();
+                    }, 1200);
+                }
+            }
+        }
+
+        function onShutterKey() {
+            playShutterSound();
+            shutterClosed = !shutterClosed;
+
+            if (shutterClosed) {
+                shutterMesh.position.y = 2.25;
+
+                if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
+                    if (currentCustomerData.isMonster) {
+                        if (monsterAttackTimer) clearTimeout(monsterAttackTimer);
+                        playMonsterFleeSound();
+                        money += 150;
+                        document.getElementById('hudMoney').innerText = `$${money}`;
+                        document.getElementById('customerDialog').innerHTML = `🔒 <b>KEPENK İNDİRİLDİ:</b> Canavar duvara çarpıp çığlık atarak geceye kaçtı!`;
+
+                        setTimeout(() => {
+                            shutterMesh.position.y = 4.4;
+                            shutterClosed = false;
+                            customerIndex++;
+                            spawnCurrentCustomer();
+                        }, 1600);
+                    } else {
+                        document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Aaa dükkanı kapattınız galiba, başka yere gideyim o zaman..."`;
+                        setTimeout(() => {
+                            shutterMesh.position.y = 4.4;
+                            shutterClosed = false;
+                            customerIndex++;
+                            spawnCurrentCustomer();
+                        }, 1500);
+                    }
+                }
+            } else {
+                shutterMesh.position.y = 4.4;
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('monsterDangerOverlay').style.display = 'none';
+            customerIndex = 0;
+            money = 0;
+            hasCookedRamen = false;
+            shutterClosed = false;
+            if (monsterAttackTimer) clearTimeout(monsterAttackTimer);
+            if (heldBowlGroup) heldBowlGroup.visible = false;
+            shutterMesh.position.y = 4.4;
+            document.getElementById('hudMoney').innerText = "$0";
+            document.getElementById('handItemText').innerText = "BOŞ EL";
+            camera.position.set(0, 1.62, 0.4);
+            startPlay();
+            spawnCurrentCustomer();
         }
 
         function setupControls() {
@@ -790,7 +876,7 @@
             document.addEventListener('pointerlockchange', () => {
                 if (isTouchDevice) return;
                 gameActive = (document.pointerLockElement === document.body);
-                if (!gameActive && document.getElementById('deathScreen').style.display !== 'flex') {
+                if (!gameActive && document.getElementById('endScreen').style.display !== 'flex') {
                     document.getElementById('startModal').style.display = 'flex';
                 }
             });
@@ -865,13 +951,13 @@
 
             lookZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) if (t.identifier === lookTouchId) lookTouchId = null; });
 
-            document.getElementById('btnCook').addEventListener('touchstart', (e) => { e.preventDefault(); initAudioEngine(); onCookKey(); });
-            document.getElementById('btnServe').addEventListener('touchstart', (e) => { e.preventDefault(); initAudioEngine(); onServeKey(); });
-            document.getElementById('btnShutter').addEventListener('touchstart', (e) => { e.preventDefault(); initAudioEngine(); onShutterKey(); });
+            document.getElementById('btnCook').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onCookKey(); });
+            document.getElementById('btnServe').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onServeKey(); });
+            document.getElementById('btnShutter').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onShutterKey(); });
         }
 
         function startPlay() {
-            initAudioEngine();
+            initAudio();
             document.getElementById('startModal').style.display = 'none';
             if (isTouchDevice) {
                 gameActive = true;
@@ -883,162 +969,6 @@
             } else {
                 document.body.requestPointerLock();
             }
-        }
-
-        function onCookKey() {
-            const dist = camera.position.distanceTo(boilerMesh.position);
-            if (dist < 2.5) {
-                playCookSound();
-                hasCookedRamen = true;
-                if (heldBowlGroup) heldBowlGroup.visible = true;
-                document.getElementById('handItemText').innerText = "🍜 RAMEN DOLU";
-                document.getElementById('handItemText').style.color = "#00ff77";
-            }
-        }
-
-        function onServeKey() {
-            if (qteActive || !hasCookedRamen || shutterClosed) return;
-            if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
-                if (isAnomaly) {
-                    triggerJumpscare();
-                } else {
-                    playSound(1200, 'triangle', 0.25, 0.3);
-                    money += 85;
-                    hasCookedRamen = false;
-                    if (heldBowlGroup) heldBowlGroup.visible = false;
-                    if (counterServedBowl) {
-                        counterServedBowl.visible = true;
-                        setTimeout(() => { counterServedBowl.visible = false; }, 800);
-                    }
-                    document.getElementById('handItemText').innerText = "BOŞ EL";
-                    document.getElementById('handItemText').style.color = "#ffb703";
-                    document.getElementById('hudMoney').innerText = `$${money}`;
-                    advanceShift();
-                }
-            }
-        }
-
-        function onShutterKey() {
-            if (qteActive) {
-                qteActive = false;
-                clearTimeout(qteTimeout);
-                playShutterClang();
-                money += 175;
-                document.getElementById('hudMoney').innerText = `$${money}`;
-                document.getElementById('customerCaption').style.display = 'none';
-                document.getElementById('horrorGlitch').style.display = 'none';
-                advanceShift();
-                shutterMesh.position.y = 4.4;
-                shutterClosed = false;
-                return;
-            }
-
-            playShutterClang();
-            shutterClosed = !shutterClosed;
-
-            if (shutterClosed) {
-                shutterMesh.position.y = 2.25;
-                if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
-                    if (isAnomaly && currentAnomalyType === 'long_neck') {
-                        qteActive = true;
-                        document.getElementById('horrorGlitch').style.display = 'block';
-                        qteTimeout = setTimeout(() => {
-                            if (qteActive) {
-                                qteActive = false;
-                                triggerJumpscare();
-                            }
-                        }, 1400);
-                    } else {
-                        setTimeout(() => {
-                            if (isAnomaly) {
-                                playSound(1450, 'sine', 0.25, 0.3);
-                                money += 175;
-                                document.getElementById('hudMoney').innerText = `$${money}`;
-                            }
-                            document.getElementById('customerCaption').style.display = 'none';
-                            advanceShift();
-                            shutterMesh.position.y = 4.4;
-                            shutterClosed = false;
-                        }, 1200);
-                    }
-                }
-            } else {
-                shutterMesh.position.y = 4.4;
-            }
-        }
-
-        function spawnCustomer() {
-            if (customer3D) {
-                scene.remove(customer3D);
-                customer3D = null;
-            }
-            isAnomaly = Math.random() < 0.5;
-            currentAnomalyType = isAnomaly ? ANOMALY_TYPES[Math.floor(Math.random() * ANOMALY_TYPES.length)] : null;
-            const chosenArch = ARCHETYPES[Math.floor(Math.random() * ARCHETYPES.length)];
-            customer3D = createRealisticCharacter(isAnomaly, chosenArch, currentAnomalyType);
-            customerWalking = true;
-            document.getElementById('hudCustomerType').innerText = chosenArch.title;
-
-            const name = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
-            const caption = document.getElementById('customerCaption');
-            caption.innerHTML = `<b>${name}</b> — ${chosenArch.title}`;
-            caption.style.display = 'block';
-        }
-
-        function advanceShift() {
-            hourIndex++;
-            if (hourIndex >= HOURS.length) hourIndex = HOURS.length - 1;
-            document.getElementById('hudClock').innerText = HOURS[hourIndex];
-            if (hourIndex >= 6) {
-                document.getElementById('deathTitle').innerText = "SAAT 06:00 // GÜN DOĞDU!";
-                document.getElementById('deathTitle').style.color = "#00ff77";
-                document.getElementById('deathDesc').innerText = `Tebrikler Usta! Geceyi sağ salim tamamladın ve toplam $${money} kazandın.`;
-                document.getElementById('deathScreen').style.display = 'flex';
-                document.getElementById('customerCaption').style.display = 'none';
-                gameActive = false;
-                if (!isTouchDevice) document.exitPointerLock();
-                return;
-            }
-            spawnCustomer();
-        }
-
-        function triggerJumpscare() {
-            playMonsterScream();
-            document.getElementById('horrorGlitch').style.display = 'block';
-            if (customer3D) {
-                customer3D.position.set(0, 1.45, -0.5);
-                customer3D.scale.set(2.4, 2.4, 2.4);
-            }
-            if (heldBowlGroup) heldBowlGroup.visible = false;
-            document.getElementById('customerCaption').style.display = 'none';
-            gameActive = false;
-            setTimeout(() => {
-                document.getElementById('horrorGlitch').style.display = 'none';
-                document.getElementById('deathTitle').innerText = "ÖLDÜRÜLDÜNÜZ!";
-                document.getElementById('deathTitle').style.color = "#ff1111";
-                document.getElementById('deathDesc').innerText = "İçeri aldığın varlık insan değildi. Tezgaha atlayıp seni karanlığa çekti...";
-                document.getElementById('deathScreen').style.display = 'flex';
-                if (!isTouchDevice) document.exitPointerLock();
-            }, 450);
-        }
-
-        function restartGame() {
-            document.getElementById('deathScreen').style.display = 'none';
-            document.getElementById('horrorGlitch').style.display = 'none';
-            hourIndex = 0;
-            money = 0;
-            hasCookedRamen = false;
-            shutterClosed = false;
-            qteActive = false;
-            if (qteTimeout) clearTimeout(qteTimeout);
-            if (heldBowlGroup) heldBowlGroup.visible = false;
-            shutterMesh.position.y = 4.4;
-            document.getElementById('hudClock').innerText = "00:00";
-            document.getElementById('hudMoney').innerText = "$0";
-            document.getElementById('handItemText').innerText = "BOŞ EL";
-            camera.position.set(0, 1.62, 0.4);
-            startPlay();
-            spawnCustomer();
         }
 
         function checkOrientation() {
@@ -1057,7 +987,6 @@
             checkOrientation();
         }
 
-        /* ===== RENDER & ANİMASYON DÖNGÜSÜ ===== */
         let lastTime = performance.now();
         function renderLoop() {
             requestAnimationFrame(renderLoop);
@@ -1098,18 +1027,14 @@
                         if (customer3D.userData.walkAction && customer3D.userData.idleAction) {
                             customer3D.userData.walkAction.fadeOut(0.3);
                             customer3D.userData.idleAction.reset().fadeIn(0.3).play();
-                        } else if (customer3D.userData.walkAction) {
-                            customer3D.userData.walkAction.stop();
                         }
+
+                        onCustomerArrived();
                     }
                 }
 
                 if (customer3D.userData.mixer) {
                     customer3D.userData.mixer.update(delta);
-                }
-
-                if (qteActive && customer3D.userData.headBone) {
-                    customer3D.userData.headBone.position.y += delta * 1.5;
                 }
             }
 
@@ -1136,39 +1061,30 @@
             const pLbl = document.getElementById('promptLabel');
             const crosshair = document.getElementById('crosshair');
 
-            if (qteActive) {
+            const distToPot = camera.position.distanceTo(boilerMesh.position);
+            const nearCustomer = customer3D && !customerWalking && camera.position.distanceTo(customer3D.position) < 3.0;
+
+            if (nearCustomer && currentCustomerData && currentCustomerData.isMonster && !shutterClosed) {
                 prompt.style.display = 'block';
-                prompt.classList.add('urgent');
-                pKey.innerText = isTouchDevice ? '🔒' : 'F';
-                pLbl.innerText = 'TEKRAR KEPENK BAS! BOYNU UZUYOR!';
-                crosshair.classList.remove('interact');
-                crosshair.classList.add('danger');
+                prompt.className = 'interaction-prompt monster-warn';
+                pKey.innerText = isTouchDevice ? '🔒' : 'F / SPACE';
+                pLbl.innerText = 'ÇABUK KEPENGİ İNDİR! CANAVAR SALDIRIYOR!';
+                crosshair.className = 'crosshair danger';
+            } else if (distToPot < 2.3 && !hasCookedRamen) {
+                prompt.style.display = 'block';
+                prompt.className = 'interaction-prompt';
+                pKey.innerText = isTouchDevice ? '🔥' : 'E';
+                pLbl.innerText = 'RAMEN PİŞİR (KASEYİ DOLDUR)';
+                crosshair.className = 'crosshair interact';
+            } else if (nearCustomer && hasCookedRamen && !shutterClosed) {
+                prompt.style.display = 'block';
+                prompt.className = 'interaction-prompt';
+                pKey.innerText = isTouchDevice ? '🍜' : 'X';
+                pLbl.innerText = 'TEZGAHA SERVİS ET';
+                crosshair.className = 'crosshair interact';
             } else {
-                prompt.classList.remove('urgent');
-                crosshair.classList.remove('danger');
-
-                const distToPot = camera.position.distanceTo(boilerMesh.position);
-                const nearCustomer = customer3D && !customerWalking && camera.position.distanceTo(customer3D.position) < 3.0;
-
-                if (distToPot < 2.3 && !hasCookedRamen) {
-                    prompt.style.display = 'block';
-                    pKey.innerText = isTouchDevice ? '🔥' : 'E';
-                    pLbl.innerText = 'KASEYİ DOLDUR';
-                    crosshair.classList.add('interact');
-                } else if (nearCustomer && hasCookedRamen && !shutterClosed) {
-                    prompt.style.display = 'block';
-                    pKey.innerText = isTouchDevice ? '🍜' : 'X';
-                    pLbl.innerText = 'TEZGAHA SERVİS ET';
-                    crosshair.classList.add('interact');
-                } else if (nearCustomer && !shutterClosed) {
-                    prompt.style.display = 'block';
-                    pKey.innerText = isTouchDevice ? '🔒' : 'F / SPACE';
-                    pLbl.innerText = 'KEPENGİ İNDİR (ANOMALİ!)';
-                    crosshair.classList.remove('interact');
-                } else {
-                    prompt.style.display = 'none';
-                    crosshair.classList.remove('interact');
-                }
+                prompt.style.display = 'none';
+                crosshair.className = 'crosshair';
             }
 
             renderer.render(scene, camera);
