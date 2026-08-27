@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN // İNSANLAR VE CANAVARLAR v8.0</title>
+    <title>MIDNIGHT RAMEN // GERÇEK 3D MODELLER v9.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         html, body {
-            background-color: #030204; color: #fff; font-family: 'Rajdhani', sans-serif;
+            background-color: #020204; color: #fff; font-family: 'Rajdhani', sans-serif;
             overflow: hidden; width: 100vw; height: 100vh; overscroll-behavior: none;
         }
         #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
@@ -16,14 +16,14 @@
 
         .cinematic-vignette {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 50%, rgba(4,2,3,0.6) 80%, rgba(0,0,0,0.92) 100%);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 50%, rgba(3,1,2,0.65) 80%, rgba(0,0,0,0.94) 100%);
         }
         .monster-danger-overlay {
             position: absolute; inset: 0; z-index: 7; pointer-events: none; display: none;
-            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.75) 100%);
+            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.8) 100%);
             animation: dangerPulse 0.35s infinite alternate;
         }
-        @keyframes dangerPulse { from { opacity: 0.4; } to { opacity: 0.95; } }
+        @keyframes dangerPulse { from { opacity: 0.45; } to { opacity: 0.95; } }
 
         .crosshair {
             position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.9);
@@ -35,14 +35,14 @@
 
         .customer-dialog {
             position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
-            background: rgba(10, 8, 12, 0.92); border: 2px solid rgba(255,255,255,0.25); padding: 10px 24px;
-            border-radius: 8px; font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: #fff;
-            z-index: 20; display: none; text-align: center; backdrop-filter: blur(8px);
-            box-shadow: 0 6px 25px rgba(0,0,0,0.8); max-width: 90vw;
+            background: rgba(12, 10, 15, 0.94); border: 2px solid rgba(255,255,255,0.25); padding: 12px 28px;
+            border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; color: #fff;
+            z-index: 20; display: none; text-align: center; backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.85); max-width: 90vw;
         }
         .customer-dialog.monster {
             border-color: #ff1111; color: #ff6666; animation: monsterShake 0.15s infinite;
-            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 25px rgba(255,0,0,0.6);
+            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 30px rgba(255,0,0,0.7);
         }
         @keyframes monsterShake {
             0% { transform: translateX(-50%) translate(0, 0); }
@@ -52,34 +52,34 @@
 
         .interaction-prompt {
             position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
-            background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 10px 22px;
-            border-radius: 8px; font-size: 1.05rem; font-weight: 800; z-index: 25;
+            background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 10px 24px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 800; z-index: 25;
             display: none; text-align: center; pointer-events: none;
         }
         .interaction-prompt.monster-warn {
             border-color: #ff0000; background: #2a0000; color: #ffcccc; box-shadow: 0 0 30px #ff0000;
-            animation: warnPulse 0.3s infinite alternate; font-size: 1.2rem;
+            animation: warnPulse 0.3s infinite alternate; font-size: 1.25rem;
         }
         @keyframes warnPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.06); } }
         .interaction-prompt kbd {
-            background: #ff3333; color: #fff; padding: 2px 8px; border-radius: 4px;
+            background: #ff3333; color: #fff; padding: 3px 9px; border-radius: 4px;
             font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; margin-right: 6px;
         }
-        .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; }
+        .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; font-weight: bold; }
 
         .hud-status {
             position: absolute; top: 12px; left: 12px; z-index: 25; display: flex; gap: 8px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.88rem;
         }
         .hud-badge {
             background: rgba(12, 8, 10, 0.92); border: 1.5px solid rgba(255, 68, 68, 0.5);
-            padding: 5px 12px; border-radius: 6px;
+            padding: 6px 14px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
 
         .hand-item-hud {
             position: absolute; top: 12px; right: 12px; background: rgba(12, 8, 10, 0.92);
-            border: 2px solid #ffb703; padding: 5px 16px; border-radius: 6px;
-            font-size: 0.85rem; font-weight: bold; color: #ffb703; z-index: 25;
+            border: 2px solid #ffb703; padding: 6px 18px; border-radius: 6px;
+            font-size: 0.88rem; font-weight: bold; color: #ffb703; z-index: 25;
         }
 
         .start-modal {
@@ -89,17 +89,17 @@
             text-align: center; padding: 20px; cursor: pointer; overflow-y: auto;
         }
         .start-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.3rem; color: #ff2a2a;
+            font-family: 'Orbitron', sans-serif; font-size: 2.4rem; color: #ff2a2a;
             text-shadow: 0 0 25px rgba(255, 42, 42, 0.85); margin-bottom: 8px; letter-spacing: 2px;
         }
         .start-desc {
-            color: #e2e8f0; font-size: 1rem; max-width: 700px; line-height: 1.6; margin-bottom: 20px;
-            background: rgba(0,0,0,0.5); padding: 16px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0; font-size: 1.02rem; max-width: 700px; line-height: 1.65; margin-bottom: 20px;
+            background: rgba(0,0,0,0.55); padding: 18px 22px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
         }
         .start-btn {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%); color: #fff; border: 1px solid #ff6666;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem;
-            padding: 14px 44px; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.8);
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem;
+            padding: 15px 48px; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.8);
             cursor: pointer; letter-spacing: 2px; margin-top: 10px;
         }
 
@@ -130,11 +130,11 @@
             position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
         }
         .mobile-btn {
-            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; font-weight: bold;
             border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85);
         }
-        .mobile-btn .big { font-size: 1.4rem; margin-bottom: 2px; }
+        .mobile-btn .big { font-size: 1.45rem; margin-bottom: 2px; }
         .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
         .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
         .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
@@ -176,6 +176,7 @@
         <div class="mobile-btn cook" id="btnCook"><div class="big">🔥</div>PİŞİR</div>
     </div>
 
+    <!-- Başlangıç Modalı -->
     <div class="start-modal" id="startModal" onclick="startPlay()">
         <h1 class="start-title">深夜拉麺 // 10 KİŞİLİK NÖBET</h1>
         <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.05rem; letter-spacing:2px; margin-bottom:14px;">
@@ -183,9 +184,9 @@
         </div>
         <div class="start-desc">
             Gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
-            👨‍💼 <b>İNSANLAR:</b> Normal insan yüzleri, saçları ve kıyafetleri vardır. Kibarca ramen isterler.<br>
+            👨‍💼 <b>İNSANLAR:</b> Gerçek insan yüzleri, saçları ve kıyafetleri vardır. Kibarca ramen isterler.<br>
             👉 <b>E</b> ile kazandan ramen doldur, <b>X</b> ile tezgaha servis et!<br><br>
-            👹 <b>CANAVARLAR:</b> Kırmızı/mor/yeşil parlayan gözleri, boynuzları, şeytani karanlık derileri ve canavar sesleri vardır.<br>
+            👹 <b>CANAVARLAR:</b> Kırmızı/yeşil/mor parlayan gözleri, şeytani derileri, boynuzları ve canavar sesleri vardır.<br>
             👉 Canavar görünce <b>HEMEN KEPENGİ İNDİR (F / SPACE)!</b> Kepengi kapatmazsan 3 saniye sonra saldırıp seni yer!
         </div>
         <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
@@ -201,6 +202,7 @@
         <button class="start-btn">DÜKKANI AÇ</button>
     </div>
 
+    <!-- Oyun Sonu Ekranı -->
     <div class="end-screen" id="endScreen">
         <h1 style="font-family:'Orbitron'; font-size:2.8rem; letter-spacing:3px;" id="endTitle">ÖLDÜRÜLDÜNÜZ!</h1>
         <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:640px; line-height:1.6;" id="endDesc">
@@ -216,16 +218,16 @@
 
     <script>
         const SHIFT_CUSTOMERS = [
-            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: 0x1d4ed8, pantsColor: 0x1e293b, skinColor: 0xffd1b3, hairColor: 0x1c1917, hairStyle: 'short', scale: 0.96, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
-            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothesColor: 0x3b0764, skinColor: 0xdc2626, eyeColor: 0xffff00, scale: 1.25, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
-            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothesColor: 0x0f172a, pantsColor: 0x1e293b, tieColor: 0xb91c1c, skinColor: 0xf5d0b5, hairColor: 0x292524, hairStyle: 'side', scale: 1.0, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
-            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothesColor: 0x1c1917, skinColor: 0x3f6212, eyeColor: 0xffffff, scale: 1.12, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
-            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothesColor: 0xd97706, pantsColor: 0x334155, skinColor: 0xfde047, hairColor: 0x451a03, hairStyle: 'long', scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
-            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothesColor: 0x000000, skinColor: 0x09090b, eyeColor: 0xff0000, scale: 1.3, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
-            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothesColor: 0x0284c7, pantsColor: 0x475569, skinColor: 0xffe4e6, hairColor: 0x18181b, hairStyle: 'long', scale: 0.93, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
-            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothesColor: 0x450a0a, skinColor: 0x581c87, eyeColor: 0x22c55e, scale: 1.28, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
-            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothesColor: 0x4b5563, pantsColor: 0x1f2937, skinColor: 0xd4a373, hairColor: 0xe2e8f0, hairStyle: 'elder', scale: 0.9, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
-            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothesColor: 0x180000, skinColor: 0x000000, eyeColor: 0xff0000, scale: 1.4, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
+            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothTexture: 'jacket', clothesColor: 0x1d4ed8, skinColor: 0xffd8be, hairColor: '#1c1917', scale: 0.98, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
+            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothTexture: 'demon', clothesColor: 0x450a0a, skinColor: 0xdc2626, eyeColor: '#ffff00', scale: 1.25, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
+            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothTexture: 'suit', clothesColor: 0x0f172a, skinColor: 0xf5d0b5, hairColor: '#292524', scale: 1.0, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
+            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothTexture: 'zombie', clothesColor: 0x1c1917, skinColor: 0x3f6212, eyeColor: '#ffffff', scale: 1.15, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
+            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothTexture: 'hoodie', clothesColor: 0xd97706, skinColor: 0xfde047, hairColor: '#451a03', scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
+            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothTexture: 'shadow', clothesColor: 0x000000, skinColor: 0x09090b, eyeColor: '#ff0000', scale: 1.3, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
+            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothTexture: 'coat', clothesColor: 0x0284c7, skinColor: 0xffe4e6, hairColor: '#18181b', scale: 0.94, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
+            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothTexture: 'mutant', clothesColor: 0x581c87, skinColor: 0x7e22ce, eyeColor: '#22c55e', scale: 1.28, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
+            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothTexture: 'elder', clothesColor: 0x4b5563, skinColor: 0xd4a373, hairColor: '#e2e8f0', scale: 0.9, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
+            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothTexture: 'boss', clothesColor: 0x180000, skinColor: 0x000000, eyeColor: '#ff0000', scale: 1.4, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
         ];
 
         let audioCtx = null;
@@ -329,50 +331,107 @@
         let monsterAttackTimer = null;
         let money = 0;
 
-        function createWoodTex() {
-            const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+        function createRealHumanFrontTexture(custData) {
+            const c = document.createElement('canvas'); c.width = 256; c.height = 512;
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#3c2415'; ctx.fillRect(0, 0, 128, 128);
-            ctx.fillStyle = '#26140b';
-            for (let i = 0; i < 20; i++) ctx.fillRect(0, Math.random() * 128, 128, 2);
-            const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 1.5);
-            return tex;
+
+            ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 0, 256, 170);
+
+            ctx.fillStyle = custData.hairColor;
+            ctx.beginPath();
+            ctx.arc(128, 60, 65, Math.PI, 0, false);
+            ctx.fill();
+            ctx.fillRect(63, 60, 25, 55);
+            ctx.fillRect(168, 60, 25, 55);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.ellipse(92, 85, 16, 9, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(164, 85, 16, 9, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#26150b';
+            ctx.beginPath(); ctx.arc(92, 85, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(164, 85, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(94, 83, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(166, 83, 2.5, 0, Math.PI * 2); ctx.fill();
+
+            ctx.strokeStyle = custData.hairColor; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(76, 70); ctx.lineTo(108, 73); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(148, 73); ctx.lineTo(180, 70); ctx.stroke();
+
+            ctx.strokeStyle = '#c27b53'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(128, 85); ctx.lineTo(122, 108); ctx.lineTo(134, 108); ctx.stroke();
+
+            ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(128, 128, 20, 0.2, Math.PI - 0.2); ctx.stroke();
+
+            ctx.fillStyle = '#' + custData.clothesColor.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 170, 256, 200);
+
+            if (custData.clothTexture === 'suit') {
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath(); ctx.moveTo(90, 170); ctx.lineTo(166, 170); ctx.lineTo(128, 260); ctx.fill();
+                ctx.fillStyle = '#b91c1c';
+                ctx.beginPath(); ctx.moveTo(120, 170); ctx.lineTo(136, 170); ctx.lineTo(132, 275); ctx.lineTo(128, 290); ctx.lineTo(124, 275); ctx.fill();
+            } else if (custData.clothTexture === 'jacket') {
+                ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(128, 170); ctx.lineTo(128, 370); ctx.stroke();
+            } else if (custData.clothTexture === 'hoodie') {
+                ctx.fillStyle = '#b45309';
+                ctx.beginPath(); ctx.arc(128, 170, 50, 0, Math.PI); ctx.fill();
+            }
+
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(20, 370, 95, 120);
+            ctx.fillRect(141, 370, 95, 120);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(15, 490, 105, 22);
+            ctx.fillRect(136, 490, 105, 22);
+
+            return new THREE.CanvasTexture(c);
         }
 
-        function createFaceTex(isMonster, custData) {
-            const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+        function createMonsterFrontTexture(custData) {
+            const c = document.createElement('canvas'); c.width = 256; c.height = 512;
             const ctx = c.getContext('2d');
-            if (isMonster) {
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, 128, 128);
-                ctx.fillStyle = custData.eyeColor ? '#' + custData.eyeColor.toString(16).padStart(6, '0') : '#ff0000';
-                ctx.beginPath(); ctx.arc(38, 48, 12, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(90, 48, 12, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(36, 38, 4, 20); ctx.fillRect(88, 38, 4, 20);
-                ctx.fillStyle = '#7f1d1d';
-                ctx.fillRect(24, 82, 80, 24);
-                ctx.fillStyle = '#ffffff';
-                for (let x = 28; x < 100; x += 12) {
-                    ctx.beginPath(); ctx.moveTo(x, 82); ctx.lineTo(x + 6, 94); ctx.lineTo(x + 12, 82); ctx.fill();
-                }
-            } else {
-                ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
-                ctx.fillRect(0, 0, 128, 128);
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.ellipse(40, 52, 11, 7, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(88, 52, 11, 7, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#292524';
-                ctx.beginPath(); ctx.arc(40, 52, 5, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(88, 52, 5, 0, Math.PI * 2); ctx.fill();
-                ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 4;
-                ctx.beginPath(); ctx.moveTo(28, 40); ctx.lineTo(52, 42); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(76, 42); ctx.lineTo(100, 40); ctx.stroke();
-                ctx.strokeStyle = '#b45309'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(64, 52); ctx.lineTo(60, 68); ctx.lineTo(68, 68); ctx.stroke();
-                ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.arc(64, 86, 16, 0.2, Math.PI - 0.2); ctx.stroke();
+
+            ctx.fillStyle = '#' + custData.skinColor.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 0, 256, 512);
+
+            ctx.strokeStyle = custData.eyeColor; ctx.lineWidth = 3;
+            for (let i = 0; i < 18; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * 256, Math.random() * 512);
+                ctx.lineTo(Math.random() * 256, Math.random() * 512);
+                ctx.stroke();
             }
+
+            ctx.fillStyle = '#0a0a0a';
+            ctx.beginPath(); ctx.moveTo(50, 50); ctx.lineTo(20, 0); ctx.lineTo(75, 40); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(206, 50); ctx.lineTo(236, 0); ctx.lineTo(181, 40); ctx.fill();
+
+            ctx.fillStyle = custData.eyeColor;
+            ctx.beginPath(); ctx.arc(85, 95, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(171, 95, 20, 0, Math.PI * 2); ctx.fill();
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(81, 75, 8, 40);
+            ctx.fillRect(167, 75, 8, 40);
+
+            ctx.fillStyle = '#450a0a';
+            ctx.beginPath(); ctx.ellipse(128, 140, 60, 28, 0, 0, Math.PI * 2); ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            for (let x = 80; x <= 176; x += 16) {
+                ctx.beginPath(); ctx.moveTo(x, 116); ctx.lineTo(x + 8, 134); ctx.lineTo(x + 16, 116); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x, 164); ctx.lineTo(x + 8, 146); ctx.lineTo(x + 16, 164); ctx.fill();
+            }
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 260, 30, 90);
+            ctx.fillRect(226, 260, 30, 90);
+
             return new THREE.CanvasTexture(c);
         }
 
@@ -380,7 +439,7 @@
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x040407);
-            scene.fog = new THREE.Fog(0x040407, 4, 38);
+            scene.fog = new THREE.Fog(0x040407, 4, 35);
 
             camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 60);
             camera.position.set(0, 1.62, 0.4);
@@ -390,18 +449,18 @@
             renderer.setPixelRatio(1.0);
             container.appendChild(renderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0x887766, 1.3);
+            const ambient = new THREE.AmbientLight(0x998877, 1.4);
             scene.add(ambient);
 
             const counterSpot = new THREE.PointLight(0xffb066, 3.5, 9);
             counterSpot.position.set(0, 2.8, -1.0);
             scene.add(counterSpot);
 
-            const lanternL = new THREE.PointLight(0xff2222, 2.0, 5);
+            const lanternL = new THREE.PointLight(0xff2222, 2.2, 5);
             lanternL.position.set(-2.2, 2.3, -1.4);
             scene.add(lanternL);
 
-            const lanternR = new THREE.PointLight(0xff2222, 2.0, 5);
+            const lanternR = new THREE.PointLight(0xff2222, 2.2, 5);
             lanternR.position.set(2.2, 2.3, -1.4);
             scene.add(lanternR);
 
@@ -422,8 +481,7 @@
         }
 
         function buildShop() {
-            const woodTex = createWoodTex();
-            const woodMat = new THREE.MeshLambertMaterial({ map: woodTex });
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3c2415 });
             const darkWoodMat = new THREE.MeshLambertMaterial({ color: 0x1f140e });
             const metalMat = new THREE.MeshLambertMaterial({ color: 0x8e9299 });
 
@@ -544,7 +602,7 @@
         }
 
         function buildSteamParticles() {
-            const count = 12;
+            const count = 10;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
@@ -558,7 +616,7 @@
         }
 
         function buildRainParticles() {
-            const count = 120;
+            const count = 100;
             const geo = new THREE.BufferGeometry();
             const pos = new Float32Array(count * 3);
             for (let i = 0; i < count * 3; i += 3) {
@@ -575,91 +633,25 @@
             const group = new THREE.Group();
             const isMonster = custData.isMonster;
 
-            const skinMat = new THREE.MeshLambertMaterial({ color: custData.skinColor });
-            const clothesMat = new THREE.MeshLambertMaterial({ color: custData.clothesColor });
-            const pantsMat = new THREE.MeshLambertMaterial({ color: custData.pantsColor || 0x111827 });
-            const shoeMat = new THREE.MeshLambertMaterial({ color: 0x09090b });
+            const texture = isMonster ? createMonsterFrontTexture(custData) : createRealHumanFrontTexture(custData);
+            const bodyMat = new THREE.MeshLambertMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
 
-            const torsoGeo = new THREE.CylinderGeometry(0.24, 0.21, 0.68, 10);
-            const torso = new THREE.Mesh(torsoGeo, clothesMat);
-            torso.position.y = 1.05;
-            group.add(torso);
+            const characterStand = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.85), bodyMat);
+            characterStand.position.y = 0.92;
+            group.add(characterStand);
 
-            if (custData.tieColor && !isMonster) {
-                const tie = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.35, 0.02), new THREE.MeshLambertMaterial({ color: custData.tieColor }));
-                tie.position.set(0, 1.15, 0.22);
-                group.add(tie);
-            }
-
-            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.14, 8), skinMat);
-            neck.position.y = 1.45;
-            group.add(neck);
-
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), skinMat);
-            head.position.y = 1.62;
-            head.scale.set(0.92, 1.05, 0.95);
-            group.add(head);
-
-            const faceTex = createFaceTex(isMonster, custData);
-            const facePlane = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ map: faceTex, transparent: true }));
-            facePlane.position.set(0, 1.62, 0.18);
-            group.add(facePlane);
+            const crossStand = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 1.85), bodyMat);
+            crossStand.rotation.y = Math.PI / 2;
+            crossStand.position.y = 0.92;
+            group.add(crossStand);
 
             if (isMonster) {
-                const hornMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
-                [-0.14, 0.14].forEach(hx => {
-                    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.26, 6), hornMat);
-                    horn.position.set(hx, 1.84, 0.02);
-                    horn.rotation.z = hx > 0 ? -0.35 : 0.35;
-                    horn.rotation.x = -0.2;
-                    group.add(horn);
-                });
-
-                const eyeLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4);
-                eyeLight.position.set(0, 1.65, 0.35);
-                group.add(eyeLight);
-            } else {
-                const hairMat = new THREE.MeshLambertMaterial({ color: custData.hairColor || 0x1c1917 });
-                const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.21, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
-                hairCap.position.set(0, 1.65, -0.01);
-                group.add(hairCap);
-
-                if (custData.hairStyle === 'long') {
-                    const hairBack = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.4, 0.1), hairMat);
-                    hairBack.position.set(0, 1.48, -0.15);
-                    group.add(hairBack);
-                }
+                const auraLight = new THREE.PointLight(custData.auraColor || 0xff0000, 2.5, 4.5);
+                auraLight.position.set(0, 1.4, 0.3);
+                group.add(auraLight);
             }
 
-            const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 8), clothesMat);
-            armL.position.set(-0.32, 1.05, 0);
-            group.add(armL);
-            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), skinMat);
-            handL.position.set(-0.32, 0.74, 0);
-            group.add(handL);
-
-            const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 8), clothesMat);
-            armR.position.set(0.32, 1.05, 0);
-            group.add(armR);
-            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), skinMat);
-            handR.position.set(0.32, 0.74, 0);
-            group.add(handR);
-
-            const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.65, 8), pantsMat);
-            legL.position.set(-0.13, 0.38, 0);
-            group.add(legL);
-            const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.22), shoeMat);
-            shoeL.position.set(-0.13, 0.04, 0.05);
-            group.add(shoeL);
-
-            const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.65, 8), pantsMat);
-            legR.position.set(0.13, 0.38, 0);
-            group.add(legR);
-            const shoeR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.22), shoeMat);
-            shoeR.position.set(0.13, 0.04, 0.05);
-            group.add(shoeR);
-
-            const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.35, 12), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 }));
+            const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.4, 12), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45 }));
             shadow.rotation.x = -Math.PI / 2;
             shadow.position.y = 0.005;
             group.add(shadow);
@@ -1007,7 +999,7 @@
             if (customer3D) {
                 if (customerWalking) {
                     customer3D.position.z += delta * 3.4;
-                    customer3D.position.y = Math.abs(Math.sin(now * 0.008)) * 0.06;
+                    customer3D.position.y = Math.abs(Math.sin(now * 0.008)) * 0.05;
                     if (customer3D.position.z >= -2.4) {
                         customer3D.position.z = -2.4;
                         customer3D.position.y = 0;
