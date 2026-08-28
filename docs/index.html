@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MIDNIGHT RAMEN // GERÇEK İNSAN VE CANAVARLAR v11.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>MIDNIGHT RAMEN // CCTV ANOMALY DETECTIVE v12.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         html, body {
@@ -13,18 +13,44 @@
         }
         #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
         #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; }
-
         .cinematic-vignette {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 50%, rgba(3,1,2,0.65) 80%, rgba(0,0,0,0.94) 100%);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(3,1,2,0.65) 80%, rgba(0,0,0,0.95) 100%);
         }
         .monster-danger-overlay {
             position: absolute; inset: 0; z-index: 7; pointer-events: none; display: none;
-            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25) 0%, rgba(180, 0, 0, 0.8) 100%);
+            background: radial-gradient(circle at center, rgba(255, 0, 0, 0.3) 0%, rgba(180, 0, 0, 0.85) 100%);
             animation: dangerPulse 0.35s infinite alternate;
         }
         @keyframes dangerPulse { from { opacity: 0.45; } to { opacity: 0.95; } }
-
+        .cctv-screen-overlay {
+            position: absolute; inset: 0; z-index: 50; display: none; pointer-events: none;
+            background: radial-gradient(circle at center, rgba(0, 255, 65, 0.12) 0%, rgba(0, 40, 10, 0.5) 75%, rgba(0, 15, 5, 0.95) 100%);
+            mix-blend-mode: color-dodge;
+        }
+        .cctv-scanlines {
+            position: absolute; inset: 0; z-index: 51; display: none; pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 65, 0.08) 0px, rgba(0, 255, 65, 0.08) 2px, transparent 2px, transparent 5px);
+            animation: scanlineMove 6s linear infinite;
+        }
+        @keyframes scanlineMove { from { background-position: 0 0; } to { background-position: 0 100%; } }
+        .cctv-hud {
+            position: absolute; inset: 0; z-index: 52; display: none; pointer-events: none;
+            font-family: 'VT323', monospace; color: #00ff41; padding: 25px 35px; text-shadow: 0 0 8px #00ff41;
+        }
+        .cctv-rec {
+            position: absolute; top: 25px; left: 35px; font-size: 1.8rem; display: flex; align-items: center; gap: 10px;
+        }
+        .cctv-rec-dot { width: 16px; height: 16px; border-radius: 50%; background: #ff0000; animation: blinkRec 0.8s infinite; box-shadow: 0 0 10px #ff0000; }
+        @keyframes blinkRec { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
+        .cctv-cam-id { position: absolute; top: 25px; right: 35px; font-size: 1.6rem; text-align: right; }
+        .cctv-warning {
+            position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
+            font-size: 1.8rem; letter-spacing: 2px; text-align: center; background: rgba(0,0,0,0.8);
+            border: 2px solid #00ff41; padding: 6px 20px; border-radius: 6px;
+        }
+        .cctv-warning.danger { color: #ff2222; border-color: #ff2222; text-shadow: 0 0 10px #ff2222; animation: cctvShake 0.2s infinite; }
+        @keyframes cctvShake { 0% { transform: translateX(-50%) translate(0, 0); } 50% { transform: translateX(-50%) translate(-2px, 2px); } 100% { transform: translateX(-50%) translate(2px, -2px); } }
         .crosshair {
             position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.9);
             border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15;
@@ -32,7 +58,6 @@
         }
         .crosshair.interact { transform: translate(-50%, -50%) scale(2.6); background: #ffb703; box-shadow: 0 0 12px #ffb703; }
         .crosshair.danger { transform: translate(-50%, -50%) scale(3.5); background: #ff1111; box-shadow: 0 0 20px #ff0000; }
-
         .customer-dialog {
             position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
             background: rgba(12, 10, 15, 0.94); border: 2px solid rgba(255,255,255,0.25); padding: 12px 28px;
@@ -40,25 +65,15 @@
             z-index: 20; display: none; text-align: center; backdrop-filter: blur(10px);
             box-shadow: 0 8px 30px rgba(0,0,0,0.85); max-width: 90vw;
         }
-        .customer-dialog.monster {
-            border-color: #ff1111; color: #ff6666; animation: monsterShake 0.15s infinite;
-            background: rgba(30, 5, 5, 0.95); box-shadow: 0 0 30px rgba(255,0,0,0.7);
-        }
-        @keyframes monsterShake {
-            0% { transform: translateX(-50%) translate(0, 0); }
-            50% { transform: translateX(-50%) translate(-2px, 2px); }
-            100% { transform: translateX(-50%) translate(2px, -2px); }
-        }
-
         .interaction-prompt {
-            position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%);
             background: rgba(14, 8, 10, 0.96); border: 2px solid #ff4444; color: #fff; padding: 10px 24px;
             border-radius: 8px; font-size: 1.1rem; font-weight: 800; z-index: 25;
             display: none; text-align: center; pointer-events: none;
         }
         .interaction-prompt.monster-warn {
             border-color: #ff0000; background: #2a0000; color: #ffcccc; box-shadow: 0 0 30px #ff0000;
-            animation: warnPulse 0.3s infinite alternate; font-size: 1.25rem;
+            animation: warnPulse 0.3s infinite alternate; font-size: 1.2rem;
         }
         @keyframes warnPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.06); } }
         .interaction-prompt kbd {
@@ -66,7 +81,6 @@
             font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; margin-right: 6px;
         }
         .interaction-prompt.monster-warn kbd { background: #ffcc00; color: #000; font-weight: bold; }
-
         .hud-status {
             position: absolute; top: 12px; left: 12px; z-index: 25; display: flex; gap: 8px;
             font-family: 'Share Tech Mono', monospace; font-size: 0.88rem;
@@ -75,13 +89,36 @@
             background: rgba(12, 8, 10, 0.92); border: 1.5px solid rgba(255, 68, 68, 0.5);
             padding: 6px 14px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
-
-        .hand-item-hud {
-            position: absolute; top: 12px; right: 12px; background: rgba(12, 8, 10, 0.92);
-            border: 2px solid #ffb703; padding: 6px 18px; border-radius: 6px;
-            font-size: 0.88rem; font-weight: bold; color: #ffb703; z-index: 25;
+        .hud-right-panel {
+            position: absolute; top: 12px; right: 12px; z-index: 25; display: flex; gap: 10px;
         }
-
+        .hand-item-hud {
+            background: rgba(12, 8, 10, 0.92); border: 2px solid #ffb703; padding: 6px 18px; border-radius: 6px;
+            font-size: 0.88rem; font-weight: bold; color: #ffb703;
+        }
+        .guide-btn {
+            background: rgba(12, 8, 10, 0.92); border: 2px solid #00f0ff; color: #00f0ff;
+            padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.88rem;
+        }
+        .guide-modal {
+            position: absolute; inset: 0; background: rgba(5, 5, 8, 0.96); z-index: 80; display: none;
+            flex-direction: column; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(12px);
+        }
+        .guide-container {
+            max-width: 850px; width: 95%; max-height: 85vh; background: #0c0b10; border: 2px solid #00f0ff;
+            border-radius: 12px; padding: 25px; overflow-y: auto; box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+        }
+        .guide-title { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; color: #00f0ff; margin-bottom: 12px; }
+        .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 15px; }
+        .guide-card {
+            background: #14131a; border: 1px solid rgba(255,255,255,0.15); padding: 12px 14px; border-radius: 8px; font-size: 0.9rem;
+        }
+        .guide-card b { color: #ffd166; }
+        .guide-close-btn {
+            margin-top: 20px; background: #ff2a2a; color: #fff; border: none; font-family: 'Orbitron', sans-serif;
+            padding: 10px 30px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
         .start-modal {
             position: absolute; inset: 0;
             background: radial-gradient(circle at 50% 40%, rgba(26, 8, 8, 0.98) 0%, rgba(4, 2, 3, 0.99) 100%);
@@ -89,12 +126,12 @@
             text-align: center; padding: 20px; cursor: pointer; overflow-y: auto;
         }
         .start-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.4rem; color: #ff2a2a;
+            font-family: 'Orbitron', sans-serif; font-size: 2.3rem; color: #ff2a2a;
             text-shadow: 0 0 25px rgba(255, 42, 42, 0.85); margin-bottom: 8px; letter-spacing: 2px;
         }
         .start-desc {
-            color: #e2e8f0; font-size: 1.02rem; max-width: 700px; line-height: 1.65; margin-bottom: 20px;
-            background: rgba(0,0,0,0.55); padding: 18px 22px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0; font-size: 1.02rem; max-width: 760px; line-height: 1.65; margin-bottom: 20px;
+            background: rgba(0,0,0,0.55); padding: 18px 24px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
         }
         .start-btn {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%); color: #fff; border: 1px solid #ff6666;
@@ -102,20 +139,17 @@
             padding: 15px 48px; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.8);
             cursor: pointer; letter-spacing: 2px; margin-top: 10px;
         }
-
         .end-screen {
             position: absolute; inset: 0; background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
             z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 25px;
         }
-
         .rotate-overlay {
             position: fixed; inset: 0; background: #050505; z-index: 999; display: none;
             flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 30px;
         }
         .rotate-icon { font-size: 4rem; margin-bottom: 18px; animation: rotateHint 1.6s ease-in-out infinite; }
         @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
-
         .joystick-zone { position: absolute; left: 0; bottom: 0; width: 45%; height: 60%; z-index: 30; display: none; touch-action: none; }
         .joystick-base {
             position: absolute; left: 75px; bottom: 75px; width: 110px; height: 110px; border-radius: 50%;
@@ -127,43 +161,48 @@
         }
         .look-zone { position: absolute; inset: 0; z-index: 20; touch-action: none; display: none; }
         .mobile-buttons {
-            position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 14px; align-items: center;
+            position: absolute; right: 18px; bottom: 20px; z-index: 30; display: none; flex-direction: column; gap: 12px; align-items: center;
         }
         .mobile-btn {
-            width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; font-weight: bold;
+            width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; font-weight: bold;
             border: 2px solid rgba(255,255,255,0.8); color: #fff; background: rgba(15,10,12,0.85);
         }
-        .mobile-btn .big { font-size: 1.45rem; margin-bottom: 2px; }
-        .mobile-btn.cook { border-color: #00ff77; color: #00ff77; }
+        .mobile-btn .big { font-size: 1.35rem; margin-bottom: 2px; }
+        .mobile-btn.cctv { border-color: #00ff41; color: #00ff41; }
+        .mobile-btn.cook { border-color: #00f0ff; color: #00f0ff; }
         .mobile-btn.serve { border-color: #ffb703; color: #ffb703; }
         .mobile-btn.shutter { border-color: #ff3333; color: #ff3333; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
     <div id="canvas-container"></div>
     <div class="crosshair" id="crosshair"></div>
     <div class="cinematic-vignette"></div>
     <div class="monster-danger-overlay" id="monsterDangerOverlay"></div>
-
+    <div class="cctv-screen-overlay" id="cctvScreen"></div>
+    <div class="cctv-scanlines" id="cctvScanlines"></div>
+    <div class="cctv-hud" id="cctvHud">
+        <div class="cctv-rec"><div class="cctv-rec-dot"></div> [CANLI CCTV] GÜVENLİK KAMERASI 01</div>
+        <div class="cctv-cam-id">MOD: GECE GÖRÜŞÜ / ANOMALİ TARAYICI<br>TARAMA HIZI: 60 FPS</div>
+        <div class="cctv-warning" id="cctvWarning">ANOMALİ ANALİZİ YAPILIYOR...</div>
+    </div>
     <div class="interaction-prompt" id="promptText">
         <kbd id="promptKey">E</kbd> <span id="promptLabel">RAMEN PİŞİR</span>
     </div>
-
     <div class="customer-dialog" id="customerDialog"></div>
-
     <div class="hud-status">
         <div class="hud-badge">VAKİT: <b style="color:#ffb703;" id="hudClock">00:00</b></div>
         <div class="hud-badge">MÜŞTERİ: <b style="color:#00f0ff;" id="hudCustomerCount">1 / 10</b></div>
         <div class="hud-badge">KASA: <b style="color:#00ff77;" id="hudMoney">$0</b></div>
     </div>
-
-    <div class="hand-item-hud" id="handItemHud">
-        <span id="handItemText">BOŞ EL</span>
+    <div class="hud-right-panel">
+        <button class="guide-btn" onclick="toggleGuide(true)">📋 REHBER [R]</button>
+        <div class="hand-item-hud" id="handItemHud">
+            <span id="handItemText">BOŞ EL</span>
+        </div>
     </div>
-
     <div class="look-zone" id="lookZone"></div>
     <div class="joystick-zone" id="joystickZone">
         <div class="joystick-base" id="joystickBase">
@@ -171,141 +210,112 @@
         </div>
     </div>
     <div class="mobile-buttons" id="mobileButtons">
+        <div class="mobile-btn cctv" id="btnCCTV"><div class="big">📹</div>KAMERA</div>
         <div class="mobile-btn shutter" id="btnShutter"><div class="big">🔒</div>KEPENK</div>
         <div class="mobile-btn serve" id="btnServe"><div class="big">🍜</div>SERVİS</div>
         <div class="mobile-btn cook" id="btnCook"><div class="big">🔥</div>PİŞİR</div>
     </div>
-
+    <div class="guide-modal" id="guideModal">
+        <div class="guide-container">
+            <h2 class="guide-title">📁 GECE NÖBETİ MÜŞTERİ KİMLİK REHBERİ</h2>
+            <p style="color:#94a3b8; font-size:0.95rem; line-height:1.5;">
+                <b>DİKKAT:</b> Canavarlar dışarıdan bakıldığında sıradan insan kılığına girerler ve kendilerini asla belli etmezler!
+                Onları ayırt etmenin <b>tek kesin yolu tezgahtaki Güvenlik Kamerası (CCTV - C tuşu)</b> ile bakmaktır.
+                Kameranın yeşil gece görüşü sahte insan maskesini deler ve gerçek canavar formunu gösterir!
+            </p>
+            <div class="guide-grid" id="guideGrid"></div>
+            <div style="text-align:center;">
+                <button class="guide-close-btn" onclick="toggleGuide(false)">REHBERİ KAPAT</button>
+            </div>
+        </div>
+    </div>
     <div class="start-modal" id="startModal" onclick="startPlay()">
-        <h1 class="start-title">深夜拉麺 // 10 KİŞİLİK NÖBET</h1>
+        <h1 class="start-title">深夜拉麺 // CCTV DEDEKTİFİ</h1>
         <div style="font-family:'Cinzel'; color:#ffd166; font-size:1.05rem; letter-spacing:2px; margin-bottom:14px;">
-            5 GERÇEK İNSAN + 5 KORKUNÇ CANAVAR
+            5 MASUM İNSAN & 5 KILIK DEĞİŞTİRMİŞ SAHTE CANAVAR
         </div>
         <div class="start-desc">
-            Gece dükkanına sırayla <b>10 kişi</b> gelecek:<br><br>
-            👨‍💼 <b>İNSANLAR:</b> Gerçek insan yüzü, saçları, kıyafetleri ve kolları vardır. Kibarca ramen isterler.<br>
-            👉 <b>E</b> ile kazandan ramen doldur, <b>X</b> ile tezgaha servis et!<br><br>
-            👹 <b>CANAVARLAR:</b> Şeytani kırmızı/mor derileri, kanlı gözleri ve boynuzları vardır.<br>
-            👉 Canavar görünce <b>HEMEN KEPENGİ İNDİR (F / SPACE)!</b> Kepengi kapatmazsan 3 saniye sonra saldırıp seni yer!
+            Gece dükkanına <b>10 kişi</b> gelecek. Canavarlar dışarıdan <b>TAM İNSAN GİBİ</b> görünür ve kendilerini belli etmezler!<br><br>
+            📹 <b>GÜVENLİK KAMERASI [C / Monitör]:</b> Kamerayı açtığında gece görüşü canavarın gerçek şeytani yüzünü ve kırmızı gözlerini gösterir!<br>
+            👨‍💼 <b>İNSANSA:</b> Kamerada normal insan görünür. <b>[E]</b> ile ramen doldur, <b>[X]</b> ile servis et!<br>
+            👹 <b>CANAVARSE:</b> Kamerada korkunç iblis/zombi yüzü belirir! Hemen <b>[F / SPACE]</b> ile kepengi indir ve kovala!
         </div>
         <div id="desktopHints" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-family:'Share Tech Mono'; font-size:0.95rem; color:#ffd166;">
             <div>[W,A,S,D] Yürü</div>
             <div>[FARE] Bak</div>
+            <div>[C] Kameraya Bak / Çık</div>
             <div>[E] Ramen Doldur</div>
             <div>[X] İnsana Ver</div>
-            <div>[F / SPACE] Canavara Kepenk İndir</div>
+            <div>[F / SPACE] Kepenk İndir</div>
+            <div>[R] Müşteri Rehberi</div>
         </div>
         <div id="mobileHints" style="display:none; flex-wrap:wrap; justify-content:center; gap:14px; font-family:'Share Tech Mono'; font-size:0.88rem; color:#ffd166;">
-            <div>Sol Joystick: Yürü | Ekran: Bak | Butonlar: 🔥 Pişir / 🍜 Servis / 🔒 Kepenk Kapat</div>
+            <div>Sol Joystick: Yürü | Ekran: Bak | Butonlar: 📹 Kamera / 🔥 Pişir / 🍜 Servis / 🔒 Kepenk</div>
         </div>
-        <button class="start-btn">DÜKKANI AÇ</button>
+        <button class="start-btn">NÖBETE BAŞLA</button>
     </div>
-
     <div class="end-screen" id="endScreen">
         <h1 style="font-family:'Orbitron'; font-size:2.8rem; letter-spacing:3px;" id="endTitle">ÖLDÜRÜLDÜNÜZ!</h1>
         <p style="color:#cbd5e1; font-size:1.15rem; margin:18px 0 28px 0; max-width:640px; line-height:1.6;" id="endDesc">
-            Canavara kepengi kapatmadın. Tezgaha atlayıp seni parçaladı!
+            Kameradan bakıp canavarı teşhis etmedin ve kepengi indirmedin! Canavar kılığını bozup seni yedi!
         </p>
         <button class="start-btn" onclick="restartGame()">TEKRAR OYNA</button>
     </div>
-
     <div class="rotate-overlay" id="rotateOverlay">
         <div class="rotate-icon">📱</div>
         <h2 style="font-family:'Orbitron'; color:#ff2a2a; margin-bottom:10px;">TELEFONU YATAY ÇEVİRİN</h2>
     </div>
-
     <script>
         const SHIFT_CUSTOMERS = [
-            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", clothesColor: '#1d4ed8', skinColor: '#ffd8be', hairColor: '#1c1917', clothType: 'hoodie', scale: 1.0, dialog: "İyi akşamlar usta! Bütün gece ders çalıştım, sıcak bir ramen alabilir miyim?" },
-            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kan Canavarı", clothesColor: '#450a0a', skinColor: '#dc2626', eyeColor: '#ffff00', clothType: 'demon', scale: 1.2, auraColor: 0xff0000, dialog: "HURRRR! TAZE İNSAN ETİ! KEPENGİ AÇIK UNUTTUN, SENİ YİYECEĞİM!" },
-            { isMonster: false, name: "Sato", role: "Şirket Müdürü", clothesColor: '#0f172a', skinColor: '#f5d0b5', hairColor: '#292524', clothType: 'suit', scale: 1.05, dialog: "Selam usta. Mesai yeni bitti, midem kazınıyor, nefis bir ramen rica edeyim." },
-            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Mezarlık Yaratığı", clothesColor: '#1c1917', skinColor: '#3f6212', eyeColor: '#ffffff', clothType: 'zombie', scale: 1.15, auraColor: 0x84cc16, dialog: "GHRRR... SICAK KAN VE ETİNİ İSTİYORUM... AÇIIIIMMM!" },
-            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", clothesColor: '#d97706', skinColor: '#fde047', hairColor: '#451a03', clothType: 'jacket', scale: 1.02, dialog: "Yağmur çok fena bastırdı usta, dükkanınızı görünce daldım. Bir kase ramen lütfen!" },
-            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Karanlık Canavarı", clothesColor: '#000000', skinColor: '#09090b', eyeColor: '#ff0000', clothType: 'shadow', scale: 1.25, auraColor: 0xff1111, dialog: "SENİ KARANLIĞA ÇEKECEĞİM! ÇABUK KEPENGİ KAPATMAZSAN BİTTİN!" },
-            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", clothesColor: '#0284c7', skinColor: '#ffe4e6', hairColor: '#18181b', clothType: 'doctor', scale: 0.98, dialog: "Hastaneden yeni çıktım usta, kokusu sokağı sarmış. Şimdiden eline sağlık." },
-            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Şeytani Yaratık", clothesColor: '#581c87', skinColor: '#7e22ce', eyeColor: '#22c55e', clothType: 'mutant', scale: 1.22, auraColor: 0xa855f7, dialog: "DEVAASA AĞZIMLA SENİ TEK LOKMADA YUTACAĞIM! KEPENGİ İNDİREMEZSİN!" },
-            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", clothesColor: '#4b5563', skinColor: '#d4a373', hairColor: '#e2e8f0', clothType: 'elder', scale: 0.96, dialog: "Hayırlı işler evlat! Şöyle bol yumurtalı, sıcak bir kase yap bakalım." },
-            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", clothesColor: '#180000', skinColor: '#000000', eyeColor: '#ff0000', clothType: 'boss', scale: 1.35, auraColor: 0xff0000, dialog: "BU GECEKİ SON KURBANIM SEN OLACAKSIN! BURADAN SAĞ ÇIKAMAZSIN!" }
+            { isMonster: false, name: "Kenji", role: "Üniversite Öğrencisi", disguiseSkin: '#ffd8be', disguiseClothes: '#1d4ed8', hairColor: '#1c1917', clothType: 'hoodie', description: "Gece sınavına çalışan sakin bir öğrenci. Kamerada ve gerçekte tamamen normal insandır.", dialog: "İyi akşamlar usta! Bütün gece sınav çalıştım, sıcak bir ramen alabilir miyim?" },
+            { isMonster: true, monsterType: 'oni', name: "Kırmızı Boynuzlu İblis", role: "Kılık Değiştirmiş Yaratık", disguiseSkin: '#fde047', disguiseClothes: '#1e293b', hairColor: '#18181b', clothType: 'jacket', monsterSkin: '#dc2626', monsterEye: '#ffff00', description: "Dışarıdan sıradan bir müşteri gibi görünür. Fakat KAMERADAN BAKILDIĞINDA boynuzlu kırmızı kan iblisi ortaya çıkar!", dialog: "Selamlar usta... Çok açım... Sıcak ve taze bir şeyler yemek istiyorum..." },
+            { isMonster: false, name: "Sato", role: "Şirket Müdürü", disguiseSkin: '#f5d0b5', disguiseClothes: '#0f172a', hairColor: '#292524', clothType: 'suit', description: "Mesaisi yeni bitmiş kravatlı bir iş insanı. Kamerada ve gerçekte insan formundadır.", dialog: "İyi geceler usta. Ağır bir toplantıdan çıktım, nefis bir kase ramen rica edeyim." },
+            { isMonster: true, monsterType: 'zombie', name: "Çürümüş Zombi", role: "Kılık Değiştirmiş Yaratık", disguiseSkin: '#e2e8f0', disguiseClothes: '#334155', hairColor: '#475569', clothType: 'hoodie', monsterSkin: '#3f6212', monsterEye: '#ffffff', description: "Dışarıdan üşümüş yorgun bir genç gibi görünür. KAMERADAN BAKILDIĞINDA çürümüş yeşil zombi kafatası ve beyaz gözleri görünür!", dialog: "Hava çok soğuk usta... Midem kazınıyor... Çabuk servis yapabilir misin..." },
+            { isMonster: false, name: "Yuki", role: "Sırt Çantalı Gezgin", disguiseSkin: '#fcd34d', disguiseClothes: '#d97706', hairColor: '#451a03', clothType: 'jacket', description: "Tokyo'yu gezen sarı montlu bir turist. Kamerada ve gerçekte normal insandır.", dialog: "Yağmur çok fena bastırdı usta! Dükkanın sıcak kokusunu alınca hemen girdim. Bir ramen lütfen!" },
+            { isMonster: true, monsterType: 'shadow', name: "Zifiri Gölge İfriti", role: "Kılık Değiştirmiş Yaratık", disguiseSkin: '#fed7aa', disguiseClothes: '#111827', hairColor: '#09090b', clothType: 'suit', monsterSkin: '#09090b', monsterEye: '#ff0000', description: "Dışarıdan şık takım elbiseli bir müşteri gibidir. KAMERADAN BAKILDIĞINDA simsiyah karanlık bir gölge ve kan kırmızısı gözleri ortaya çıkar!", dialog: "Hayırlı işler... Şehrin en karanlık saatindeyiz... Bir kase ramen hazırlar mısın?" },
+            { isMonster: false, name: "Aiko", role: "Nöbetçi Doktor", disguiseSkin: '#ffe4e6', disguiseClothes: '#0284c7', hairColor: '#18181b', clothType: 'doctor', description: "Hastaneden nöbetten çıkan doktor. Kamerada ve gerçekte tamamen normal insandır.", dialog: "Hastaneden yeni çıktım usta, kokusu bütün caddeyi sarmış. Eline sağlık şimdiden." },
+            { isMonster: true, monsterType: 'mutant', name: "Koca Ağızlı Mutant", role: "Kılık Değiştirmiş Yaratık", disguiseSkin: '#fecdd3', disguiseClothes: '#4c1d95', hairColor: '#312e81', clothType: 'jacket', monsterSkin: '#7e22ce', monsterEye: '#22c55e', description: "Dışarıdan kibar bir mahalle sakini gibi davranır. KAMERADAN BAKILDIĞINDA mor derili, kocaman jilet dişli canavar ağzı görülür!", dialog: "İyi akşamlar usta... Çok ama çok açım... Beni hemen doyurur musun?" },
+            { isMonster: false, name: "Goro", role: "Mahalleli Balıkçı", disguiseSkin: '#d4a373', disguiseClothes: '#4b5563', hairColor: '#e2e8f0', clothType: 'elder', description: "Sabah balığa çıkacak mahalleli yaşlı amca. Kamerada ve gerçekte normal insandır.", dialog: "Hayırlı işler evlat! Şöyle bol taze yumurtalı, sıcak bir kase yap bakalım." },
+            { isMonster: true, monsterType: 'boss', name: "Kabus Hükümdarı", role: "Büyük İblis", disguiseSkin: '#ffedd5', disguiseClothes: '#18181b', hairColor: '#172554', clothType: 'suit', monsterSkin: '#000000', monsterEye: '#ff0000', description: "Gece vardiyasının son müşterisi. Dışarıdan zengin bir beyefendi gibidir. KAMERADAN BAKILDIĞINDA devasa auralı ölüm hükümdarı ortaya çıkar!", dialog: "Vardiyanın sonuna geldin usta... Bakalım bu gece bana ne ikram edeceksin..." }
         ];
+
+        function buildGuideUI() {
+            const grid = document.getElementById('guideGrid');
+            grid.innerHTML = '';
+            SHIFT_CUSTOMERS.forEach((c, idx) => {
+                const card = document.createElement('div');
+                card.className = 'guide-card';
+                card.innerHTML = `<div style="font-size:1.05rem; font-weight:bold; color:${c.isMonster ? '#ff6666' : '#00f0ff'}; margin-bottom:4px;">#${idx + 1} ${c.name}</div><div><b>Rol:</b> ${c.role}</div><div style="margin-top:4px; color:#cbd5e1; font-size:0.85rem;">${c.description}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleGuide(show) {
+            document.getElementById('guideModal').style.display = show ? 'flex' : 'none';
+        }
 
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
-
         function playSound(freq, type = 'sine', duration = 0.1, vol = 0.2) {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration); } catch(e) {}
         }
-
+        function playCCTVSwitchSound() {
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(900, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.18); gain.gain.setValueAtTime(0.4, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.18); } catch(e) {}
+        }
         function playCookSound() {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.35);
-                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
-            } catch(e) {}
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(320, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.35); gain.gain.setValueAtTime(0.35, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.35); } catch(e) {}
         }
-
         function playShutterSound() {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.45);
-                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.45); gain.gain.setValueAtTime(0.6, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5); } catch(e) {}
         }
-
         function playMonsterRoar() {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(650, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 1.1);
-                gain.gain.setValueAtTime(0.85, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.1);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 1.1);
-            } catch(e) {}
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(650, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 1.1); gain.gain.setValueAtTime(0.85, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.1); } catch(e) {}
         }
-
         function playMonsterFleeSound() {
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
+            try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5); } catch(e) {}
         }
 
         const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
@@ -313,785 +323,342 @@
         let gameActive = false;
         let pitch = 0, yaw = 0;
         const keys = { w: false, a: false, s: false, d: false };
-
         let joystickTouchId = null, joystickCenter = { x: 0, y: 0 }, joystickVector = { x: 0, y: 0 };
         let lookTouchId = null, lookLast = { x: 0, y: 0 };
         const JOYSTICK_RADIUS = 55;
+        let shutterMesh, boilerMesh, cctvMonitorProp, steamParticles, rainParticles, customer3D = null;
+        let customerMainMesh = null, customerCrossMesh = null;
+        let heldBowlGroup = null, counterServedBowl = null;
+        let customerWalking = false, currentCustomerData = null, customerIndex = 0;
+        let hasCookedRamen = false, shutterClosed = false, isCCTVActive = false;
+        let monsterAttackTimer = null, money = 0;
 
-        let shutterMesh, boilerMesh, steamParticles, rainParticles, customer3D = null;
-        let heldBowlGroup = null;
-        let counterServedBowl = null;
-        let customerWalking = false;
-        let currentCustomerData = null;
-        let customerIndex = 0;
-        let hasCookedRamen = false;
-        let shutterClosed = false;
-        let monsterAttackTimer = null;
-        let money = 0;
-
-        function generateCustomerArtCanvas(custData) {
+        function createCustomerCanvasTexture(custData, isCameraView) {
             const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 1024;
+            canvas.width = 512; canvas.height = 1024;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, 512, 1024);
-
-            const isMonster = custData.isMonster;
-
-            if (isMonster) {
-                ctx.fillStyle = custData.skinColor;
-                ctx.beginPath();
-                ctx.moveTo(150, 420);
-                ctx.quadraticCurveTo(80, 550, 60, 750);
-                ctx.lineTo(120, 780);
-                ctx.lineTo(180, 580);
-                ctx.lineTo(210, 850);
-                ctx.lineTo(302, 850);
-                ctx.lineTo(332, 580);
-                ctx.lineTo(392, 780);
-                ctx.lineTo(452, 750);
-                ctx.quadraticCurveTo(432, 550, 362, 420);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.ellipse(256, 320, 110, 130, 0, 0, Math.PI * 2);
-                ctx.fill();
-
+            const isRevealedMonster = custData.isMonster && isCameraView;
+            if (isRevealedMonster) {
+                ctx.fillStyle = custData.monsterSkin || '#dc2626';
+                ctx.beginPath(); ctx.moveTo(150, 420); ctx.quadraticCurveTo(80, 550, 60, 750); ctx.lineTo(120, 780); ctx.lineTo(180, 580); ctx.lineTo(210, 850); ctx.lineTo(302, 850); ctx.lineTo(332, 580); ctx.lineTo(392, 780); ctx.lineTo(452, 750); ctx.quadraticCurveTo(432, 550, 362, 420); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(256, 320, 110, 130, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#050505';
-                ctx.beginPath();
-                ctx.moveTo(170, 240);
-                ctx.quadraticCurveTo(110, 100, 70, 30);
-                ctx.quadraticCurveTo(140, 110, 200, 210);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(342, 240);
-                ctx.quadraticCurveTo(402, 100, 442, 30);
-                ctx.quadraticCurveTo(372, 110, 312, 210);
-                ctx.fill();
-
-                ctx.fillStyle = custData.eyeColor;
-                ctx.shadowColor = custData.eyeColor;
-                ctx.shadowBlur = 25;
-                ctx.beginPath();
-                ctx.ellipse(195, 300, 30, 15, -0.2, 0, Math.PI * 2);
-                ctx.ellipse(317, 300, 30, 15, 0.2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(190, 285, 10, 30);
-                ctx.fillRect(312, 285, 10, 30);
-
-                ctx.fillStyle = '#260404';
-                ctx.beginPath();
-                ctx.ellipse(256, 380, 80, 45, 0, 0, Math.PI * 2);
-                ctx.fill();
-
+                ctx.beginPath(); ctx.moveTo(170, 240); ctx.quadraticCurveTo(110, 100, 70, 30); ctx.quadraticCurveTo(140, 110, 200, 210); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(342, 240); ctx.quadraticCurveTo(402, 100, 442, 30); ctx.quadraticCurveTo(372, 110, 312, 210); ctx.fill();
+                ctx.fillStyle = custData.monsterEye || '#ffff00'; ctx.shadowColor = custData.monsterEye || '#ffff00'; ctx.shadowBlur = 30;
+                ctx.beginPath(); ctx.ellipse(195, 300, 32, 16, -0.2, 0, Math.PI * 2); ctx.ellipse(317, 300, 32, 16, 0.2, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 0; ctx.fillStyle = '#000000'; ctx.fillRect(190, 285, 10, 30); ctx.fillRect(312, 285, 10, 30);
+                ctx.fillStyle = '#260404'; ctx.beginPath(); ctx.ellipse(256, 380, 85, 48, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#ffffff';
-                for (let x = 190; x <= 310; x += 22) {
-                    ctx.beginPath(); ctx.moveTo(x, 345); ctx.lineTo(x + 10, 375); ctx.lineTo(x + 20, 345); ctx.fill();
-                    ctx.beginPath(); ctx.moveTo(x, 415); ctx.lineTo(x + 10, 385); ctx.lineTo(x + 20, 415); ctx.fill();
-                }
+                for (let x = 185; x <= 315; x += 22) { ctx.beginPath(); ctx.moveTo(x, 345); ctx.lineTo(x + 10, 375); ctx.lineTo(x + 20, 345); ctx.fill(); ctx.beginPath(); ctx.moveTo(x, 415); ctx.lineTo(x + 10, 385); ctx.lineTo(x + 20, 415); ctx.fill(); }
             } else {
-                ctx.fillStyle = custData.clothesColor;
-                ctx.beginPath();
-                ctx.moveTo(140, 400);
-                ctx.quadraticCurveTo(80, 500, 70, 750);
-                ctx.lineTo(130, 770);
-                ctx.lineTo(165, 540);
-                ctx.lineTo(190, 860);
-                ctx.lineTo(322, 860);
-                ctx.lineTo(347, 540);
-                ctx.lineTo(382, 770);
-                ctx.lineTo(442, 750);
-                ctx.quadraticCurveTo(432, 500, 372, 400);
-                ctx.closePath();
-                ctx.fill();
-
-                if (custData.clothType === 'suit') {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); ctx.moveTo(215, 400); ctx.lineTo(297, 400); ctx.lineTo(256, 560); ctx.fill();
-                    ctx.fillStyle = '#b91c1c';
-                    ctx.beginPath(); ctx.moveTo(246, 400); ctx.lineTo(266, 400); ctx.lineTo(262, 580); ctx.lineTo(256, 610); ctx.lineTo(250, 580); ctx.fill();
-                } else {
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
-                    ctx.beginPath(); ctx.moveTo(256, 400); ctx.lineTo(256, 680); ctx.stroke();
-                }
-
-                ctx.fillStyle = custData.skinColor;
-                ctx.fillRect(230, 340, 52, 70);
-
-                ctx.beginPath();
-                ctx.ellipse(256, 260, 85, 105, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = custData.hairColor;
-                ctx.beginPath();
-                ctx.ellipse(256, 210, 92, 70, 0, Math.PI, 0, false);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(175, 230, 20, 50, 0, 0, Math.PI * 2);
-                ctx.ellipse(337, 230, 20, 50, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.ellipse(215, 260, 22, 13, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(297, 260, 22, 13, 0, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#261408';
-                ctx.beginPath(); ctx.arc(215, 260, 9, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(297, 260, 9, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.arc(218, 257, 3, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(300, 257, 3, 0, Math.PI * 2); ctx.fill();
-
-                ctx.strokeStyle = custData.hairColor; ctx.lineWidth = 6;
-                ctx.beginPath(); ctx.moveTo(192, 238); ctx.lineTo(238, 242); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(274, 242); ctx.lineTo(320, 238); ctx.stroke();
-
-                ctx.strokeStyle = '#a1552a'; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.moveTo(256, 260); ctx.lineTo(248, 290); ctx.lineTo(264, 290); ctx.stroke();
-
-                ctx.strokeStyle = '#881337'; ctx.lineWidth = 4;
-                ctx.beginPath(); ctx.arc(256, 318, 24, 0.2, Math.PI - 0.2); ctx.stroke();
+                ctx.fillStyle = isCameraView ? '#00ff41' : custData.disguiseClothes;
+                ctx.beginPath(); ctx.moveTo(140, 400); ctx.quadraticCurveTo(80, 500, 70, 750); ctx.lineTo(130, 770); ctx.lineTo(165, 540); ctx.lineTo(190, 860); ctx.lineTo(322, 860); ctx.lineTo(347, 540); ctx.lineTo(382, 770); ctx.lineTo(442, 750); ctx.quadraticCurveTo(432, 500, 372, 400); ctx.closePath(); ctx.fill();
+                if (custData.clothType === 'suit') { ctx.fillStyle = isCameraView ? '#003311' : '#ffffff'; ctx.beginPath(); ctx.moveTo(215, 400); ctx.lineTo(297, 400); ctx.lineTo(256, 560); ctx.fill(); ctx.fillStyle = isCameraView ? '#00ff41' : '#b91c1c'; ctx.beginPath(); ctx.moveTo(246, 400); ctx.lineTo(266, 400); ctx.lineTo(262, 580); ctx.lineTo(256, 610); ctx.lineTo(250, 580); ctx.fill(); } else { ctx.strokeStyle = isCameraView ? '#003311' : '#ffffff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(256, 400); ctx.lineTo(256, 680); ctx.stroke(); }
+                ctx.fillStyle = isCameraView ? '#00cc33' : custData.disguiseSkin; ctx.fillRect(230, 340, 52, 70);
+                ctx.beginPath(); ctx.ellipse(256, 260, 85, 105, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = isCameraView ? '#004411' : custData.hairColor;
+                ctx.beginPath(); ctx.ellipse(256, 210, 92, 70, 0, Math.PI, 0, false); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(175, 230, 20, 50, 0, 0, Math.PI * 2); ctx.ellipse(337, 230, 20, 50, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(215, 260, 22, 13, 0, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.ellipse(297, 260, 22, 13, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = isCameraView ? '#002200' : '#261408'; ctx.beginPath(); ctx.arc(215, 260, 9, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(297, 260, 9, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = isCameraView ? '#003311' : custData.hairColor; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(192, 238); ctx.lineTo(238, 242); ctx.stroke(); ctx.beginPath(); ctx.moveTo(274, 242); ctx.lineTo(320, 238); ctx.stroke();
+                ctx.strokeStyle = isCameraView ? '#004411' : '#a1552a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(256, 260); ctx.lineTo(248, 290); ctx.lineTo(264, 290); ctx.stroke();
+                ctx.strokeStyle = isCameraView ? '#004411' : '#881337'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(256, 318, 24, 0.2, Math.PI - 0.2); ctx.stroke();
             }
-
             return new THREE.CanvasTexture(canvas);
         }
 
         function createOrganicCustomerMesh(custData) {
             const group = new THREE.Group();
-            const texture = generateCustomerArtCanvas(custData);
-            
-            const mat = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true,
-                side: THREE.DoubleSide,
-                alphaTest: 0.1
-            });
+            const texture = createCustomerCanvasTexture(custData, isCCTVActive);
+            const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, alphaTest: 0.1 });
+            customerMainMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.65, 3.1), mat);
+            customerMainMesh.position.y = 1.45; group.add(customerMainMesh);
+            customerCrossMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 3.1), mat);
+            customerCrossMesh.rotation.y = Math.PI / 2; customerCrossMesh.position.y = 1.45; group.add(customerCrossMesh);
+            const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.55, 16), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5 }));
+            shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.01; group.add(shadow);
+            group.position.set(0, 0, -18); scene.add(group); return group;
+        }
 
-            const mainMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.65, 3.1), mat);
-            mainMesh.position.y = 1.45;
-            group.add(mainMesh);
-
-            const crossMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 3.1), mat);
-            crossMesh.rotation.y = Math.PI / 2;
-            crossMesh.position.y = 1.45;
-            group.add(crossMesh);
-
-            if (custData.isMonster) {
-                const auraLight = new THREE.PointLight(custData.auraColor || 0xff0000, 3.0, 5.0);
-                auraLight.position.set(0, 1.8, 0.4);
-                group.add(auraLight);
+        function updateCustomerTextureForCamera() {
+            if (customer3D && currentCustomerData && customerMainMesh && customerCrossMesh) {
+                const newTexture = createCustomerCanvasTexture(currentCustomerData, isCCTVActive);
+                customerMainMesh.material.map = newTexture; customerMainMesh.material.needsUpdate = true;
+                customerCrossMesh.material.map = newTexture; customerCrossMesh.material.needsUpdate = true;
             }
-
-            const shadow = new THREE.Mesh(
-                new THREE.CircleGeometry(0.55, 16),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5 })
-            );
-            shadow.rotation.x = -Math.PI / 2;
-            shadow.position.y = 0.01;
-            group.add(shadow);
-
-            group.scale.setScalar(custData.scale || 1.0);
-            group.position.set(0, 0, -18);
-            scene.add(group);
-            return group;
         }
 
         function init() {
             const container = document.getElementById('canvas-container');
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x040407);
-            scene.fog = new THREE.Fog(0x040407, 4, 35);
-
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0x040407); scene.fog = new THREE.Fog(0x040407, 4, 35);
             camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 60);
             camera.position.set(0, 1.62, 0.4);
-
             renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(1.0);
+            renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(1.0);
             container.appendChild(renderer.domElement);
-
-            const ambient = new THREE.AmbientLight(0x998877, 1.4);
-            scene.add(ambient);
-
-            const counterSpot = new THREE.PointLight(0xffb066, 3.5, 9);
-            counterSpot.position.set(0, 2.8, -1.0);
-            scene.add(counterSpot);
-
-            const lanternL = new THREE.PointLight(0xff2222, 2.2, 5);
-            lanternL.position.set(-2.2, 2.3, -1.4);
-            scene.add(lanternL);
-
-            const lanternR = new THREE.PointLight(0xff2222, 2.2, 5);
-            lanternR.position.set(2.2, 2.3, -1.4);
-            scene.add(lanternR);
-
-            buildShop();
-            buildBoilerAndProps();
-            buildSteamParticles();
-            buildRainParticles();
-            buildHeldRamenBowl();
-            setupControls();
-            setupMobileUI();
-
-            window.addEventListener('resize', onResize);
-            window.addEventListener('orientationchange', checkOrientation);
-            checkOrientation();
-            requestAnimationFrame(renderLoop);
-
-            spawnCurrentCustomer();
+            scene.add(new THREE.AmbientLight(0x998877, 1.4));
+            const cSpot = new THREE.PointLight(0xffb066, 3.5, 9); cSpot.position.set(0, 2.8, -1.0); scene.add(cSpot);
+            const lL = new THREE.PointLight(0xff2222, 2.2, 5); lL.position.set(-2.2, 2.3, -1.4); scene.add(lL);
+            const lR = new THREE.PointLight(0xff2222, 2.2, 5); lR.position.set(2.2, 2.3, -1.4); scene.add(lR);
+            buildShop(); buildBoilerAndProps(); buildSteamParticles(); buildRainParticles(); buildHeldRamenBowl();
+            setupControls(); setupMobileUI(); buildGuideUI();
+            window.addEventListener('resize', onResize); window.addEventListener('orientationchange', checkOrientation);
+            checkOrientation(); requestAnimationFrame(renderLoop); spawnCurrentCustomer();
         }
 
         function buildShop() {
-            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3c2415 });
-            const darkWoodMat = new THREE.MeshLambertMaterial({ color: 0x1f140e });
-            const metalMat = new THREE.MeshLambertMaterial({ color: 0x8e9299 });
-
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), woodMat);
-            floor.rotation.x = -Math.PI / 2;
-            scene.add(floor);
-
-            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), darkWoodMat);
-            ceiling.rotation.x = Math.PI / 2;
-            ceiling.position.set(0, 3.4, 0);
-            scene.add(ceiling);
-
-            const backWall = new THREE.Mesh(new THREE.BoxGeometry(7.2, 3.4, 0.2), darkWoodMat);
-            backWall.position.set(0, 1.7, 2.7);
-            scene.add(backWall);
-
-            const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 5.5), darkWoodMat);
-            wallL.position.set(-3.6, 1.7, 0);
-            scene.add(wallL);
-
-            const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 5.5), darkWoodMat);
-            wallR.position.set(3.6, 1.7, 0);
-            scene.add(wallR);
-
-            const counterBase = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.02, 0.7), darkWoodMat);
-            counterBase.position.set(0, 0.51, -1.5);
-            scene.add(counterBase);
-
-            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.12, 0.95), woodMat);
-            counterTop.position.set(0, 1.08, -1.5);
-            scene.add(counterTop);
-
+            const wood = new THREE.MeshLambertMaterial({ color: 0x3c2415 });
+            const dark = new THREE.MeshLambertMaterial({ color: 0x1f140e });
+            const metal = new THREE.MeshLambertMaterial({ color: 0x8e9299 });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), wood); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+            const ceil = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 5.5), dark); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 3.4, 0); scene.add(ceil);
+            const bw = new THREE.Mesh(new THREE.BoxGeometry(7.2, 3.4, 0.2), dark); bw.position.set(0, 1.7, 2.7); scene.add(bw);
+            const wL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 5.5), dark); wL.position.set(-3.6, 1.7, 0); scene.add(wL);
+            const wR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 5.5), dark); wR.position.set(3.6, 1.7, 0); scene.add(wR);
+            const cb = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.02, 0.7), dark); cb.position.set(0, 0.51, -1.5); scene.add(cb);
+            const ct = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.12, 0.95), wood); ct.position.set(0, 1.08, -1.5); scene.add(ct);
             const lanternMat = new THREE.MeshLambertMaterial({ color: 0xdc2626, emissive: 0x990000 });
-            [-2.2, 2.2].forEach(lx => {
-                const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 10), lanternMat);
-                lantern.position.set(lx, 2.45, -1.4);
-                scene.add(lantern);
-            });
-
-            const shutterBox = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.35, 0.25), metalMat);
-            shutterBox.position.set(0, 3.25, -1.48);
-            scene.add(shutterBox);
-
-            [-3.25, 3.25].forEach(rx => {
-                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 0.15), metalMat);
-                rail.position.set(rx, 2.15, -1.48);
-                scene.add(rail);
-            });
-
-            const shutterGeo = new THREE.BoxGeometry(6.4, 2.35, 0.08);
-            const shutterMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-            shutterMesh = new THREE.Mesh(shutterGeo, shutterMat);
-            shutterMesh.position.set(0, 4.4, -1.48);
-            scene.add(shutterMesh);
-
-            const street = new THREE.Mesh(new THREE.PlaneGeometry(35, 45), new THREE.MeshLambertMaterial({ color: 0x111215 }));
-            street.rotation.x = -Math.PI / 2;
-            street.position.set(0, -0.01, -22);
-            scene.add(street);
+            [-2.2, 2.2].forEach(lx => { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.55, 10), lanternMat); l.position.set(lx, 2.45, -1.4); scene.add(l); });
+            const mg = new THREE.Group();
+            mg.add(new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.42, 0.15), new THREE.MeshLambertMaterial({ color: 0x18181b })));
+            const ms = new THREE.Mesh(new THREE.PlaneGeometry(0.48, 0.35), new THREE.MeshBasicMaterial({ color: 0x00ff41 })); ms.position.set(0, 0, 0.08); mg.add(ms);
+            mg.position.set(1.4, 1.34, -1.35); mg.rotation.y = -0.35; cctvMonitorProp = mg; scene.add(mg);
+            const sb = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.35, 0.25), metal); sb.position.set(0, 3.25, -1.48); scene.add(sb);
+            [-3.25, 3.25].forEach(rx => { const r = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 0.15), metal); r.position.set(rx, 2.15, -1.48); scene.add(r); });
+            shutterMesh = new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.35, 0.08), new THREE.MeshLambertMaterial({ color: 0x334155 }));
+            shutterMesh.position.set(0, 4.4, -1.48); scene.add(shutterMesh);
+            const st = new THREE.Mesh(new THREE.PlaneGeometry(35, 45), new THREE.MeshLambertMaterial({ color: 0x111215 })); st.rotation.x = -Math.PI / 2; st.position.set(0, -0.01, -22); scene.add(st);
         }
 
         function buildBoilerAndProps() {
-            const metalMat = new THREE.MeshLambertMaterial({ color: 0xd1d5db });
-            const boilerGroup = new THREE.Group();
-            const mainBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.33, 0.5, 14), metalMat);
-            boilerGroup.add(mainBody);
-
-            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.02, 14), new THREE.MeshLambertMaterial({ color: 0xd97706 }));
-            broth.position.y = 0.22;
-            boilerGroup.add(broth);
-
-            boilerGroup.position.set(-1.8, 1.4, -1.4);
-            boilerMesh = boilerGroup;
-            scene.add(boilerGroup);
-
-            counterServedBowl = buildCompleteRamenBowl(1.0);
-            counterServedBowl.position.set(0, 1.15, -1.45);
-            counterServedBowl.visible = false;
-            scene.add(counterServedBowl);
+            const metal = new THREE.MeshLambertMaterial({ color: 0xd1d5db });
+            const bg = new THREE.Group();
+            bg.add(new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.33, 0.5, 14), metal));
+            const br = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.02, 14), new THREE.MeshLambertMaterial({ color: 0xd97706 })); br.position.y = 0.22; bg.add(br);
+            bg.position.set(-1.8, 1.4, -1.4); boilerMesh = bg; scene.add(bg);
+            counterServedBowl = buildCompleteRamenBowl(1.0); counterServedBowl.position.set(0, 1.15, -1.45); counterServedBowl.visible = false; scene.add(counterServedBowl);
         }
 
-        function buildCompleteRamenBowl(scale = 1.0) {
-            const bowlGroup = new THREE.Group();
-            const pts = [
-                new THREE.Vector2(0, 0),
-                new THREE.Vector2(0.08 * scale, 0.01 * scale),
-                new THREE.Vector2(0.18 * scale, 0.06 * scale),
-                new THREE.Vector2(0.26 * scale, 0.14 * scale),
-                new THREE.Vector2(0.28 * scale, 0.21 * scale),
-                new THREE.Vector2(0.29 * scale, 0.24 * scale)
-            ];
-            const bowlMesh = new THREE.Mesh(new THREE.LatheGeometry(pts, 16), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
-            bowlGroup.add(bowlMesh);
-
-            const broth = new THREE.Mesh(new THREE.CylinderGeometry(0.25 * scale, 0.23 * scale, 0.02 * scale, 12), new THREE.MeshLambertMaterial({ color: 0xd97706 }));
-            broth.position.y = 0.19 * scale;
-            bowlGroup.add(broth);
-
-            const eggHalf = new THREE.Mesh(new THREE.SphereGeometry(0.05 * scale, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0xffedd5 }));
-            eggHalf.rotation.x = Math.PI;
-            eggHalf.position.set(0.1 * scale, 0.22 * scale, -0.06 * scale);
-            bowlGroup.add(eggHalf);
-
-            const chashu = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.014 * scale, 10), new THREE.MeshLambertMaterial({ color: 0x9a3412 }));
-            chashu.position.set(-0.08 * scale, 0.215 * scale, 0.07 * scale);
-            bowlGroup.add(chashu);
-
-            return bowlGroup;
+        function buildCompleteRamenBowl(s = 1.0) {
+            const g = new THREE.Group();
+            const pts = [new THREE.Vector2(0,0),new THREE.Vector2(0.08*s,0.01*s),new THREE.Vector2(0.18*s,0.06*s),new THREE.Vector2(0.26*s,0.14*s),new THREE.Vector2(0.28*s,0.21*s),new THREE.Vector2(0.29*s,0.24*s)];
+            g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 16), new THREE.MeshLambertMaterial({ color: 0x0f172a })));
+            const br = new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.23*s,0.02*s,12),new THREE.MeshLambertMaterial({color:0xd97706})); br.position.y=0.19*s; g.add(br);
+            const eg = new THREE.Mesh(new THREE.SphereGeometry(0.05*s,8,6,0,Math.PI*2,0,Math.PI/2),new THREE.MeshLambertMaterial({color:0xffedd5})); eg.rotation.x=Math.PI; eg.position.set(0.1*s,0.22*s,-0.06*s); g.add(eg);
+            const ch = new THREE.Mesh(new THREE.CylinderGeometry(0.05*s,0.05*s,0.014*s,10),new THREE.MeshLambertMaterial({color:0x9a3412})); ch.position.set(-0.08*s,0.215*s,0.07*s); g.add(ch);
+            return g;
         }
 
         function buildHeldRamenBowl() {
             heldBowlGroup = buildCompleteRamenBowl(0.85);
-            heldBowlGroup.position.set(0.32, -0.32, -0.6);
-            heldBowlGroup.rotation.set(-0.15, -0.2, 0);
-            heldBowlGroup.visible = false;
-            camera.add(heldBowlGroup);
-            scene.add(camera);
+            heldBowlGroup.position.set(0.32,-0.32,-0.6); heldBowlGroup.rotation.set(-0.15,-0.2,0); heldBowlGroup.visible = false;
+            camera.add(heldBowlGroup); scene.add(camera);
         }
 
         function buildSteamParticles() {
-            const count = 10;
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(count * 3);
-            for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = -1.8 + (Math.random() - 0.5) * 0.35;
-                pos[i + 1] = 1.65 + Math.random() * 0.7;
-                pos[i + 2] = -1.4 + (Math.random() - 0.5) * 0.35;
-            }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            steamParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.14, transparent: true, opacity: 0.3 }));
-            scene.add(steamParticles);
+            const count=10; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
+            for(let i=0;i<count*3;i+=3){pos[i]=-1.8+(Math.random()-0.5)*0.35;pos[i+1]=1.65+Math.random()*0.7;pos[i+2]=-1.4+(Math.random()-0.5)*0.35;}
+            geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+            steamParticles=new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:0.14,transparent:true,opacity:0.3})); scene.add(steamParticles);
         }
 
         function buildRainParticles() {
-            const count = 100;
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(count * 3);
-            for (let i = 0; i < count * 3; i += 3) {
-                pos[i] = (Math.random() - 0.5) * 24;
-                pos[i + 1] = Math.random() * 14;
-                pos[i + 2] = -Math.random() * 22 - 1.8;
-            }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            rainParticles = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.08, transparent: true, opacity: 0.4 }));
-            scene.add(rainParticles);
+            const count=100; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
+            for(let i=0;i<count*3;i+=3){pos[i]=(Math.random()-0.5)*24;pos[i+1]=Math.random()*14;pos[i+2]=-Math.random()*22-1.8;}
+            geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+            rainParticles=new THREE.Points(geo,new THREE.PointsMaterial({color:0x93c5fd,size:0.08,transparent:true,opacity:0.4})); scene.add(rainParticles);
         }
 
         function spawnCurrentCustomer() {
-            if (customer3D) {
-                scene.remove(customer3D);
-                customer3D = null;
+            if(customer3D){scene.remove(customer3D);customer3D=null;}
+            if(monsterAttackTimer){clearTimeout(monsterAttackTimer);monsterAttackTimer=null;}
+            document.getElementById('monsterDangerOverlay').style.display='none';
+            if(customerIndex>=SHIFT_CUSTOMERS.length){
+                document.getElementById('endTitle').innerText="SAAT 06:00 // VARDİYA BİTTİ!"; document.getElementById('endTitle').style.color="#00ff77";
+                document.getElementById('endDesc').innerText=`10 müşteriyi başarıyla yönettin! $${money} kazandın.`;
+                document.getElementById('endScreen').style.display='flex'; document.getElementById('customerDialog').style.display='none';
+                gameActive=false; if(!isTouchDevice)document.exitPointerLock(); return;
             }
-            if (monsterAttackTimer) {
-                clearTimeout(monsterAttackTimer);
-                monsterAttackTimer = null;
-            }
-
-            document.getElementById('monsterDangerOverlay').style.display = 'none';
-
-            if (customerIndex >= SHIFT_CUSTOMERS.length) {
-                document.getElementById('endTitle').innerText = "SAAT 06:00 // TEBRİKLER!";
-                document.getElementById('endTitle').style.color = "#00ff77";
-                document.getElementById('endDesc').innerText = `10 müşteriyi başarıyla tamamladın! İnsanları doyurdun, canavarları püskürttün ve toplam $${money} kazandın.`;
-                document.getElementById('endScreen').style.display = 'flex';
-                document.getElementById('customerDialog').style.display = 'none';
-                gameActive = false;
-                if (!isTouchDevice) document.exitPointerLock();
-                return;
-            }
-
-            currentCustomerData = SHIFT_CUSTOMERS[customerIndex];
-            customer3D = createOrganicCustomerMesh(currentCustomerData);
-            customerWalking = true;
-
-            document.getElementById('hudCustomerCount').innerText = `${customerIndex + 1} / 10`;
-            const hours = ["00:00", "00:40", "01:20", "02:00", "02:40", "03:20", "04:00", "04:40", "05:20", "05:50"];
-            document.getElementById('hudClock').innerText = hours[customerIndex] || "05:50";
-            document.getElementById('customerDialog').style.display = 'none';
+            currentCustomerData=SHIFT_CUSTOMERS[customerIndex]; customer3D=createOrganicCustomerMesh(currentCustomerData); customerWalking=true;
+            document.getElementById('hudCustomerCount').innerText=`${customerIndex+1} / 10`;
+            const hours=["00:00","00:40","01:20","02:00","02:40","03:20","04:00","04:40","05:20","05:50"];
+            document.getElementById('hudClock').innerText=hours[customerIndex]||"05:50";
+            document.getElementById('customerDialog').style.display='none';
         }
 
         function onCustomerArrived() {
-            const dialogBox = document.getElementById('customerDialog');
-            dialogBox.style.display = 'block';
-
-            if (currentCustomerData.isMonster) {
-                dialogBox.className = 'customer-dialog monster';
-                dialogBox.innerHTML = `👹 <b>${currentCustomerData.name}:</b> "${currentCustomerData.dialog}"`;
-                document.getElementById('monsterDangerOverlay').style.display = 'block';
-                playMonsterRoar();
-
-                monsterAttackTimer = setTimeout(() => {
-                    if (!shutterClosed && currentCustomerData.isMonster) {
-                        triggerGameOverByMonster();
-                    }
-                }, 3500);
-            } else {
-                dialogBox.className = 'customer-dialog';
-                dialogBox.innerHTML = `👨‍💼 <b>${currentCustomerData.name} (${currentCustomerData.role}):</b> "${currentCustomerData.dialog}"`;
-                playSound(850, 'sine', 0.15, 0.25);
+            const d=document.getElementById('customerDialog'); d.style.display='block';
+            d.innerHTML=`👨‍💼 <b>${currentCustomerData.name}:</b> "${currentCustomerData.dialog}"`;
+            playSound(850,'sine',0.15,0.25);
+            if(currentCustomerData.isMonster){
+                monsterAttackTimer=setTimeout(()=>{if(!shutterClosed&&currentCustomerData.isMonster)triggerGameOverByMonster();},4500);
             }
         }
 
         function triggerGameOverByMonster() {
             playMonsterRoar();
-            if (customer3D) {
-                customer3D.position.set(0, 1.4, -0.6);
-                customer3D.scale.multiplyScalar(2.0);
-            }
-            if (heldBowlGroup) heldBowlGroup.visible = false;
-            document.getElementById('customerDialog').style.display = 'none';
-            gameActive = false;
+            if(customer3D){customer3D.position.set(0,1.4,-0.6);customer3D.scale.multiplyScalar(2.2);}
+            if(heldBowlGroup)heldBowlGroup.visible=false;
+            document.getElementById('customerDialog').style.display='none';
+            document.getElementById('monsterDangerOverlay').style.display='block';
+            gameActive=false;
+            setTimeout(()=>{
+                document.getElementById('endTitle').innerText="ÖLDÜRÜLDÜNÜZ!"; document.getElementById('endTitle').style.color="#ff1111";
+                document.getElementById('endDesc').innerText=`${currentCustomerData.name} sahte insan maskesini fırlatıp seni parçaladı! Kameradan bakıp kepengi kapatmalıydın!`;
+                document.getElementById('endScreen').style.display='flex'; if(!isTouchDevice)document.exitPointerLock();
+            },400);
+        }
 
-            setTimeout(() => {
-                document.getElementById('endTitle').innerText = "ÖLDÜRÜLDÜNÜZ!";
-                document.getElementById('endTitle').style.color = "#ff1111";
-                document.getElementById('endDesc').innerText = `${currentCustomerData.name} tezgaha atlayıp seni paramparça etti! Canavarı görünce kepengi kapatmalıydın!`;
-                document.getElementById('endScreen').style.display = 'flex';
-                if (!isTouchDevice) document.exitPointerLock();
-            }, 400);
+        function toggleCCTV() {
+            playCCTVSwitchSound(); isCCTVActive=!isCCTVActive;
+            const cs=document.getElementById('cctvScreen'), cl=document.getElementById('cctvScanlines'), ch=document.getElementById('cctvHud'), cw=document.getElementById('cctvWarning');
+            if(isCCTVActive){
+                cs.style.display='block'; cl.style.display='block'; ch.style.display='block';
+                if(currentCustomerData&&currentCustomerData.isMonster){cw.className='cctv-warning danger';cw.innerText='⚠️ DİKKAT: ŞEYTANİ ANOMALİ TESPİT EDİLDİ! KEPENGİ İNDİR!';playSound(200,'sawtooth',0.25,0.4);}
+                else{cw.className='cctv-warning';cw.innerText='✔️ ANALİZ: NORMAL İNSAN (TEHLİKE YOK)';}
+            } else { cs.style.display='none'; cl.style.display='none'; ch.style.display='none'; }
+            updateCustomerTextureForCamera();
         }
 
         function onCookKey() {
-            const dist = camera.position.distanceTo(boilerMesh.position);
-            if (dist < 2.5) {
-                playCookSound();
-                hasCookedRamen = true;
-                if (heldBowlGroup) heldBowlGroup.visible = true;
-                document.getElementById('handItemText').innerText = "🍜 RAMEN DOLU";
-                document.getElementById('handItemText').style.color = "#00ff77";
+            if(camera.position.distanceTo(boilerMesh.position)<2.5){
+                playCookSound(); hasCookedRamen=true; if(heldBowlGroup)heldBowlGroup.visible=true;
+                document.getElementById('handItemText').innerText="🍜 RAMEN DOLU"; document.getElementById('handItemText').style.color="#00ff77";
             }
         }
 
         function onServeKey() {
-            if (!hasCookedRamen || shutterClosed) return;
-            if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
-                if (currentCustomerData.isMonster) {
-                    triggerGameOverByMonster();
-                } else {
-                    playSound(1200, 'triangle', 0.25, 0.35);
-                    money += 100;
-                    hasCookedRamen = false;
-                    if (heldBowlGroup) heldBowlGroup.visible = false;
-                    if (counterServedBowl) {
-                        counterServedBowl.visible = true;
-                        setTimeout(() => { counterServedBowl.visible = false; }, 600);
-                    }
-                    document.getElementById('handItemText').innerText = "BOŞ EL";
-                    document.getElementById('handItemText').style.color = "#ffb703";
-                    document.getElementById('hudMoney').innerText = `$${money}`;
-
-                    document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Harika olmuş usta, eline sağlık! İyi geceler!"`;
-                    setTimeout(() => {
-                        customerIndex++;
-                        spawnCurrentCustomer();
-                    }, 1100);
+            if(!hasCookedRamen||shutterClosed)return;
+            if(customer3D&&!customerWalking&&customer3D.position.z>=-2.6){
+                if(currentCustomerData.isMonster){triggerGameOverByMonster();}
+                else{
+                    playSound(1200,'triangle',0.25,0.35); money+=100; hasCookedRamen=false;
+                    if(heldBowlGroup)heldBowlGroup.visible=false;
+                    if(counterServedBowl){counterServedBowl.visible=true;setTimeout(()=>{counterServedBowl.visible=false;},600);}
+                    document.getElementById('handItemText').innerText="BOŞ EL"; document.getElementById('handItemText').style.color="#ffb703";
+                    document.getElementById('hudMoney').innerText=`$${money}`;
+                    document.getElementById('customerDialog').innerHTML=`👨‍💼 <b>${currentCustomerData.name}:</b> "Harika olmuş usta, eline sağlık! İyi geceler!"`;
+                    setTimeout(()=>{customerIndex++;spawnCurrentCustomer();},1100);
                 }
             }
         }
 
         function onShutterKey() {
-            playShutterSound();
-            shutterClosed = !shutterClosed;
-
-            if (shutterClosed) {
-                shutterMesh.position.y = 2.25;
-
-                if (customer3D && !customerWalking && customer3D.position.z >= -2.6) {
-                    if (currentCustomerData.isMonster) {
-                        if (monsterAttackTimer) clearTimeout(monsterAttackTimer);
-                        playMonsterFleeSound();
-                        money += 150;
-                        document.getElementById('hudMoney').innerText = `$${money}`;
-                        document.getElementById('customerDialog').innerHTML = `🔒 <b>KEPENK İNDİRİLDİ:</b> Canavar duvara çarpıp çığlık atarak geceye kaçtı!`;
-
-                        setTimeout(() => {
-                            shutterMesh.position.y = 4.4;
-                            shutterClosed = false;
-                            customerIndex++;
-                            spawnCurrentCustomer();
-                        }, 1400);
+            playShutterSound(); shutterClosed=!shutterClosed;
+            if(shutterClosed){
+                shutterMesh.position.y=2.25;
+                if(customer3D&&!customerWalking&&customer3D.position.z>=-2.6){
+                    if(currentCustomerData.isMonster){
+                        if(monsterAttackTimer)clearTimeout(monsterAttackTimer);
+                        playMonsterFleeSound(); money+=150; document.getElementById('hudMoney').innerText=`$${money}`;
+                        document.getElementById('customerDialog').innerHTML=`🔒 <b>KEPENK İNDİRİLDİ:</b> Canavar foyası ortaya çıkınca çığlık atarak geceye kaçtı!`;
+                        setTimeout(()=>{shutterMesh.position.y=4.4;shutterClosed=false;customerIndex++;spawnCurrentCustomer();},1400);
                     } else {
-                        document.getElementById('customerDialog').innerHTML = `👨‍💼 <b>${currentCustomerData.name}:</b> "Dükkanı kapattınız galiba, başka yere gideyim o zaman..."`;
-                        setTimeout(() => {
-                            shutterMesh.position.y = 4.4;
-                            shutterClosed = false;
-                            customerIndex++;
-                            spawnCurrentCustomer();
-                        }, 1300);
+                        document.getElementById('customerDialog').innerHTML=`👨‍💼 <b>${currentCustomerData.name}:</b> "Dükkanı kapattınız galiba, başka yere gideyim o zaman..."`;
+                        setTimeout(()=>{shutterMesh.position.y=4.4;shutterClosed=false;customerIndex++;spawnCurrentCustomer();},1300);
                     }
                 }
-            } else {
-                shutterMesh.position.y = 4.4;
-            }
+            } else { shutterMesh.position.y=4.4; }
         }
 
         function restartGame() {
-            document.getElementById('endScreen').style.display = 'none';
-            document.getElementById('monsterDangerOverlay').style.display = 'none';
-            customerIndex = 0;
-            money = 0;
-            hasCookedRamen = false;
-            shutterClosed = false;
-            if (monsterAttackTimer) clearTimeout(monsterAttackTimer);
-            if (heldBowlGroup) heldBowlGroup.visible = false;
-            shutterMesh.position.y = 4.4;
-            document.getElementById('hudMoney').innerText = "$0";
-            document.getElementById('handItemText').innerText = "BOŞ EL";
-            camera.position.set(0, 1.62, 0.4);
-            startPlay();
-            spawnCurrentCustomer();
+            document.getElementById('endScreen').style.display='none'; document.getElementById('monsterDangerOverlay').style.display='none';
+            customerIndex=0; money=0; hasCookedRamen=false; shutterClosed=false; isCCTVActive=false;
+            document.getElementById('cctvScreen').style.display='none'; document.getElementById('cctvScanlines').style.display='none'; document.getElementById('cctvHud').style.display='none';
+            if(monsterAttackTimer)clearTimeout(monsterAttackTimer);
+            if(heldBowlGroup)heldBowlGroup.visible=false;
+            shutterMesh.position.y=4.4; document.getElementById('hudMoney').innerText="$0"; document.getElementById('handItemText').innerText="BOŞ EL";
+            camera.position.set(0,1.62,0.4); startPlay(); spawnCurrentCustomer();
         }
 
         function setupControls() {
-            document.addEventListener('keydown', (e) => {
-                if (e.code === 'KeyW') keys.w = true;
-                if (e.code === 'KeyS') keys.s = true;
-                if (e.code === 'KeyA') keys.a = true;
-                if (e.code === 'KeyD') keys.d = true;
-                if (e.code === 'KeyE') onCookKey();
-                if (e.code === 'KeyX') onServeKey();
-                if (e.code === 'KeyF' || e.code === 'Space') onShutterKey();
+            document.addEventListener('keydown',(e)=>{
+                if(e.code==='KeyW')keys.w=true; if(e.code==='KeyS')keys.s=true; if(e.code==='KeyA')keys.a=true; if(e.code==='KeyD')keys.d=true;
+                if(e.code==='KeyE')onCookKey(); if(e.code==='KeyX')onServeKey(); if(e.code==='KeyC')toggleCCTV();
+                if(e.code==='KeyR')toggleGuide(document.getElementById('guideModal').style.display!=='flex');
+                if(e.code==='KeyF'||e.code==='Space')onShutterKey();
             });
-            document.addEventListener('keyup', (e) => {
-                if (e.code === 'KeyW') keys.w = false;
-                if (e.code === 'KeyS') keys.s = false;
-                if (e.code === 'KeyA') keys.a = false;
-                if (e.code === 'KeyD') keys.d = false;
+            document.addEventListener('keyup',(e)=>{ if(e.code==='KeyW')keys.w=false; if(e.code==='KeyS')keys.s=false; if(e.code==='KeyA')keys.a=false; if(e.code==='KeyD')keys.d=false; });
+            document.addEventListener('mousemove',(e)=>{
+                if(!gameActive||isTouchDevice)return;
+                yaw-=e.movementX*0.0022; pitch-=e.movementY*0.0022;
+                pitch=Math.max(-Math.PI/2.5,Math.min(Math.PI/2.5,pitch));
+                camera.rotation.order='YXZ'; camera.rotation.y=yaw; camera.rotation.x=pitch;
             });
-            document.addEventListener('mousemove', (e) => {
-                if (!gameActive || isTouchDevice) return;
-                yaw -= e.movementX * 0.0022;
-                pitch -= e.movementY * 0.0022;
-                pitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, pitch));
-                camera.rotation.order = 'YXZ';
-                camera.rotation.y = yaw;
-                camera.rotation.x = pitch;
-            });
-            document.addEventListener('pointerlockchange', () => {
-                if (isTouchDevice) return;
-                gameActive = (document.pointerLockElement === document.body);
-                if (!gameActive && document.getElementById('endScreen').style.display !== 'flex') {
-                    document.getElementById('startModal').style.display = 'flex';
-                }
+            document.addEventListener('pointerlockchange',()=>{
+                if(isTouchDevice)return;
+                gameActive=(document.pointerLockElement===document.body);
+                if(!gameActive&&document.getElementById('endScreen').style.display!=='flex'&&document.getElementById('guideModal').style.display!=='flex')
+                    document.getElementById('startModal').style.display='flex';
             });
         }
 
         function setupMobileUI() {
-            if (!isTouchDevice) return;
-            document.getElementById('joystickZone').style.display = 'block';
-            document.getElementById('lookZone').style.display = 'block';
-            document.getElementById('mobileButtons').style.display = 'flex';
-            document.getElementById('desktopHints').style.display = 'none';
-            document.getElementById('mobileHints').style.display = 'flex';
-
-            const joystickZone = document.getElementById('joystickZone');
-            const joystickBase = document.getElementById('joystickBase');
-            const joystickKnob = document.getElementById('joystickKnob');
-            const lookZone = document.getElementById('lookZone');
-
-            function updateJoy(cx, cy) {
-                let dx = cx - joystickCenter.x;
-                let dy = cy - joystickCenter.y;
-                const dist = Math.min(Math.hypot(dx, dy), JOYSTICK_RADIUS);
-                const angle = Math.atan2(dy, dx);
-                dx = Math.cos(angle) * dist;
-                dy = Math.sin(angle) * dist;
-                joystickVector = { x: dx / JOYSTICK_RADIUS, y: dy / JOYSTICK_RADIUS };
-                joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            }
-            function resetJoy() {
-                joystickTouchId = null;
-                joystickVector = { x: 0, y: 0 };
-                joystickKnob.style.transform = 'translate(-50%, -50%)';
-            }
-
-            joystickZone.addEventListener('touchstart', (e) => {
-                const t = e.changedTouches[0];
-                joystickTouchId = t.identifier;
-                const rect = joystickBase.getBoundingClientRect();
-                joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-                updateJoy(t.clientX, t.clientY);
-                e.preventDefault();
-            }, { passive: false });
-
-            joystickZone.addEventListener('touchmove', (e) => {
-                for (const t of e.changedTouches) if (t.identifier === joystickTouchId) updateJoy(t.clientX, t.clientY);
-                e.preventDefault();
-            }, { passive: false });
-
-            joystickZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) if (t.identifier === joystickTouchId) resetJoy(); });
-
-            lookZone.addEventListener('touchstart', (e) => {
-                const t = e.changedTouches[0];
-                lookTouchId = t.identifier;
-                lookLast = { x: t.clientX, y: t.clientY };
-            }, { passive: true });
-
-            lookZone.addEventListener('touchmove', (e) => {
-                for (const t of e.changedTouches) {
-                    if (t.identifier === lookTouchId) {
-                        const dx = t.clientX - lookLast.x;
-                        const dy = t.clientY - lookLast.y;
-                        yaw -= dx * 0.0035;
-                        pitch -= dy * 0.0035;
-                        pitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, pitch));
-                        camera.rotation.order = 'YXZ';
-                        camera.rotation.y = yaw;
-                        camera.rotation.x = pitch;
-                        lookLast = { x: t.clientX, y: t.clientY };
-                    }
-                }
-            }, { passive: true });
-
-            lookZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) if (t.identifier === lookTouchId) lookTouchId = null; });
-
-            document.getElementById('btnCook').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onCookKey(); });
-            document.getElementById('btnServe').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onServeKey(); });
-            document.getElementById('btnShutter').addEventListener('touchstart', (e) => { e.preventDefault(); initAudio(); onShutterKey(); });
+            if(!isTouchDevice)return;
+            document.getElementById('joystickZone').style.display='block'; document.getElementById('lookZone').style.display='block';
+            document.getElementById('mobileButtons').style.display='flex'; document.getElementById('desktopHints').style.display='none'; document.getElementById('mobileHints').style.display='flex';
+            const jz=document.getElementById('joystickZone'),jb=document.getElementById('joystickBase'),jk=document.getElementById('joystickKnob'),lz=document.getElementById('lookZone');
+            function updateJoy(cx,cy){let dx=cx-joystickCenter.x,dy=cy-joystickCenter.y;const dist=Math.min(Math.hypot(dx,dy),JOYSTICK_RADIUS),angle=Math.atan2(dy,dx);dx=Math.cos(angle)*dist;dy=Math.sin(angle)*dist;joystickVector={x:dx/JOYSTICK_RADIUS,y:dy/JOYSTICK_RADIUS};jk.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;}
+            function resetJoy(){joystickTouchId=null;joystickVector={x:0,y:0};jk.style.transform='translate(-50%, -50%)';}
+            jz.addEventListener('touchstart',(e)=>{const t=e.changedTouches[0];joystickTouchId=t.identifier;const r=jb.getBoundingClientRect();joystickCenter={x:r.left+r.width/2,y:r.top+r.height/2};updateJoy(t.clientX,t.clientY);e.preventDefault();},{passive:false});
+            jz.addEventListener('touchmove',(e)=>{for(const t of e.changedTouches)if(t.identifier===joystickTouchId)updateJoy(t.clientX,t.clientY);e.preventDefault();},{passive:false});
+            jz.addEventListener('touchend',(e)=>{for(const t of e.changedTouches)if(t.identifier===joystickTouchId)resetJoy();});
+            lz.addEventListener('touchstart',(e)=>{const t=e.changedTouches[0];lookTouchId=t.identifier;lookLast={x:t.clientX,y:t.clientY};},{passive:true});
+            lz.addEventListener('touchmove',(e)=>{for(const t of e.changedTouches){if(t.identifier===lookTouchId){yaw-=(t.clientX-lookLast.x)*0.0035;pitch-=(t.clientY-lookLast.y)*0.0035;pitch=Math.max(-Math.PI/2.5,Math.min(Math.PI/2.5,pitch));camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;lookLast={x:t.clientX,y:t.clientY};}}},{passive:true});
+            lz.addEventListener('touchend',(e)=>{for(const t of e.changedTouches)if(t.identifier===lookTouchId)lookTouchId=null;});
+            document.getElementById('btnCCTV').addEventListener('touchstart',(e)=>{e.preventDefault();initAudio();toggleCCTV();});
+            document.getElementById('btnCook').addEventListener('touchstart',(e)=>{e.preventDefault();initAudio();onCookKey();});
+            document.getElementById('btnServe').addEventListener('touchstart',(e)=>{e.preventDefault();initAudio();onServeKey();});
+            document.getElementById('btnShutter').addEventListener('touchstart',(e)=>{e.preventDefault();initAudio();onShutterKey();});
         }
 
         function startPlay() {
-            initAudio();
-            document.getElementById('startModal').style.display = 'none';
-            if (isTouchDevice) {
-                gameActive = true;
-                try {
-                    const el = document.documentElement;
-                    const req = el.requestFullscreen || el.webkitRequestFullscreen;
-                    if (req) req.call(el).catch(() => {});
-                } catch(e) {}
-            } else {
-                document.body.requestPointerLock();
-            }
+            initAudio(); document.getElementById('startModal').style.display='none';
+            if(isTouchDevice){gameActive=true;try{const el=document.documentElement;const req=el.requestFullscreen||el.webkitRequestFullscreen;if(req)req.call(el).catch(()=>{});}catch(e){}}
+            else{document.body.requestPointerLock();}
         }
 
         function checkOrientation() {
-            const overlay = document.getElementById('rotateOverlay');
-            if (isTouchDevice && window.innerHeight > window.innerWidth) {
-                overlay.style.display = 'flex';
-            } else {
-                overlay.style.display = 'none';
-            }
+            document.getElementById('rotateOverlay').style.display=(isTouchDevice&&window.innerHeight>window.innerWidth)?'flex':'none';
         }
 
         function onResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            checkOrientation();
+            camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); checkOrientation();
         }
 
-        let lastTime = performance.now();
+        let lastTime=performance.now();
         function renderLoop() {
             requestAnimationFrame(renderLoop);
-            const now = performance.now();
-            const delta = Math.min((now - lastTime) / 1000, 0.05);
-            lastTime = now;
-
-            if (gameActive) {
-                const moveSpeed = 3.8 * delta;
-                const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-
-                let moveX, moveZforward;
-                if (isTouchDevice) {
-                    moveX = joystickVector.x;
-                    moveZforward = -joystickVector.y;
-                } else {
-                    moveX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
-                    moveZforward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-                }
-
-                camera.position.addScaledVector(forward, moveZforward * moveSpeed);
-                camera.position.addScaledVector(right, moveX * moveSpeed);
-                camera.position.y = 1.62;
-                if (camera.position.x < -3.1) camera.position.x = -3.1;
-                if (camera.position.x > 3.1) camera.position.x = 3.1;
-                if (camera.position.z > 2.2) camera.position.z = 2.2;
-                if (camera.position.z < -0.9) camera.position.z = -0.9;
+            const now=performance.now(), delta=Math.min((now-lastTime)/1000,0.05); lastTime=now;
+            if(gameActive){
+                const ms=3.8*delta;
+                const fwd=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+                const rgt=new THREE.Vector3(1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+                const mx=isTouchDevice?joystickVector.x:((keys.d?1:0)-(keys.a?1:0));
+                const mz=isTouchDevice?-joystickVector.y:((keys.w?1:0)-(keys.s?1:0));
+                camera.position.addScaledVector(fwd,mz*ms); camera.position.addScaledVector(rgt,mx*ms);
+                camera.position.y=1.62;
+                if(camera.position.x<-3.1)camera.position.x=-3.1; if(camera.position.x>3.1)camera.position.x=3.1;
+                if(camera.position.z>2.2)camera.position.z=2.2; if(camera.position.z<-0.9)camera.position.z=-0.9;
             }
-
-            if (customer3D) {
-                if (customerWalking) {
-                    customer3D.position.z += delta * 3.4;
-                    customer3D.position.y = Math.abs(Math.sin(now * 0.008)) * 0.05;
-                    if (customer3D.position.z >= -2.4) {
-                        customer3D.position.z = -2.4;
-                        customerWalking = false;
-                        onCustomerArrived();
-                    }
-                }
+            if(customer3D&&customerWalking){
+                customer3D.position.z+=delta*3.4; customer3D.position.y=Math.abs(Math.sin(now*0.008))*0.05;
+                if(customer3D.position.z>=-2.4){customer3D.position.z=-2.4;customerWalking=false;onCustomerArrived();}
             }
-
-            if (steamParticles) {
-                const sPos = steamParticles.geometry.attributes.position.array;
-                for (let i = 1; i < sPos.length; i += 3) {
-                    sPos[i] += delta * 0.6;
-                    if (sPos[i] > 2.5) sPos[i] = 1.65;
-                }
-                steamParticles.geometry.attributes.position.needsUpdate = true;
-            }
-
-            if (rainParticles) {
-                const rPos = rainParticles.geometry.attributes.position.array;
-                for (let i = 1; i < rPos.length; i += 3) {
-                    rPos[i] -= delta * 22;
-                    if (rPos[i] < 0) rPos[i] = 14;
-                }
-                rainParticles.geometry.attributes.position.needsUpdate = true;
-            }
-
-            const prompt = document.getElementById('promptText');
-            const pKey = document.getElementById('promptKey');
-            const pLbl = document.getElementById('promptLabel');
-            const crosshair = document.getElementById('crosshair');
-
-            const distToPot = camera.position.distanceTo(boilerMesh.position);
-            const nearCustomer = customer3D && !customerWalking && camera.position.distanceTo(customer3D.position) < 3.0;
-
-            if (nearCustomer && currentCustomerData && currentCustomerData.isMonster && !shutterClosed) {
-                prompt.style.display = 'block';
-                prompt.className = 'interaction-prompt monster-warn';
-                pKey.innerText = isTouchDevice ? '🔒' : 'F / SPACE';
-                pLbl.innerText = 'ÇABUK KEPENGİ İNDİR! CANAVAR SALDIRIYOR!';
-                crosshair.className = 'crosshair danger';
-            } else if (distToPot < 2.3 && !hasCookedRamen) {
-                prompt.style.display = 'block';
-                prompt.className = 'interaction-prompt';
-                pKey.innerText = isTouchDevice ? '🔥' : 'E';
-                pLbl.innerText = 'RAMEN PİŞİR (KASEYİ DOLDUR)';
-                crosshair.className = 'crosshair interact';
-            } else if (nearCustomer && hasCookedRamen && !shutterClosed) {
-                prompt.style.display = 'block';
-                prompt.className = 'interaction-prompt';
-                pKey.innerText = isTouchDevice ? '🍜' : 'X';
-                pLbl.innerText = 'TEZGAHA SERVİS ET';
-                crosshair.className = 'crosshair interact';
-            } else {
-                prompt.style.display = 'none';
-                crosshair.className = 'crosshair';
-            }
-
-            renderer.render(scene, camera);
+            if(steamParticles){const sp=steamParticles.geometry.attributes.position.array;for(let i=1;i<sp.length;i+=3){sp[i]+=delta*0.6;if(sp[i]>2.5)sp[i]=1.65;}steamParticles.geometry.attributes.position.needsUpdate=true;}
+            if(rainParticles){const rp=rainParticles.geometry.attributes.position.array;for(let i=1;i<rp.length;i+=3){rp[i]-=delta*22;if(rp[i]<0)rp[i]=14;}rainParticles.geometry.attributes.position.needsUpdate=true;}
+            const prompt=document.getElementById('promptText'),pKey=document.getElementById('promptKey'),pLbl=document.getElementById('promptLabel'),ch=document.getElementById('crosshair');
+            const dMon=cctvMonitorProp?camera.position.distanceTo(cctvMonitorProp.position):99;
+            const dPot=camera.position.distanceTo(boilerMesh.position);
+            const nearC=customer3D&&!customerWalking&&camera.position.distanceTo(customer3D.position)<3.0;
+            if(dMon<2.2){prompt.style.display='block';prompt.className='interaction-prompt';pKey.innerText=isTouchDevice?'📹':'C';pLbl.innerText=isCCTVActive?'KAMERADAN ÇIK':'GÜVENLİK KAMERASINA BAK (CCTV)';ch.className='crosshair interact';}
+            else if(dPot<2.3&&!hasCookedRamen){prompt.style.display='block';prompt.className='interaction-prompt';pKey.innerText=isTouchDevice?'🔥':'E';pLbl.innerText='RAMEN PİŞİR (KASEYİ DOLDUR)';ch.className='crosshair interact';}
+            else if(nearC&&hasCookedRamen&&!shutterClosed){prompt.style.display='block';prompt.className='interaction-prompt';pKey.innerText=isTouchDevice?'🍜':'X';pLbl.innerText='TEZGAHA SERVİS ET';ch.className='crosshair interact';}
+            else{prompt.style.display='none';ch.className='crosshair';}
+            renderer.render(scene,camera);
         }
 
         window.addEventListener('load', init);
